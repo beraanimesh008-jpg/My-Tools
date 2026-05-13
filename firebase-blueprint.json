@@ -1,0 +1,58 @@
+{
+  "entities": {
+    "User": {
+      "title": "User Profile",
+      "description": "User profile and subscription data",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "isAdmin": { "type": "boolean" },
+        "isPremium": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Tool": {
+      "title": "Tool Metadata",
+      "description": "Metadata for each tool on the platform",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "slug": { "type": "string" },
+        "category": { "type": "string" },
+        "description": { "type": "string" },
+        "isActive": { "type": "boolean" }
+      },
+      "required": ["name", "slug"]
+    },
+    "ActivityLog": {
+      "title": "Activity Log",
+      "description": "Log of tool usage by users",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string" },
+        "toolId": { "type": "string" },
+        "timestamp": { "type": "string", "format": "date-time" },
+        "fileName": { "type": "string" }
+      },
+      "required": ["userId", "toolId", "timestamp"]
+    }
+  },
+  "firestore": {
+    "users/{userId}": {
+      "schema": "User",
+      "description": "User profile document"
+    },
+    "tools/{toolId}": {
+      "schema": "Tool",
+      "description": "Tool metadata document"
+    },
+    "activityLogs/{logId}": {
+      "schema": "ActivityLog",
+      "description": "Log entry for tool usage"
+    }
+  }
+}

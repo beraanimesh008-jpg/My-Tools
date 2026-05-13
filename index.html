@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ToolVerse</title>
+    <script>
+      (function() {
+        try {
+          var win = window;
+          var prop = 'fetch';
+          if (typeof win[prop] === 'undefined') return;
+          
+          var desc = Object.getOwnPropertyDescriptor(win, prop) || 
+                     Object.getOwnPropertyDescriptor(Object.getPrototypeOf(win), prop);
+          
+          if (desc && !desc.configurable) return;
+
+          var originalFetch = win[prop];
+          Object.defineProperty(win, prop, {
+            get: function() { return originalFetch; },
+            set: function(v) { originalFetch = v; },
+            configurable: true,
+            enumerable: true
+          });
+        } catch (e) {
+          // Silent fail
+        }
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
+
