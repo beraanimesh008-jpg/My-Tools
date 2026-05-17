@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { PDFDocument } from 'pdf-lib';
 import { 
   FileText, 
   Download, 
@@ -44,6 +45,7 @@ interface SortableFileCardProps {
   file: File;
   id: string;
   onRemove: (id: string) => void;
+  key?: string;
 }
 
 function SortableFileCard({ file, id, onRemove }: SortableFileCardProps) {
@@ -150,8 +152,8 @@ export default function MergePdf() {
   const { getRootProps, getInputProps, isDragActive, open } = useDropzone({
     onDrop,
     accept: { 'application/pdf': ['.pdf'] },
-    noClick: fileList.length > 0, // Disable click to open if we already have files (we'll use a dedicated button)
-  });
+    noClick: fileList.length > 0,
+  } as any);
 
   const handleRemoveFile = (id: string) => {
     setFileList(prev => prev.filter(item => item.id !== id));
@@ -178,36 +180,45 @@ export default function MergePdf() {
     setError(null);
     setUploadProgress(0);
 
-    const formData = new FormData();
-    // Use the sorted list for merging!
-    fileList.forEach(item => formData.append('files', item.file));
-
     try {
-      // Simulate upload progress
-      const progressInterval = setInterval(() => {
-        setUploadProgress(p => p < 90 ? p + 10 : p);
-      }, 300);
+      // Initialize merged PDF
+      const mergedPdf = await PDFDocument.create();
+      
+      const totalFiles = fileList.length;
+      for (let i = 0; i < totalFiles; i++) {
+        const item = fileList[i];
+        
+        // Update progress
+        setUploadProgress(Math.round(((i) / totalFiles) * 100));
 
-      const response = await fetch('/api/tools/pdf/merge', {
-        method: 'POST',
-        body: formData,
-      });
-
-      clearInterval(progressInterval);
-      setUploadProgress(100);
-
-      if (!response.ok) {
-        let errorMessage = "Merging failed";
-        try {
-          const errorData = await response.json();
-          errorMessage = errorData.error || errorMessage;
-        } catch (e) {
-          errorMessage = response.statusText || errorMessage;
-        }
-        throw new Error(errorMessage);
+        // Read file as ArrayBuffer
+        const arrayBuffer = await item.file.arrayBuffer();
+        
+        // Load PDF document
+        const pdf = await PDFDocument.load(arrayBuffer, {
+          ignoreEncryption: true,
+          throwOnInvalidObject: false
+        });
+        
+        // Copy pages
+        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
+        
+        // Add pages to merged document
+        copiedPages.forEach((page) => mergedPdf.addPage(page));
       }
 
-      const blob = await response.blob();
+      setUploadProgress(90);
+
+      // Save the merged PDF
+      const pdfBytes = await mergedPdf.save({
+        useObjectStreams: true,
+        addDefaultPage: false,
+      });
+
+      setUploadProgress(100);
+
+      // Generate Blob and URL
+      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       setResultUrl(url);
 
@@ -229,7 +240,7 @@ export default function MergePdf() {
 
     } catch (err: any) {
       console.error("Merge error:", err);
-      setError(err.message || "An unexpected error occurred during merging.");
+      setError("Failed to merge PDFs. Please ensure all files are valid and not password protected.");
     } finally {
       setIsProcessing(false);
     }

@@ -8,11 +8,12 @@ export default defineConfig(({mode}) => {
   return {
     plugins: [react(), tailwindcss()],
     optimizeDeps: {
-      exclude: ['sharp', 'multer', 'pdf-lib', 'express'],
+      exclude: ['sharp', 'multer', 'express'],
+      include: ['pdf-lib', 'pako'],
     },
     build: {
       rollupOptions: {
-        external: ['sharp', 'multer', 'pdf-lib', 'express'],
+        external: ['sharp', 'multer', 'express'],
       },
     },
     define: {
