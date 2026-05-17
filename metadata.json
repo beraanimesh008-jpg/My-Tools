@@ -1,6 +1,6 @@
 {
-  "name": "ToolVerse",
-  "description": "A modern full-stack multi-tool platform with PDF, Image, AI, and Social Media tools.",
+  "name": "Smart PDF - Merge & Compress",
+  "description": "A professional-grade PDF toolkit to merge, compress, and convert PDF files with a beautiful, fast interface inspired by iLovePDF.",
   "requestFramePermissions": [],
-  "majorCapabilities": []
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
