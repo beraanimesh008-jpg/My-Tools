@@ -183,6 +183,40 @@ export default function BackgroundRemover() {
   const [processingProgress, setProcessingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
+  const getPreviewStyle = () => {
+    if (bgImage) {
+      return {
+        backgroundImage: `url(${bgImage})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat',
+      };
+    }
+
+    if (bgColor && bgColor !== 'transparent') {
+      if (bgColor.includes('gradient')) {
+        return {
+          backgroundImage: bgColor,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+        };
+      } else {
+        return {
+          backgroundColor: bgColor,
+          backgroundImage: 'none',
+        };
+      }
+    }
+
+    // Transparent Checkerboard
+    return {
+      backgroundImage: "linear-gradient(45deg, #cbd5e1 25%, transparent 25%), linear-gradient(-45deg, #cbd5e1 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #cbd5e1 75%), linear-gradient(-45deg, transparent 75%, #cbd5e1 75%)",
+      backgroundSize: '20px 20px',
+      backgroundPosition: '0 0, 0 10px, 10px -10px, -10px 0',
+    };
+  };
+
   const handleRemoveBackgroundDirect = async (targetFile: File) => {
     if (!targetFile) return;
 
@@ -713,16 +747,7 @@ export default function BackgroundRemover() {
 
                     <div 
                       className="relative aspect-square w-full rounded-3xl overflow-hidden flex items-center justify-center p-4 transition-all duration-300 border border-slate-100 dark:border-slate-800"
-                      style={{
-                        backgroundColor: bgColor && bgColor !== 'transparent' ? bgColor : undefined,
-                        backgroundImage: bgImage 
-                          ? `url(${bgImage})` 
-                          : (bgColor === 'transparent' || !bgColor
-                              ? "linear-gradient(45deg, #cbd5e1 25%, transparent 25%), linear-gradient(-45deg, #cbd5e1 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #cbd5e1 75%), linear-gradient(-45deg, transparent 75%, #cbd5e1 75%)"
-                              : undefined),
-                        backgroundSize: bgImage ? 'cover' : '20px 20px',
-                        backgroundPosition: bgImage ? 'center' : '0 0, 0 10px, 10px -10px, -10px 0',
-                      }}
+                      style={getPreviewStyle()}
                     >
                       {/* Sub-checkerboard lighting overlay when in transparent mode */}
                       {(bgColor === 'transparent' || !bgColor) && !bgImage && (
