@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from 'react';
 import Navbar from '@/src/components/Navbar';
 import { PDFDocument } from 'pdf-lib';
+import * as pdfjs from 'pdfjs-dist';
 import { 
   FileText, 
   Download, 
@@ -15,7 +16,11 @@ import {
   FileSearch,
   Move,
   Shield,
-  Zap
+  Zap,
+  Lock,
+  Eye,
+  EyeOff,
+  ShieldAlert
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
@@ -38,6 +43,9 @@ import {
   useSortable
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
+
+// Configure PDF.js worker
+pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
 
 // --- Sortable Item Component ---
 
@@ -133,6 +141,24 @@ export default function MergePdf() {
   const [error, setError] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
 
+  // Password Decryption States & Helper
+  const [passwordPrompt, setPasswordPrompt] = useState<{ fileName: string; resolve: (p: string | null) => void; error?: string } | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const askForPassword = (fileName: string, promptError?: string): Promise<string | null> => {
+    return new Promise((resolve) => {
+      setShowPassword(false);
+      setPasswordPrompt({
+        fileName,
+        error: promptError,
+        resolve: (p: string | null) => {
+          setPasswordPrompt(null);
+          resolve(p);
+        },
+      });
+    });
+  };
+
   const sensors = useSensors(
     useSensor(PointerSensor),
     useSensor(KeyboardSensor, {
@@ -194,17 +220,87 @@ export default function MergePdf() {
         // Read file as ArrayBuffer
         const arrayBuffer = await item.file.arrayBuffer();
         
-        // Load PDF document
-        const pdf = await PDFDocument.load(arrayBuffer, {
-          ignoreEncryption: true,
-          throwOnInvalidObject: false
-        });
-        
-        // Copy pages
-        const copiedPages = await mergedPdf.copyPages(pdf, pdf.getPageIndices());
-        
-        // Add pages to merged document
-        copiedPages.forEach((page) => mergedPdf.addPage(page));
+        // Load PDF document with password protection detection
+        let loadedPdf: PDFDocument | null = null;
+        let pResult: { pagesCount: number; renderPages: boolean; pdfjsDoc?: any; passwordUsed?: string } = { pagesCount: 0, renderPages: false };
+        let password = '';
+        let unlockSuccess = false;
+
+        while (!unlockSuccess) {
+          try {
+            // First check if it loads natively in pdf-lib (must not be encrypted)
+            loadedPdf = await PDFDocument.load(arrayBuffer.slice(0), {
+              ignoreEncryption: false, // Ensures it throws if encrypted
+              throwOnInvalidObject: false
+            });
+            unlockSuccess = true;
+            pResult = { pagesCount: loadedPdf.getPageCount(), renderPages: false };
+          } catch (err: any) {
+            const errStr = String(err.message || '').toLowerCase();
+            const isEncrypted = errStr.includes('encrypt') || errStr.includes('password') || err.name === 'PasswordException';
+            if (isEncrypted) {
+              const promptError = password ? 'Incorrect password. Please try again.' : undefined;
+              const enteredPassword = await askForPassword(item.file.name, promptError);
+              if (enteredPassword === null) {
+                throw new Error(`Decrypting "${item.file.name}" was cancelled.`);
+              }
+              password = enteredPassword;
+
+              // Try to load with pdf.js to verify the password
+              try {
+                const pdfjsDoc = await pdfjs.getDocument({ data: arrayBuffer.slice(0), password }).promise;
+                unlockSuccess = true;
+                pResult = { pagesCount: pdfjsDoc.numPages, renderPages: true, pdfjsDoc, passwordUsed: password };
+              } catch (pdfjsErr: any) {
+                if (pdfjsErr.name !== 'PasswordException' && !String(pdfjsErr.message || '').toLowerCase().includes('password')) {
+                  throw pdfjsErr;
+                }
+              }
+            } else {
+              throw err;
+            }
+          }
+        }
+
+        // Add pages based on encryption status
+        if (pResult.renderPages && pResult.pdfjsDoc) {
+          const pdfjsDoc = pResult.pdfjsDoc;
+          for (let pIdx = 1; pIdx <= pResult.pagesCount; pIdx++) {
+            const p = await pdfjsDoc.getPage(pIdx);
+            const viewport = p.getViewport({ scale: 2.0 });
+
+            const canvas = document.createElement('canvas');
+            const context = canvas.getContext('2d');
+            if (!context) continue;
+
+            canvas.width = viewport.width;
+            canvas.height = viewport.height;
+
+            // Fill canvas with white background
+            context.fillStyle = '#ffffff';
+            context.fillRect(0, 0, canvas.width, canvas.height);
+
+            await p.render({
+              canvasContext: context,
+              viewport: viewport
+            }).promise;
+
+            const imageDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+            const imgBytes = await fetch(imageDataUrl).then(res => res.arrayBuffer());
+
+            const pdfImage = await mergedPdf.embedJpg(imgBytes);
+            const newPage = mergedPdf.addPage([viewport.width, viewport.height]);
+            newPage.drawImage(pdfImage, {
+              x: 0,
+              y: 0,
+              width: viewport.width,
+              height: viewport.height
+            });
+          }
+        } else if (loadedPdf) {
+          const copiedPages = await mergedPdf.copyPages(loadedPdf, loadedPdf.getPageIndices());
+          copiedPages.forEach((page) => mergedPdf.addPage(page));
+        }
       }
 
       setUploadProgress(90);
@@ -498,6 +594,82 @@ export default function MergePdf() {
           </div>
         </div>
       </section>
+
+      {/* Password Modal */}
+      <AnimatePresence>
+        {passwordPrompt && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', duration: 0.4 }}
+              className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl border border-slate-100 dark:border-slate-700/60 text-center"
+            >
+              <div className="w-20 h-20 bg-rose-50 dark:bg-rose-950/30 rounded-[1.8rem] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-rose-200/20 dark:shadow-none animate-bounce">
+                <Lock className="w-8 h-8 text-rose-600 dark:text-rose-400" />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-wide">Enter PDF Password</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-6 truncate px-2" title={passwordPrompt.fileName}>
+                The file <span className="font-bold text-rose-600 dark:text-rose-400">"{passwordPrompt.fileName}"</span> is encrypted.
+              </p>
+
+              {passwordPrompt.error && (
+                <div className="mb-6 p-4 bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 rounded-2xl flex items-center gap-2.5 text-rose-700 dark:text-rose-400 text-left">
+                  <ShieldAlert className="w-4 h-4 flex-shrink-0" />
+                  <p className="text-xs font-bold leading-tight">{passwordPrompt.error}</p>
+                </div>
+              )}
+
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const target = e.currentTarget as HTMLFormElement;
+                const passwordInput = target.elements.namedItem('pdfPassword') as HTMLInputElement;
+                passwordPrompt.resolve(passwordInput.value);
+              }} className="space-y-6">
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="pdfPassword"
+                    name="pdfPassword"
+                    placeholder="Enter password..."
+                    autoFocus
+                    className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/40 border-2 border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white font-bold text-base focus:border-rose-500 focus:outline-none transition-all pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => passwordPrompt.resolve(null)}
+                    className="flex-1 px-6 py-4 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-sm uppercase tracking-widest transition-all active:scale-95"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-rose-200 dark:shadow-none active:scale-95"
+                  >
+                    Unlock
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

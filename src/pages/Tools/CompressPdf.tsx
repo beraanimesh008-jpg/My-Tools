@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import Navbar from '@/src/components/Navbar';
-import { Shrink, Download, Loader2, CheckCircle, ArrowLeft, FileText, Settings, Zap, Shield, AlertCircle, Info, Trash2 } from 'lucide-react';
+import { Shrink, Download, Loader2, CheckCircle, ArrowLeft, FileText, Settings, Zap, Shield, AlertCircle, Info, Trash2, Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
@@ -20,6 +20,24 @@ export default function CompressPdf() {
   const [compressionPercent, setCompressionPercent] = useState(50);
   const [processingStatus, setProcessingStatus] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
+
+  // Password Decryption States & Helper
+  const [passwordPrompt, setPasswordPrompt] = useState<{ fileName: string; resolve: (p: string | null) => void; error?: string } | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
+
+  const askForPassword = (fileName: string, promptError?: string): Promise<string | null> => {
+    return new Promise((resolve) => {
+      setShowPassword(false);
+      setPasswordPrompt({
+        fileName,
+        error: promptError,
+        resolve: (p: string | null) => {
+          setPasswordPrompt(null);
+          resolve(p);
+        },
+      });
+    });
+  };
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     if (acceptedFiles.length > 0) {
@@ -54,10 +72,32 @@ export default function CompressPdf() {
       const file = files[0];
       const arrayBuffer = await file.arrayBuffer();
       
-      // Load PDF for processing
+      // Load PDF for processing with password support
       setProcessingStatus('Analyzing document...');
-      const loadingTask = pdfjs.getDocument({ data: arrayBuffer });
-      const pdf = await loadingTask.promise;
+      let pdf;
+      let password = '';
+      let unlockSuccess = false;
+
+      while (!unlockSuccess) {
+        try {
+          const loadingTask = pdfjs.getDocument({ data: arrayBuffer.slice(0), password: password || undefined });
+          pdf = await loadingTask.promise;
+          unlockSuccess = true;
+        } catch (err: any) {
+          if (err.name === 'PasswordException' || String(err.message || '').toLowerCase().includes('password')) {
+            const promptError = password ? 'Incorrect password. Please try again.' : undefined;
+            const enteredPassword = await askForPassword(file.name, promptError);
+            if (enteredPassword === null) {
+              throw new Error(`Decrypting "${file.name}" was cancelled.`);
+            }
+            password = enteredPassword;
+          } else {
+            throw err;
+          }
+        }
+      }
+
+      if (!pdf) throw new Error('Failed to parse PDF document.');
       const totalPages = pdf.numPages;
 
       // Create new PDF with pdf-lib
@@ -381,6 +421,82 @@ export default function CompressPdf() {
           </div>
         </section>
       </main>
+
+      {/* Password Modal */}
+      <AnimatePresence>
+        {passwordPrompt && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              transition={{ type: 'spring', duration: 0.4 }}
+              className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl border border-slate-100 dark:border-slate-700/60 text-center"
+            >
+              <div className="w-20 h-20 bg-rose-50 dark:bg-rose-950/30 rounded-[1.8rem] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-rose-200/20 dark:shadow-none animate-bounce">
+                <Lock className="w-8 h-8 text-rose-600 dark:text-rose-400" />
+              </div>
+              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-wide">Enter PDF Password</h3>
+              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-6 truncate px-2" title={passwordPrompt.fileName}>
+                The file <span className="font-bold text-rose-600 dark:text-rose-400">"{passwordPrompt.fileName}"</span> is encrypted.
+              </p>
+
+              {passwordPrompt.error && (
+                <div className="mb-6 p-4 bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 rounded-2xl flex items-center gap-2.5 text-rose-700 dark:text-rose-400 text-left">
+                  <ShieldAlert className="w-4 h-4 flex-shrink-0" />
+                  <p className="text-xs font-bold leading-tight">{passwordPrompt.error}</p>
+                </div>
+              )}
+
+              <form onSubmit={(e) => {
+                e.preventDefault();
+                const target = e.currentTarget as HTMLFormElement;
+                const passwordInput = target.elements.namedItem('pdfPassword') as HTMLInputElement;
+                passwordPrompt.resolve(passwordInput.value);
+              }} className="space-y-6">
+                <div className="relative">
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="pdfPassword"
+                    name="pdfPassword"
+                    placeholder="Enter password..."
+                    autoFocus
+                    className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/40 border-2 border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white font-bold text-base focus:border-rose-500 focus:outline-none transition-all pr-12"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                  >
+                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                  </button>
+                </div>
+
+                <div className="flex gap-4">
+                  <button
+                    type="button"
+                    onClick={() => passwordPrompt.resolve(null)}
+                    className="flex-1 px-6 py-4 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-sm uppercase tracking-widest transition-all active:scale-95"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 px-6 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-rose-200 dark:shadow-none active:scale-95"
+                  >
+                    Unlock
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
