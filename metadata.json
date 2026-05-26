@@ -1,6 +1,6 @@
 {
-  "name": "Smart PDF - Merge & Compress",
-  "description": "A professional-grade PDF toolkit to merge, compress, and convert PDF files with a beautiful, fast interface inspired by iLovePDF.",
+  "name": "Smart Tools - PDF & AI Background Remover",
+  "description": "A professional-grade toolkit to remove backgrounds from images with AI, and manage PDFs with a beautiful, fast interface.",
   "requestFramePermissions": [],
   "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
 }
