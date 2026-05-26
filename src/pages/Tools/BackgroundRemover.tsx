@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import Navbar from '@/src/components/Navbar';
 import { 
   Download, 
@@ -24,7 +24,8 @@ import {
   ChevronRight,
   Monitor,
   Layout,
-  Star
+  Star,
+  Plus
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
@@ -151,6 +152,19 @@ const FloatingShapes = () => (
   </div>
 );
 
+// --- Preset Background Choices ---
+const PRESET_BG_CHOICES = [
+  { id: 'transparent', label: 'Transparent', value: 'transparent' },
+  { id: 'white', label: 'White', value: '#ffffff' },
+  { id: 'dark-slate', label: 'Dark Slate', value: '#0f172a' },
+  { id: 'sunset', label: 'Sunset Glow', value: 'linear-gradient(135deg, #f43f5e 0%, #f97316 100%)' },
+  { id: 'azure', label: 'Azure Sea', value: 'linear-gradient(135deg, #0ea5e9 0%, #2563eb 100%)' },
+  { id: 'nebula', label: 'Cosmic Purple', value: 'linear-gradient(135deg, #a855f7 0%, #ec4899 100%)' },
+  { id: 'mint', label: 'Mint Fresh', value: 'linear-gradient(135deg, #10b981 0%, #059669 100%)' },
+  { id: 'sunrise', label: 'Warm Sunrise', value: 'linear-gradient(135deg, #fbbf24 0%, #f59e0b 100%)' },
+  { id: 'industrial', label: 'Metallic Silver', value: 'linear-gradient(135deg, #94a3b8 0%, #475569 100%)' },
+];
+
 // --- Main Tool Component ---
 
 export default function BackgroundRemover() {
@@ -160,6 +174,11 @@ export default function BackgroundRemover() {
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [bgColor, setBgColor] = useState<string>('transparent');
   const [bgImage, setBgImage] = useState<string | null>(null);
+  const [customBgImage, setCustomBgImage] = useState<string | null>(null);
+  const [downloadFormat, setDownloadFormat] = useState<'png' | 'jpg'>('png');
+  const [isDownloading, setIsDownloading] = useState(false);
+  
+  const bgFileInputRef = useRef<HTMLInputElement>(null);
   const [sliderPosition, setSliderPosition] = useState(50);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
@@ -279,23 +298,139 @@ export default function BackgroundRemover() {
     if (file) handleRemoveBackgroundDirect(file);
   };
 
+  const handleCustomBgUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files.length > 0) {
+      const ufile = e.target.files[0];
+      const url = URL.createObjectURL(ufile);
+      setCustomBgImage(url);
+      setBgImage(url);
+      setBgColor('transparent');
+    }
+  };
+
   const reset = () => {
     setFile(null);
     setResultUrl(null);
     setOriginalUrl(null);
     setBgImage(null);
+    setCustomBgImage(null);
     setBgColor('transparent');
     setError(null);
   };
 
-  const downloadImage = () => {
+  const downloadImage = async (withBackground: boolean) => {
     if (!resultUrl) return;
-    const link = document.createElement('a');
-    link.href = resultUrl;
-    link.download = `removed-bg-${Date.now()}.png`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+    setIsDownloading(true);
+
+    try {
+      // 1. Create canvas
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      if (!ctx) throw new Error('Could not create 2D canvas context');
+
+      // 2. Load the transparent cutout image first to determine output canvas size (supports high-res / HD)
+      const subjectImg = await new Promise<HTMLImageElement>((resolve, reject) => {
+        const img = new Image();
+        img.crossOrigin = 'anonymous';
+        img.onload = () => resolve(img);
+        img.onerror = () => reject(new Error('Failed to load transparent subject cutout'));
+        img.src = resultUrl;
+      });
+
+      // Canvas dimensions match high resolution cutout
+      canvas.width = subjectImg.naturalWidth;
+      canvas.height = subjectImg.naturalHeight;
+
+      // 3. Draw background if requested
+      if (withBackground) {
+        if (bgImage) {
+          // Load background image
+          const bgImgElem = await new Promise<HTMLImageElement>((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'anonymous';
+            img.onload = () => resolve(img);
+            img.onerror = () => reject(new Error('Failed to load background image. Using fallback color.'));
+            img.src = bgImage;
+          });
+
+          // Draw with cover behavior
+          const canvasRatio = canvas.width / canvas.height;
+          const bgRatio = bgImgElem.naturalWidth / bgImgElem.naturalHeight;
+          let drawWidth, drawHeight, drawX, drawY;
+
+          if (bgRatio > canvasRatio) {
+            drawHeight = canvas.height;
+            drawWidth = canvas.height * bgRatio;
+            drawX = (canvas.width - drawWidth) / 2;
+            drawY = 0;
+          } else {
+            drawWidth = canvas.width;
+            drawHeight = canvas.width / bgRatio;
+            drawX = 0;
+            drawY = (canvas.height - drawHeight) / 2;
+          }
+
+          ctx.drawImage(bgImgElem, drawX, drawY, drawWidth, drawHeight);
+        } else if (bgColor && bgColor !== 'transparent') {
+          // Check if bgColor is a gradient (e.g. contains 'gradient' / colors)
+          const hexColors = bgColor.match(/#[a-fA-F0-9]{3,8}/g);
+          if (hexColors && hexColors.length >= 2) {
+            // Draw gradient
+            const grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+            hexColors.forEach((color, idx) => {
+              grad.addColorStop(idx / (hexColors.length - 1), color);
+            });
+            ctx.fillStyle = grad;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          } else {
+            // Draw solid color
+            ctx.fillStyle = bgColor;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+        } else {
+          // Default background for non-transparency format selection like JPG (avoid black backgrounds)
+          if (downloadFormat === 'jpg') {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+        }
+      } else {
+        // Transparent PNG output. If they selected JPG, we fill white to avoid ugly default black conversion
+        if (downloadFormat === 'jpg') {
+          ctx.fillStyle = '#ffffff';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+        }
+      }
+
+      // 4. Draw subject cutout image on top (with excellent anti-aliasing preserved)
+      ctx.drawImage(subjectImg, 0, 0, canvas.width, canvas.height);
+
+      // 5. Save and download
+      const mimeType = downloadFormat === 'jpg' ? 'image/jpeg' : 'image/png';
+      const fileExt = downloadFormat === 'jpg' ? 'jpg' : 'png';
+      const quality = downloadFormat === 'jpg' ? 0.95 : undefined;
+
+      const dataUrl = canvas.toDataURL(mimeType, quality);
+      const link = document.createElement('a');
+      link.href = dataUrl;
+      const bgName = withBackground ? (bgImage ? 'custom-bg' : (bgColor !== 'transparent' ? 'colored' : 'flat')) : 'transparent';
+      link.download = `removed-bg-${bgName}-${Date.now()}.${fileExt}`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (err: any) {
+      console.error('Merge download compilation failed:', err);
+      // Fallback simple download
+      alert(`Could not compile custom background cleanly: ${err.message || 'CORS sandbox constraint'}. Downloading transparent PNG as a fallback.`);
+      const link = document.createElement('a');
+      link.href = resultUrl;
+      link.download = `removed-bg-transparent-fallback-${Date.now()}.png`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   return (
@@ -536,28 +671,82 @@ export default function BackgroundRemover() {
               animate={{ opacity: 1, scale: 1 }}
               className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start"
             >
-              {/* Left Column: Visual Editor */}
-              <div className="lg:col-span-8 space-y-8">
-                <div className="bg-white dark:bg-slate-800 p-3 rounded-[3.5rem] shadow-2xl border-4 border-slate-50 dark:border-slate-800">
-                  <ComparisonSlider 
-                    beforeUrl={originalUrl!}
-                    afterUrl={resultUrl!}
-                    sliderPosition={sliderPosition}
-                    setSliderPosition={setSliderPosition}
-                    bgColor={bgColor}
-                    bgImage={bgImage}
-                  />
+              {/* Left Column: Side-by-Side Visual Editor (like remove.bg) */}
+              <div className="lg:col-span-8 flex flex-col gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
+                  {/* Left Box: Original Image Card */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4 }}
+                    className="flex flex-col bg-white dark:bg-slate-800 rounded-[2.5rem] p-6 shadow-2xl border-4 border-slate-50 dark:border-slate-800"
+                  >
+                    <div className="flex items-center justify-between mb-4 px-1">
+                      <span className="text-slate-900 dark:text-white font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-slate-400 dark:bg-slate-600" />
+                        Original
+                      </span>
+                    </div>
+
+                    <div className="relative aspect-square w-full bg-slate-50 dark:bg-slate-900 rounded-3xl overflow-hidden flex items-center justify-center p-4 border border-slate-100 dark:border-slate-800">
+                      <img 
+                        src={originalUrl!} 
+                        className="max-h-full max-w-full object-contain select-none shadow-sm transition-transform duration-300 hover:scale-[1.02]" 
+                        alt="Original"
+                      />
+                    </div>
+                  </motion.div>
+
+                  {/* Right Box: Removed Background Card */}
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ duration: 0.4, delay: 0.15 }}
+                    className="flex flex-col bg-white dark:bg-slate-800 rounded-[2.5rem] p-6 shadow-2xl border-4 border-slate-50 dark:border-slate-800"
+                  >
+                    <div className="flex items-center justify-between mb-4 px-1">
+                      <span className="text-cyan-600 dark:text-cyan-400 font-extrabold text-xs tracking-wider uppercase flex items-center gap-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-cyan-500 animate-pulse" />
+                        Removed Background
+                      </span>
+                    </div>
+
+                    <div 
+                      className="relative aspect-square w-full rounded-3xl overflow-hidden flex items-center justify-center p-4 transition-all duration-300 border border-slate-100 dark:border-slate-800"
+                      style={{
+                        backgroundColor: bgColor && bgColor !== 'transparent' ? bgColor : undefined,
+                        backgroundImage: bgImage 
+                          ? `url(${bgImage})` 
+                          : (bgColor === 'transparent' || !bgColor
+                              ? "linear-gradient(45deg, #cbd5e1 25%, transparent 25%), linear-gradient(-45deg, #cbd5e1 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #cbd5e1 75%), linear-gradient(-45deg, transparent 75%, #cbd5e1 75%)"
+                              : undefined),
+                        backgroundSize: bgImage ? 'cover' : '20px 20px',
+                        backgroundPosition: bgImage ? 'center' : '0 0, 0 10px, 10px -10px, -10px 0',
+                      }}
+                    >
+                      {/* Sub-checkerboard lighting overlay when in transparent mode */}
+                      {(bgColor === 'transparent' || !bgColor) && !bgImage && (
+                        <div className="absolute inset-0 bg-white/20 dark:bg-slate-950/20 mix-blend-overlay pointer-events-none" />
+                      )}
+
+                      <img 
+                        src={resultUrl!} 
+                        className="max-h-full max-w-full object-contain relative z-10 select-none drop-shadow-2xl transition-transform duration-300 hover:scale-[1.02]" 
+                        alt="Removed Background"
+                      />
+                    </div>
+                  </motion.div>
                 </div>
-                
+
                 <div className="flex items-center justify-between px-8 text-slate-400 font-black text-xs uppercase tracking-widest">
                   <div className="flex items-center gap-2">
-                    <History className="w-4 h-4" /> Before
+                    <History className="w-4 h-4" /> Original Image
                   </div>
                   <div className="flex gap-1">
-                    {[1,2,3,4,5].map(i => <div key={i} className="w-1 h-1 rounded-full bg-slate-200" />)}
+                    {[1,2,3,4,5].map(i => <div key={i} className="w-1 h-1 rounded-full bg-slate-200 dark:bg-slate-700" />)}
                   </div>
                   <div className="flex items-center gap-2 text-cyan-600">
-                    After <CheckCircle className="w-4 h-4" />
+                    Transparent Cutout <CheckCircle className="w-4 h-4" />
                   </div>
                 </div>
               </div>
@@ -566,25 +755,37 @@ export default function BackgroundRemover() {
               <div className="lg:col-span-4 space-y-8 sticky top-24">
                 <div className="bg-white dark:bg-slate-800 rounded-[3rem] p-10 border-2 border-slate-50 dark:border-slate-800 shadow-xl space-y-10">
                   <div className="space-y-6">
-                    <div className="flex items-center gap-3 text-slate-400">
+                    <div className="flex items-center gap-3 text-slate-400 animate-pulse">
                       <Palette className="w-5 h-5 text-cyan-600" />
                       <h4 className="font-black text-xs uppercase tracking-widest">Preview Background</h4>
                     </div>
-                    <div className="flex flex-wrap gap-3">
-                      {['transparent', '#ffffff', '#000000', '#3b82f6', '#ef4444', '#10b981', '#f59e0b', '#8b5cf6', '#ec4899'].map((color) => (
-                        <button
-                          key={color}
-                          onClick={() => { setBgColor(color); setBgImage(null); }}
-                          className={`w-10 h-10 rounded-2xl border-4 transition-all hover:scale-110 
-                            ${bgColor === color && !bgImage ? 'border-cyan-600 scale-110 shadow-xl shadow-cyan-100' : 'border-slate-100 dark:border-slate-700'}
-                          `}
-                          style={{ 
-                            backgroundColor: color === 'transparent' ? 'white' : color, 
-                            backgroundImage: color === 'transparent' ? 'linear-gradient(45deg, #ccc 25%, transparent 25%), linear-gradient(-45deg, #ccc 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #ccc 75%), linear-gradient(-45deg, transparent 75%, #ccc 75%)' : 'none', 
-                            backgroundSize: '8px 8px' 
-                          }}
-                        />
-                      ))}
+                    <div className="flex flex-wrap gap-2.5">
+                      {PRESET_BG_CHOICES.map((preset) => {
+                        const isSelected = bgColor === preset.value && !bgImage;
+                        return (
+                          <button
+                            key={preset.id}
+                            onClick={() => { setBgColor(preset.value); setBgImage(null); }}
+                            title={preset.label}
+                            className={`w-10 h-10 rounded-2xl border-4 transition-all duration-300 hover:scale-110 relative
+                              ${isSelected ? 'border-cyan-600 scale-110 shadow-lg shadow-cyan-500/20' : 'border-slate-100 dark:border-slate-700/60'}
+                            `}
+                            style={{ 
+                              backgroundColor: preset.value === 'transparent' ? 'white' : (preset.value.includes('gradient') ? undefined : preset.value), 
+                              backgroundImage: preset.value === 'transparent' 
+                                ? 'linear-gradient(45deg, #cbd5e1 25%, transparent 25%), linear-gradient(-45deg, #cbd5e1 25%, transparent 25%), linear-gradient(45deg, transparent 75%, #cbd5e1 75%), linear-gradient(-45deg, transparent 75%, #cbd5e1 75%)' 
+                                : (preset.value.includes('gradient') ? preset.value : undefined), 
+                              backgroundSize: preset.value === 'transparent' ? '8px 8px' : undefined 
+                            }}
+                          >
+                            {isSelected && (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <CheckCircle className="w-4 h-4 text-white drop-shadow-md" />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
@@ -593,43 +794,133 @@ export default function BackgroundRemover() {
                       <ImageLucide className="w-5 h-5 text-cyan-600" />
                       <h4 className="font-black text-xs uppercase tracking-widest">Environment Preview</h4>
                     </div>
-                    <div className="grid grid-cols-3 gap-3">
+                    <div className="grid grid-cols-4 gap-2.5">
+                      {/* Upload button for background */}
+                      <button
+                        onClick={() => bgFileInputRef.current?.click()}
+                        className="aspect-square rounded-2xl border-2 border-dashed border-slate-300 dark:border-slate-700 hover:border-cyan-500 hover:bg-slate-50 dark:hover:bg-slate-900/40 transition-all flex flex-col items-center justify-center gap-1 group"
+                        title="Upload custom background image"
+                      >
+                        <Plus className="w-5 h-5 text-slate-400 group-hover:text-cyan-500 transition-colors" />
+                        <span className="text-[9px] font-black text-slate-400 group-hover:text-cyan-500 transition-colors uppercase tracking-wider">Custom</span>
+                      </button>
+                      <input 
+                        type="file" 
+                        ref={bgFileInputRef} 
+                        onChange={handleCustomBgUpload} 
+                        accept="image/*" 
+                        className="hidden" 
+                      />
+
+                      {/* Display uploaded background image thumbnail if available */}
+                      {customBgImage && (
+                        <button
+                          onClick={() => { setBgImage(customBgImage); setBgColor('transparent'); }}
+                          className={`aspect-square rounded-2xl bg-center bg-cover border-4 transition-all hover:scale-110 relative group
+                            ${bgImage === customBgImage ? 'border-cyan-600 scale-110 shadow-lg shadow-cyan-500/20' : 'border-slate-100 dark:border-slate-700'}
+                          `}
+                          style={{ backgroundImage: `url(${customBgImage})` }}
+                        >
+                          {bgImage === customBgImage && (
+                            <div className="absolute inset-0 bg-black/25 rounded-xl flex items-center justify-center">
+                              <CheckCircle className="w-4 h-4 text-white" />
+                            </div>
+                          )}
+                        </button>
+                      )}
+
                       {[
                         'https://images.unsplash.com/photo-1542281286-9e0a16bb7366?auto=format&fit=crop&w=400&q=80',
                         'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80',
                         'https://images.unsplash.com/photo-1534067783941-51c9c23ecefd?auto=format&fit=crop&w=400&q=80'
-                      ].map((img, i) => (
-                        <button
-                          key={i}
-                          onClick={() => { setBgImage(img); setBgColor('transparent'); }}
-                          className={`aspect-square rounded-2xl bg-center bg-cover border-4 transition-all hover:scale-110
-                            ${bgImage === img ? 'border-cyan-600 scale-110 shadow-xl shadow-cyan-100' : 'border-slate-100 dark:border-slate-700'}
-                          `}
-                          style={{ backgroundImage: `url(${img})` }}
-                        />
-                      ))}
+                      ].map((img, i) => {
+                        const isSelected = bgImage === img;
+                        return (
+                          <button
+                            key={i}
+                            onClick={() => { setBgImage(img); setBgColor('transparent'); }}
+                            className={`aspect-square rounded-2xl bg-center bg-cover border-4 transition-all hover:scale-110 relative
+                              ${isSelected ? 'border-cyan-600 scale-110 shadow-lg shadow-cyan-500/20' : 'border-slate-100 dark:border-slate-700/60'}
+                            `}
+                            style={{ backgroundImage: `url(${img})` }}
+                          >
+                            {isSelected && (
+                              <div className="absolute inset-0 bg-black/25 rounded-xl flex items-center justify-center">
+                                <CheckCircle className="w-4 h-4 text-white" />
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
                     </div>
                   </div>
 
-                  <div className="pt-10 border-t border-slate-100 dark:border-slate-800 space-y-4">
-                    <button 
-                      onClick={downloadImage}
-                      className="w-full bg-cyan-600 text-white rounded-3xl py-6 font-black text-xl shadow-2xl shadow-cyan-200 dark:shadow-none hover:bg-cyan-700 transition-all hover:scale-[1.02] active:scale-95 flex items-center justify-center gap-4 group"
-                    >
-                      <Download className="w-8 h-8 group-hover:translate-y-1 transition-transform" />
-                      Download Full HD
-                    </button>
-                    <div className="flex gap-4">
+                  <div className="pt-8 border-t border-slate-100 dark:border-slate-800/80 space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-slate-400 font-extrabold text-xs uppercase tracking-widest">Download Format</span>
+                      
+                      {/* Segmented control for PNG / JPG */}
+                      <div className="bg-slate-100 dark:bg-slate-900/50 p-1 rounded-xl flex gap-1 border border-slate-200/50 dark:border-slate-800">
+                        <button
+                          onClick={() => setDownloadFormat('png')}
+                          className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-300 ${
+                            downloadFormat === 'png'
+                              ? 'bg-cyan-600 text-white shadow-md'
+                              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                          }`}
+                        >
+                          PNG
+                        </button>
+                        <button
+                          onClick={() => setDownloadFormat('jpg')}
+                          className={`px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-wider transition-all duration-300 ${
+                            downloadFormat === 'jpg'
+                              ? 'bg-cyan-600 text-white shadow-md'
+                              : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                          }`}
+                        >
+                          JPG
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="space-y-3.5">
+                      {/* Download Button 1: Download Transparent Cutout */}
+                      <button 
+                        onClick={() => downloadImage(false)}
+                        disabled={isDownloading}
+                        className="w-full bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-white rounded-3xl py-4 font-extrabold text-sm border border-slate-200/40 dark:border-slate-600 hover:bg-slate-200 dark:hover:bg-slate-600 transition-all hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-2.5 shadow-sm"
+                      >
+                        {isDownloading ? (
+                          <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
+                        ) : (
+                          <Download className="w-4 h-4 text-slate-600 dark:text-slate-300" />
+                        )}
+                        Download Transparent Cutout ({downloadFormat.toUpperCase()})
+                      </button>
+
+                      {/* Download Button 2: Merge and Download with Background */}
+                      <button 
+                        onClick={() => downloadImage(true)}
+                        disabled={isDownloading}
+                        className="w-full bg-cyan-600 text-white rounded-3xl py-5 font-black text-base shadow-lg shadow-cyan-200 dark:shadow-none hover:bg-cyan-700 transition-all hover:scale-[1.01] active:scale-[0.98] flex items-center justify-center gap-2.5"
+                      >
+                        {isDownloading ? (
+                          <Loader2 className="w-5 h-5 animate-spin" />
+                        ) : (
+                          <Sparkles className="w-5 h-5 fill-white text-white" />
+                        )}
+                        Download with Background ({downloadFormat.toUpperCase()})
+                      </button>
+                    </div>
+
+                    {/* Reset Button */}
+                    <div className="pt-4 flex gap-3">
                       <button 
                         onClick={reset}
-                        className="flex-1 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 py-6 rounded-3xl font-black text-lg hover:bg-slate-200 dark:hover:bg-slate-600 transition-all active:scale-95 flex items-center justify-center gap-2"
+                        className="flex-1 bg-slate-50 dark:bg-slate-800 hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-500 dark:text-slate-400 py-4 rounded-2xl font-black text-xs uppercase tracking-widest transition-all active:scale-[0.96] flex items-center justify-center gap-2 border border-slate-100 dark:border-slate-800/80"
                       >
-                        <RefreshCw className="w-5 h-5" /> New Image
-                      </button>
-                      <button 
-                        className="p-6 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 rounded-3xl font-black hover:bg-slate-200 dark:hover:bg-slate-600 transition-all active:scale-95"
-                      >
-                        <Share2 className="w-6 h-6" />
+                        <RefreshCw className="w-4 h-4" /> New Image
                       </button>
                     </div>
                   </div>
