@@ -4,6 +4,7 @@ import { FileText, Image as ImageIcon, Zap, Video, Terminal, Scissors, Layers, S
 import CategorySection from '../components/CategorySection';
 import AdSenseBanner from '../components/AdSenseBanner';
 import BannerAd from '../components/BannerAd';
+import SidebarAd from '../components/SidebarAd';
 
 const PDF_TOOLS = [
   { name: 'Merge PDF', description: 'Combine multiple PDF files into one single document seamlessly.', icon: Layers, href: '/merge-pdf', color: 'bg-rose-500' },
@@ -120,13 +121,22 @@ export default function Home() {
       {/* HighPerformanceFormat Banner Ad */}
       <BannerAd />
 
-      {/* Tools Sections */}
-      <div className="max-w-7xl mx-auto px-4 mt-12 space-y-8">
-        <CategorySection title="PDF Management" icon={FileText} color="bg-rose-500" tools={PDF_TOOLS} />
-        <CategorySection title="Image Studio" icon={ImageIcon} color="bg-orange-500" tools={IMAGE_TOOLS} />
-        <CategorySection title="Magical AI" icon={Zap} color="bg-purple-600" tools={AI_TOOLS} />
-        <CategorySection title="Daily Utilities" icon={Terminal} color="bg-emerald-500" tools={UTILITY_TOOLS} />
+      {/* Tools Sections & Sidebar Ad Container */}
+      <div className="max-w-7xl mx-auto px-4 mt-12 flex flex-col lg:flex-row gap-8 items-start">
+        {/* Left column containing all CategorySections */}
+        <div className="flex-1 w-full space-y-8">
+          <CategorySection title="PDF Management" icon={FileText} color="bg-rose-500" tools={PDF_TOOLS} />
+          <CategorySection title="Image Studio" icon={ImageIcon} color="bg-orange-500" tools={IMAGE_TOOLS} />
+          <CategorySection title="Magical AI" icon={Zap} color="bg-purple-600" tools={AI_TOOLS} />
+          <CategorySection title="Daily Utilities" icon={Terminal} color="bg-emerald-500" tools={UTILITY_TOOLS} />
+        </div>
+
+        {/* Right column: Sticky Sidebar Ad on desktop */}
+        <SidebarAd variant="sidebar" />
       </div>
+
+      {/* Renders below the tools section on Tablet only */}
+      <SidebarAd variant="tablet-footer" />
 
       {/* Quick Stats? */}
       <section className="py-20 mt-20 bg-slate-900 rounded-[3rem] mx-4 overflow-hidden relative">
