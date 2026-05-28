@@ -1,5 +1,6 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { trackPageviewClient } from '../utils/visitorTrackerClient';
 
 export default function VisitorTrackerTrigger() {
   const location = useLocation();
@@ -13,21 +14,8 @@ export default function VisitorTrackerTrigger() {
     }
 
     const trackPageview = async () => {
-      try {
-        await fetch('/api/track', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            path: location.pathname,
-            sessionToken,
-            referrer: document.referrer || '',
-            screenResolution: `${window.screen.width}x${window.screen.height}`,
-          }),
-        });
-      } catch (err) {
-        console.warn('Silent tracking ingestion error:', err);
+      if (sessionToken) {
+        await trackPageviewClient(location.pathname, sessionToken);
       }
     };
 

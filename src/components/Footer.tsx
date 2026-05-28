@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Zap, Github, Twitter, Linkedin, Heart, Mail, Users, Radio } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { fetchAnalyticsPayloadClient } from '../utils/visitorTrackerClient';
 
 export default function Footer() {
   const [visitorStats, setVisitorStats] = useState<{ total: number; active: number } | null>(null);
@@ -8,14 +9,11 @@ export default function Footer() {
   useEffect(() => {
     const fetchStats = async () => {
       try {
-        const res = await fetch('/api/analytics');
-        if (res.ok) {
-          const data = await res.json();
-          setVisitorStats({
-            total: data?.summary?.totalPageViews || 0,
-            active: data?.activeLast15Mins || 1
-          });
-        }
+        const data = await fetchAnalyticsPayloadClient();
+        setVisitorStats({
+          total: data?.summary?.totalPageViews || 0,
+          active: data?.activeLast15Mins || 1
+        });
       } catch (e) {
         console.warn('Footer statistics load fallback:', e);
       }

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { fetchAnalyticsPayloadClient } from '@/src/utils/visitorTrackerClient';
 import { 
   Users, 
   Eye, 
@@ -85,9 +86,7 @@ export default function VisitorTracker() {
     try {
       setLoading(true);
       setError(null);
-      const res = await fetch('/api/analytics');
-      if (!res.ok) throw new Error('Failed to fetch analytics payload');
-      const payload = await res.json();
+      const payload = await fetchAnalyticsPayloadClient();
       setData(payload);
     } catch (err: any) {
       setError(err.message || 'Error occurred while querying tracking database');

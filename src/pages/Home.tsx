@@ -53,9 +53,14 @@ export default function Home() {
         console.warn('Home processed files loader error:', e);
       }
 
-      // Read from local storage
-      const localCountStr = localStorage.getItem('mylovespdf_files_processed');
-      const localCount = localCountStr ? parseInt(localCountStr, 10) : 0;
+      // Read from local storage safely
+      let localCount = 0;
+      try {
+        const localCountStr = localStorage.getItem('mylovespdf_files_processed');
+        localCount = localCountStr ? parseInt(localCountStr, 10) : 0;
+      } catch (err) {
+        console.warn('Cannot read localStorage in sandboxed iframe:', err);
+      }
 
       // If backend was successful, use backend count or fallback to local count
       if (apiCount !== null && apiCount !== undefined) {
