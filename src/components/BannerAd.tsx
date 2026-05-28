@@ -12,7 +12,7 @@ export default function BannerAd() {
     // Create container for the actual script-injected ad
     const adWrapper = document.createElement('div');
     adWrapper.id = 'highperformanceformat-ad';
-    adWrapper.className = 'flex justify-center items-center w-full min-h-[90px] overflow-hidden';
+    adWrapper.className = 'w-[728px] h-[90px] flex justify-center items-center overflow-hidden';
 
     // 1. Create and inject atOptions script configuration
     const configScript = document.createElement('script');
@@ -48,20 +48,21 @@ export default function BannerAd() {
   }, []);
 
   return (
-    <div 
-      className="w-full flex justify-center items-center my-[40px] px-4 overflow-hidden"
+    <section 
+      className="top-banner-ad w-full flex justify-center my-[40px] px-4 overflow-hidden select-none"
       id="responsive-banner-ad-root"
     >
       <div 
-        className="w-full max-w-[728px] min-h-[90px] flex justify-center items-center bg-transparent relative overflow-hidden rounded-[12px]"
+        className="banner-ad-container w-[728px] min-h-[90px] flex justify-center items-center bg-transparent relative overflow-hidden rounded-[16px] border border-slate-100 dark:border-slate-800/40"
         style={{ contentVisibility: 'auto' }}
       >
-        {/* Scale container on mobile so 728px width fits mobile screens without overflow */}
+        {/* Scale container on smaller viewports so 728px width fits elegantly and responsively */}
         <div 
           ref={containerRef}
-          className="w-[728px] h-[90px] flex justify-center items-center origin-center scale-[0.45] xs:scale-[0.55] sm:scale-[0.8] md:scale-100 transition-all duration-300"
+          className="w-[728px] h-[90px] flex justify-center items-center origin-center scale-[0.42] xs:scale-[0.56] sm:scale-[0.82] md:scale-100 transition-all duration-300"
         />
       </div>
-    </div>
+    </section>
   );
 }
+
