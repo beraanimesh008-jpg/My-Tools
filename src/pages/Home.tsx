@@ -31,7 +31,14 @@ const UTILITY_TOOLS = [
 ];
 
 export default function Home() {
-  const [filesProcessed, setFilesProcessed] = useState<number | null>(null);
+  const [filesProcessed, setFilesProcessed] = useState<number>(() => {
+    try {
+      const localCount = localStorage.getItem('mylovespdf_files_processed');
+      return localCount ? parseInt(localCount, 10) : 0;
+    } catch {
+      return 0;
+    }
+  });
 
   useEffect(() => {
     const fetchStats = async () => {
@@ -50,16 +57,12 @@ export default function Home() {
       const localCountStr = localStorage.getItem('mylovespdf_files_processed');
       const localCount = localCountStr ? parseInt(localCountStr, 10) : 0;
 
-      // Base realistic count for polished production look
-      const baseCount = 12458312;
-
-      // If backend was successful, use backend count plus base or fallback to local count plus base
+      // If backend was successful, use backend count or fallback to local count
       if (apiCount !== null && apiCount !== undefined) {
-        const finalCount = apiCount > baseCount ? apiCount : (baseCount + apiCount);
-        setFilesProcessed(finalCount);
+        setFilesProcessed(apiCount > localCount ? apiCount : localCount);
       } else {
         // Fallback to local storage (Hostinger environment)
-        setFilesProcessed(baseCount + localCount);
+        setFilesProcessed(localCount);
       }
     };
 
@@ -140,7 +143,7 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 gap-6">
               {[
-                { label: 'Files Processed', value: filesProcessed !== null ? filesProcessed.toLocaleString() : '12,458,312' },
+                { label: 'Files Processed', value: filesProcessed.toLocaleString() },
                 { label: 'Active Tools', value: '50' },
                 { label: 'Uptime', value: '99.9%' },
                 { label: 'User Rating', value: '5/5' },
