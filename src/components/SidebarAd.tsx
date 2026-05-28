@@ -1,48 +1,41 @@
-import { useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 
 interface SidebarAdProps {
   variant?: 'sidebar' | 'tablet-footer';
 }
 
 export default function SidebarAd({ variant = 'sidebar' }: SidebarAdProps) {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-
-    try {
-      const doc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!doc) return;
-
-      doc.open();
-      doc.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <style>
-              body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
-            </style>
-          </head>
-          <body>
-            <script type="text/javascript">
-              window.atOptions = {
-                'key' : 'e958e3f35dda1ac4876877eb26ae7599',
-                'format' : 'iframe',
-                'height' : 600,
-                'width' : 160,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://www.highperformanceformat.com/e958e3f35dda1ac4876877eb26ae7599/invoke.js"></script>
-          </body>
-        </html>
-      `);
-      doc.close();
-    } catch (err) {
-      console.error('Error rendering ad iframe content:', err);
-    }
-  }, []);
+  const adHtml = useMemo(() => `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <base href="https://www.highperformanceformat.com/" target="_blank">
+        <style>
+          body { 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background: transparent; 
+            overflow: hidden; 
+          }
+        </style>
+      </head>
+      <body>
+        <script type="text/javascript">
+          window.atOptions = {
+            'key' : 'e958e3f35dda1ac4876877eb26ae7599',
+            'format' : 'iframe',
+            'height' : 600,
+            'width' : 160,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/e958e3f35dda1ac4876877eb26ae7599/invoke.js"></script>
+      </body>
+    </html>
+  `, []);
 
   if (variant === 'tablet-footer') {
     return (
@@ -56,7 +49,7 @@ export default function SidebarAd({ variant = 'sidebar' }: SidebarAdProps) {
             style={{ contentVisibility: 'auto' }}
           >
             <iframe
-              ref={iframeRef}
+              srcDoc={adHtml}
               title="Advertisement"
               className="w-[160px] h-[600px] border-none overflow-hidden"
               scrolling="no"
@@ -84,7 +77,7 @@ export default function SidebarAd({ variant = 'sidebar' }: SidebarAdProps) {
           style={{ contentVisibility: 'auto' }}
         >
           <iframe
-            ref={iframeRef}
+            srcDoc={adHtml}
             title="Advertisement"
             className="w-[160px] h-[600px] border-none overflow-hidden"
             scrolling="no"
@@ -94,4 +87,5 @@ export default function SidebarAd({ variant = 'sidebar' }: SidebarAdProps) {
     </aside>
   );
 }
+
 

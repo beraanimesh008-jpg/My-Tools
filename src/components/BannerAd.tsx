@@ -1,44 +1,37 @@
-import { useEffect, useRef } from 'react';
+import { useMemo } from 'react';
 
 export default function BannerAd() {
-  const iframeRef = useRef<HTMLIFrameElement>(null);
-
-  useEffect(() => {
-    const iframe = iframeRef.current;
-    if (!iframe) return;
-
-    try {
-      const doc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!doc) return;
-
-      doc.open();
-      doc.write(`
-        <!DOCTYPE html>
-        <html>
-          <head>
-            <style>
-              body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
-            </style>
-          </head>
-          <body>
-            <script type="text/javascript">
-              window.atOptions = {
-                'key' : '43a804b3deaebef6546aed45e59327df',
-                'format' : 'iframe',
-                'height' : 90,
-                'width' : 728,
-                'params' : {}
-              };
-            </script>
-            <script type="text/javascript" src="https://www.highperformanceformat.com/43a804b3deaebef6546aed45e59327df/invoke.js"></script>
-          </body>
-        </html>
-      `);
-      doc.close();
-    } catch (err) {
-      console.error('Error rendering ad iframe content:', err);
-    }
-  }, []);
+  const adHtml = useMemo(() => `
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <base href="https://www.highperformanceformat.com/" target="_blank">
+        <style>
+          body { 
+            margin: 0; 
+            padding: 0; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            background: transparent; 
+            overflow: hidden; 
+          }
+        </style>
+      </head>
+      <body>
+        <script type="text/javascript">
+          window.atOptions = {
+            'key' : '43a804b3deaebef6546aed45e59327df',
+            'format' : 'iframe',
+            'height' : 90,
+            'width' : 728,
+            'params' : {}
+          };
+        </script>
+        <script type="text/javascript" src="https://www.highperformanceformat.com/43a804b3deaebef6546aed45e59327df/invoke.js"></script>
+      </body>
+    </html>
+  `, []);
 
   return (
     <section 
@@ -54,7 +47,7 @@ export default function BannerAd() {
           className="w-[728px] h-[90px] flex justify-center items-center origin-center scale-[0.42] xs:scale-[0.56] sm:scale-[0.82] md:scale-100 transition-all duration-300"
         >
           <iframe
-            ref={iframeRef}
+            srcDoc={adHtml}
             title="Advertisement"
             className="w-[728px] h-[90px] border-none overflow-hidden"
             scrolling="no"
@@ -64,4 +57,5 @@ export default function BannerAd() {
     </section>
   );
 }
+
 
