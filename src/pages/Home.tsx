@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { FileText, Image as ImageIcon, Zap, Video, Terminal, Scissors, Layers, Shrink, ImagePlus, User, Mail, ShieldCheck, QrCode, Lock, Layout } from 'lucide-react';
 import CategorySection from '../components/CategorySection';
+import AdSenseBanner from '../components/AdSenseBanner';
 
 const PDF_TOOLS = [
   { name: 'Merge PDF', description: 'Combine multiple PDF files into one single document seamlessly.', icon: Layers, href: '/merge-pdf', color: 'bg-rose-500' },
@@ -114,6 +115,9 @@ export default function Home() {
           </motion.div>
         </div>
       </section>
+
+      {/* Google AdSense Banner */}
+      <AdSenseBanner />
 
       {/* Tools Sections */}
       <div className="max-w-7xl mx-auto px-4 mt-12 space-y-8">
