@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { trackFileProcessed } from '@/src/utils/analytics';
 import { 
   FileText, 
   Download, 
@@ -144,6 +145,9 @@ export default function PdfToJpg() {
 
       setImages(convertedImages);
       
+      // Track file processed in analytics
+      trackFileProcessed(1);
+
       confetti({
         particleCount: 150,
         spread: 70,

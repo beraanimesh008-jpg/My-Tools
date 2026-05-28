@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { trackFileProcessed } from '@/src/utils/analytics';
 import { PDFDocument } from 'pdf-lib';
 import * as pdfjs from 'pdfjs-dist';
 import { 
@@ -312,6 +313,9 @@ export default function MergePdf() {
       });
 
       setUploadProgress(100);
+
+      // Track files processed in analytics
+      trackFileProcessed(fileList.length);
 
       // Generate Blob and URL
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });

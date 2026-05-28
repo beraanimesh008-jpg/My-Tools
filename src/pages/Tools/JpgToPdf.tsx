@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { trackFileProcessed } from '@/src/utils/analytics';
 import { 
   ImagePlus, 
   Download, 
@@ -261,6 +262,9 @@ export default function JpgToPdf() {
       const blob = new Blob([pdfBytes], { type: 'application/pdf' });
       const url = URL.createObjectURL(blob);
       setResultUrl(url);
+
+      // Track files processed in analytics
+      trackFileProcessed(imageList.length);
 
       confetti({
         particleCount: 150,

@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, useCallback, ChangeEvent } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { trackFileProcessed } from '@/src/utils/analytics';
 import { 
   Download, 
   Loader2, 
@@ -290,6 +291,9 @@ export default function BackgroundRemover() {
       const url = URL.createObjectURL(blob);
       setResultUrl(url);
       
+      // Track file processed in analytics
+      trackFileProcessed(1);
+
       confetti({
         particleCount: 150,
         spread: 70,

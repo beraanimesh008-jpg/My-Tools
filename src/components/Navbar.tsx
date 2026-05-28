@@ -23,7 +23,7 @@ export default function Navbar() {
             <div className="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-rose-200 group-hover:scale-110 transition-transform">
               <Zap className="text-white w-6 h-6 fill-white" />
             </div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-rose-400">ToolVerse</span>
+            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-rose-400">MyLovesPDF</span>
           </Link>
 
           {/* Desktop Search */}

@@ -38,5 +38,20 @@ service cloud.firestore {
     match /admins/{userId} {
       allow read: if isSignedIn();
     }
+
+    // Visitor events collection (historically unauthenticated server-side client library read/write access)
+    match /visitorEvents/{eventId} {
+      allow read, write: if true;
+    }
+
+    // Daily statistics collection (historically unauthenticated server-side client library read/write access)
+    match /dailyStats/{dateKey} {
+      allow read, write: if true;
+    }
+
+    // Global all-time aggregates (historically unauthenticated server-side client library read/write access)
+    match /globalStats/{summaryId} {
+      allow read, write: if true;
+    }
   }
 }

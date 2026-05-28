@@ -14,6 +14,8 @@ import PdfToJpg from './pages/Tools/PdfToJpg';
 import BackgroundRemover from './pages/Tools/BackgroundRemover';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
+import VisitorTrackerTrigger from './components/VisitorTrackerTrigger';
+import VisitorTracker from './pages/Tools/VisitorTracker';
 
 // Functional Component to handle Layout wrapper if needed
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
@@ -28,6 +30,9 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => (
 export default function App() {
   return (
     <BrowserRouter>
+      {/* Background tracking of routers */}
+      <VisitorTrackerTrigger />
+      
       <Routes>
         <Route path="/" element={<AppLayout><Navbar /><Home /></AppLayout>} />
         {/* PDF Tools */}
@@ -42,6 +47,9 @@ export default function App() {
         <Route path="/compress-pdf" element={<CompressPdf />} />
         <Route path="/pdf-to-jpg" element={<PdfToJpg />} />
         <Route path="/background-remover" element={<BackgroundRemover />} />
+        
+        {/* Analytics Visitor Tracker */}
+        <Route path="/visitor-tracker" element={<VisitorTracker />} />
         
         {/* Placeholder for other tools to avoid 404s in demo */}
         <Route path="*" element={<AppLayout><Navbar /><Home /></AppLayout>} />

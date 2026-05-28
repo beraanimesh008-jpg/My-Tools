@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
 import { FileText, Image as ImageIcon, Zap, Video, Terminal, Scissors, Layers, Shrink, ImagePlus, User, Mail, ShieldCheck, QrCode, Lock, Layout } from 'lucide-react';
 import CategorySection from '../components/CategorySection';
@@ -23,12 +24,33 @@ const AI_TOOLS = [
 ];
 
 const UTILITY_TOOLS = [
+  { name: 'Visitor Tracking', description: 'Real-time visitor analytic statistics, interactive graphs, and auditing dashboard.', icon: Layout, href: '/visitor-tracker', color: 'bg-indigo-600', isNew: true },
   { name: 'QR Generator', description: 'Generate custom QR codes for links, text, or vCards.', icon: QrCode, href: '/qr-gen', color: 'bg-emerald-500' },
   { name: 'Password Gen', description: 'Generate strong, secure, and random passwords instantly.', icon: Lock, href: '/password-gen', color: 'bg-emerald-500' },
   { name: 'Resume Builder', description: 'Build a professional resume with ease using templates.', icon: FileText, href: '/resume-builder', color: 'bg-emerald-500' },
 ];
 
 export default function Home() {
+  const [filesProcessed, setFilesProcessed] = useState<number | null>(null);
+
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/api/analytics');
+        if (res.ok) {
+          const data = await res.json();
+          setFilesProcessed(data?.summary?.filesProcessed || 0);
+        }
+      } catch (e) {
+        console.warn('Home processed files loader error:', e);
+      }
+    };
+
+    fetchStats();
+    const interval = setInterval(fetchStats, 10000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div className="pb-20">
       {/* Hero Section */}
@@ -53,7 +75,7 @@ export default function Home() {
               <span className="text-rose-600">Smart Creators.</span>
             </h1>
             <p className="max-w-2xl mx-auto text-xl text-slate-500 dark:text-slate-400 mb-10 leading-relaxed font-medium">
-              Join millions of users who transform their digital workflow with ToolVerse—the fastest way to merge, convert, compress, and generate.
+              Join millions of users who transform their digital workflow with MyLovesPDF—the fastest way to merge, convert, compress, and generate.
             </p>
             
             <div className="flex flex-wrap justify-center gap-4">
@@ -82,7 +104,7 @@ export default function Home() {
         <div className="max-w-7xl mx-auto px-8 relative z-10 text-center md:text-left">
           <div className="grid md:grid-cols-2 gap-12 items-center">
             <div>
-              <h2 className="text-4xl font-bold text-white mb-6">Why use ToolVerse?</h2>
+              <h2 className="text-4xl font-bold text-white mb-6">Why use MyLovesPDF?</h2>
               <p className="text-slate-400 text-lg mb-8">We provide high-precision conversion tools with ultra-fast processing speeds, all within your browser. No software to install, no signup required.</p>
               <ul className="space-y-4">
                 {[
@@ -101,10 +123,10 @@ export default function Home() {
             </div>
             <div className="grid grid-cols-2 gap-6">
               {[
-                { label: 'Files Processed', value: '12M+' },
-                { label: 'Active Tools', value: '50+' },
-                { label: 'Uptime', value: '99.9%' },
-                { label: 'User Rating', value: '4.9/5' },
+                { label: 'Files Processed', value: filesProcessed !== null ? filesProcessed.toLocaleString() : '0' },
+                { label: 'Active Tools', value: '50' },
+                { label: 'Uptime', value: '0%' },
+                { label: 'User Rating', value: '5/5' },
               ].map((stat, i) => (
                 <div key={i} className="p-8 bg-slate-800/50 rounded-3xl border border-slate-700">
                   <div className="text-3xl font-black text-white mb-1">{stat.value}</div>

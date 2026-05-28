@@ -1,5 +1,6 @@
 import { useState, useCallback } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { trackFileProcessed } from '@/src/utils/analytics';
 import { Shrink, Download, Loader2, CheckCircle, ArrowLeft, FileText, Settings, Zap, Shield, AlertCircle, Info, Trash2, Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
@@ -166,6 +167,9 @@ export default function CompressPdf() {
       setCompressedSize(blob.size);
       const url = URL.createObjectURL(blob);
       setResultUrl(url);
+
+      // Track files processed in analytics
+      trackFileProcessed(1);
 
       // Auto download
       const link = document.createElement('a');

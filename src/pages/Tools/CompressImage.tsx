@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { trackFileProcessed } from '@/src/utils/analytics';
 import { 
   ImageIcon, 
   Download, 
@@ -228,6 +229,7 @@ export default function CompressImage() {
     const targetQ = getTargetQuality();
 
     const itemsToProcess = items.filter(it => it.status !== 'completed');
+    const processedCount = itemsToProcess.length === 0 ? items.length : itemsToProcess.length;
     if (itemsToProcess.length === 0) {
       // Re-compress everything if all are already compressed
       await Promise.all(items.map(it => compressSingleItem(it.id, targetQ)));
@@ -236,6 +238,10 @@ export default function CompressImage() {
     }
 
     setIsProcessingAll(false);
+    
+    // Track files in analytics
+    trackFileProcessed(processedCount);
+
     confetti({
       particleCount: 150,
       spread: 80,

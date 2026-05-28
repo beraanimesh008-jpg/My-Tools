@@ -39,6 +39,49 @@
         "fileName": { "type": "string" }
       },
       "required": ["userId", "toolId", "timestamp"]
+    },
+    "VisitorEvent": {
+      "title": "Visitor Event",
+      "description": "Information about an individual page view or session",
+      "type": "object",
+      "properties": {
+        "ip": { "type": "string" },
+        "path": { "type": "string" },
+        "userAgent": { "type": "string" },
+        "browser": { "type": "string" },
+        "device": { "type": "string" },
+        "visitedAt": { "type": "string", "format": "date-time" },
+        "dateKey": { "type": "string" },
+        "sessionToken": { "type": "string" }
+      },
+      "required": ["ip", "path", "userAgent", "visitedAt", "dateKey"]
+    },
+    "DailyStats": {
+      "title": "Daily Stats",
+      "description": "Aggregated daily analytics",
+      "type": "object",
+      "properties": {
+        "date": { "type": "string" },
+        "totalPageViews": { "type": "integer" },
+        "totalVisitors": { "type": "integer" },
+        "uniqueVisitors": { "type": "integer" },
+        "devices": { "type": "object" },
+        "browsers": { "type": "object" },
+        "pageViewsByPath": { "type": "object" }
+      },
+      "required": ["date"]
+    },
+    "GlobalSummary": {
+      "title": "Global Summary",
+      "description": "Aggregate all-time website traffic metrics",
+      "type": "object",
+      "properties": {
+        "totalPageViews": { "type": "integer" },
+        "totalVisitors": { "type": "integer" },
+        "uniqueVisitors": { "type": "integer" },
+        "lastUpdated": { "type": "string", "format": "date-time" }
+      },
+      "required": ["totalPageViews", "totalVisitors", "uniqueVisitors"]
     }
   },
   "firestore": {
@@ -53,6 +96,18 @@
     "activityLogs/{logId}": {
       "schema": "ActivityLog",
       "description": "Log entry for tool usage"
+    },
+    "visitorEvents/{eventId}": {
+      "schema": "VisitorEvent",
+      "description": "Visits from users"
+    },
+    "dailyStats/{dateKey}": {
+      "schema": "DailyStats",
+      "description": "Daily visit aggregates"
+    },
+    "globalStats/{summaryId}": {
+      "schema": "GlobalSummary",
+      "description": "All-time summary statistics"
     }
   }
 }
