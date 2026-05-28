@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { trackFileProcessed } from '@/src/utils/analytics';
 import { Zap, Sparkles, Loader2, Wand2, Copy, Check } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
@@ -29,6 +30,9 @@ export default function AiGenerator() {
       if (response && response.text) {
         setResult(response.text);
         
+        // Track stats
+        trackFileProcessed(1);
+
         confetti({
           particleCount: 100,
           spread: 70,

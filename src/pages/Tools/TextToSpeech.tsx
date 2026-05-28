@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { trackFileProcessed } from '@/src/utils/analytics';
 import { Volume2, Play, Pause, RotateCcw, VolumeX, Sliders } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -32,7 +33,10 @@ export default function TextToSpeech() {
     utterance.rate = rate;
     utterance.pitch = pitch;
     
-    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onstart = () => {
+      setIsSpeaking(true);
+      trackFileProcessed(1);
+    };
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
     

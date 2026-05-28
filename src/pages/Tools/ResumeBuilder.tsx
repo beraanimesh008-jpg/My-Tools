@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { trackFileProcessed } from '@/src/utils/analytics';
 import { FileText, Download, User, Mail, Phone, MapPin, Briefcase, GraduationCap, Plus, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
 import confetti from 'canvas-confetti';
@@ -40,6 +41,7 @@ export default function ResumeBuilder() {
 
   const handleDownload = () => {
     window.print();
+    trackFileProcessed(1);
     confetti({
       particleCount: 100,
       spread: 70,

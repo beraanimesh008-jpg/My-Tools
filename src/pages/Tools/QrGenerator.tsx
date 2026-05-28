@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Navbar from '@/src/components/Navbar';
+import { trackFileProcessed } from '@/src/utils/analytics';
 import { QrCode, Download, RefreshCw, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import QRCode from 'qrcode';
@@ -23,6 +24,10 @@ export default function QrGenerator() {
         },
       });
       setQrDataUrl(url);
+
+      // Track file processed
+      trackFileProcessed(1);
+
       confetti({
         particleCount: 100,
         spread: 70,

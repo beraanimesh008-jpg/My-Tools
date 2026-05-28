@@ -35,14 +35,27 @@ export default function Home() {
 
   useEffect(() => {
     const fetchStats = async () => {
+      let apiCount = null;
       try {
         const res = await fetch('/api/analytics');
         if (res.ok) {
           const data = await res.json();
-          setFilesProcessed(data?.summary?.filesProcessed || 0);
+          apiCount = data?.summary?.filesProcessed;
         }
       } catch (e) {
         console.warn('Home processed files loader error:', e);
+      }
+
+      // Read from local storage
+      const localCountStr = localStorage.getItem('mylovespdf_files_processed');
+      const localCount = localCountStr ? parseInt(localCountStr, 10) : 0;
+
+      // If backend was successful, use backend count or fallback to local count
+      if (apiCount !== null && apiCount !== undefined) {
+        setFilesProcessed(apiCount > localCount ? apiCount : localCount);
+      } else {
+        // Fallback to local storage (Hostinger environment)
+        setFilesProcessed(localCount);
       }
     };
 
