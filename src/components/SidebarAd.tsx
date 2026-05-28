@@ -5,48 +5,43 @@ interface SidebarAdProps {
 }
 
 export default function SidebarAd({ variant = 'sidebar' }: SidebarAdProps) {
-  const adContainerRef = useRef<HTMLDivElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
   useEffect(() => {
-    if (!adContainerRef.current) return;
+    const iframe = iframeRef.current;
+    if (!iframe) return;
 
-    // Clear any previous elements
-    adContainerRef.current.innerHTML = '';
+    try {
+      const doc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!doc) return;
 
-    // Create wrapper for script elements
-    const adWrapper = document.createElement('div');
-    adWrapper.className = 'w-[160px] h-[600px] flex items-center justify-center overflow-hidden mx-auto';
-
-    // 1. Create options script
-    const optionsScript = document.createElement('script');
-    optionsScript.type = 'text/javascript';
-    optionsScript.innerHTML = `
-      atOptions = {
-        'key' : 'e958e3f35dda1ac4876877eb26ae7599',
-        'format' : 'iframe',
-        'height' : 600,
-        'width' : 160,
-        'params' : {}
-      };
-    `;
-
-    // 2. Create highperformanceformat invoke script
-    const invokeScript = document.createElement('script');
-    invokeScript.type = 'text/javascript';
-    invokeScript.src = '//www.highperformanceformat.com/e958e3f35dda1ac4876877eb26ae7599/invoke.js';
-    invokeScript.async = true;
-
-    // Append script tags to wrapper
-    adWrapper.appendChild(optionsScript);
-    adWrapper.appendChild(invokeScript);
-
-    adContainerRef.current.appendChild(adWrapper);
-
-    return () => {
-      if (adContainerRef.current) {
-        adContainerRef.current.innerHTML = '';
-      }
-    };
+      doc.open();
+      doc.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <style>
+              body { margin: 0; padding: 0; display: flex; justify-content: center; align-items: center; background: transparent; overflow: hidden; }
+            </style>
+          </head>
+          <body>
+            <script type="text/javascript">
+              window.atOptions = {
+                'key' : 'e958e3f35dda1ac4876877eb26ae7599',
+                'format' : 'iframe',
+                'height' : 600,
+                'width' : 160,
+                'params' : {}
+              };
+            </script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/e958e3f35dda1ac4876877eb26ae7599/invoke.js"></script>
+          </body>
+        </html>
+      `);
+      doc.close();
+    } catch (err) {
+      console.error('Error rendering ad iframe content:', err);
+    }
   }, []);
 
   if (variant === 'tablet-footer') {
@@ -57,10 +52,16 @@ export default function SidebarAd({ variant = 'sidebar' }: SidebarAdProps) {
             SPONSORED ADVERTISEMENT
           </span>
           <div 
-            ref={adContainerRef} 
             className="w-[160px] h-[600px] bg-slate-50 dark:bg-slate-950/40 rounded-xl overflow-hidden flex items-center justify-center"
             style={{ contentVisibility: 'auto' }}
-          />
+          >
+            <iframe
+              ref={iframeRef}
+              title="Advertisement"
+              className="w-[160px] h-[600px] border-none overflow-hidden"
+              scrolling="no"
+            />
+          </div>
         </div>
       </div>
     );
@@ -79,11 +80,18 @@ export default function SidebarAd({ variant = 'sidebar' }: SidebarAdProps) {
 
         {/* 160x600 Ad Frame Container */}
         <div 
-          ref={adContainerRef} 
           className="w-[160px] h-[600px] bg-slate-50 dark:bg-slate-950/40 rounded-xl overflow-hidden flex items-center justify-center transition-all duration-350"
           style={{ contentVisibility: 'auto' }}
-        />
+        >
+          <iframe
+            ref={iframeRef}
+            title="Advertisement"
+            className="w-[160px] h-[600px] border-none overflow-hidden"
+            scrolling="no"
+          />
+        </div>
       </div>
     </aside>
   );
 }
+
