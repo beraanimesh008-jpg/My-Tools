@@ -27,6 +27,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useDropzone } from 'react-dropzone';
+import MergePdfAd from '@/src/components/MergePdfAd';
 import {
   DndContext,
   closestCenter,
@@ -518,6 +519,9 @@ export default function MergePdf() {
                   </div>
                 </div>
               )}
+
+              {/* Sponsor Wide Banner Ad */}
+              <MergePdfAd />
             </motion.div>
           ) : (
             /* Success State */
