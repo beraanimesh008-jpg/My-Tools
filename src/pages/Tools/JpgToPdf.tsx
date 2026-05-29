@@ -27,6 +27,23 @@ import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { PDFDocument, PageSizes } from 'pdf-lib';
 import { useDropzone } from 'react-dropzone';
+import SEO from '@/src/components/SEO';
+
+const JPG_TO_PDF_FAQS = [
+  {
+    question: "How do I convert JPG images into a PDF online for free?",
+    answer: "Simply upload your JPG, JPEG, or PNG images by dragging them into the dashboard. Customize your margin preferences and page layouts (A4, Letter, etc.), organize the image flow sequence, and click 'Convert to PDF' to enjoy your automatic download instantly."
+  },
+  {
+    question: "Can I combine multiple list photos into a single PDF?",
+    answer: "Yes, My Loves PDF is engineered to let you combine multiple JPG images into one cohesive PDF document easily. Reorder individual pages by dragging them visually before rendering."
+  },
+  {
+    question: "Is there an image resolution loss during JPG to PDF conversion?",
+    answer: "No. Our high-fidelity rendering pipeline maps original image pixel grids perfectly inside container document streams, preventing any loss of resolution or text fuzziness."
+  }
+];
+
 import {
   DndContext,
   closestCenter,
@@ -298,6 +315,12 @@ export default function JpgToPdf() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors">
       <Navbar />
+      <SEO 
+        title="Convert JPG to PDF Online - Free Image to PDF" 
+        description="Convert your JPG and JPEG images into PDF documents easily. Reorder multiple photos visually, set margins, choose page layout, and compile with high resolution."
+        path="/jpg-to-pdf"
+        faqs={JPG_TO_PDF_FAQS}
+      />
       
       <main className="max-w-7xl mx-auto px-4 py-12">
         <AnimatePresence mode="wait">
@@ -549,6 +572,49 @@ export default function JpgToPdf() {
             <p className="text-slate-500 dark:text-slate-400 font-medium">Our engine maintains original resolution while optimizing document size.</p>
           </div>
         </section>
+
+        {/* Dynamic Mobile Optimized FAQ Segment */}
+        <section className="mt-32 max-w-4xl mx-auto font-sans">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">Frequently Asked Questions</h2>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">Quick answers regarding image converting security and document dimensions.</p>
+          </div>
+
+          <div className="space-y-8 mb-20">
+            {JPG_TO_PDF_FAQS.map((faq, idx) => (
+              <div key={idx} className="p-8 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 hover:border-rose-100 dark:hover:border-rose-900/40 transition-all">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-start gap-3">
+                  <span className="text-rose-600 dark:text-rose-400 font-black">Q.</span>
+                  {faq.question}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 font-medium pl-6 leading-relaxed">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Internal Interlinking Banner */}
+          <div className="p-10 bg-rose-50/25 dark:bg-rose-950/10 rounded-[2.5rem] border border-rose-100/50 dark:border-rose-900/30 text-center">
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Need Sibling PDF Upgrades?</h3>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 max-w-lg mx-auto">Discover other high-fidelity secure modules ready to compress, merge, or convert other document formats.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/merge-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
+                Merge PDFs Online
+              </Link>
+              <Link to="/compress-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
+                Compress PDF Size
+              </Link>
+              <Link to="/pdf-to-jpg" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
+                PDF to JPG Extract
+              </Link>
+              <Link to="/background-remover" className="px-6 py-4 bg-rose-600 text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-rose-200 dark:shadow-none transition-all hover:scale-105">
+                Cut Image BG (AI)
+              </Link>
+            </div>
+          </div>
+        </section>
+
       </main>
     </div>
   );

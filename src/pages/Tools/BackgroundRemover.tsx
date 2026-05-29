@@ -32,6 +32,23 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import { useDropzone } from 'react-dropzone';
+import SEO from '@/src/components/SEO';
+
+const BG_REMOVER_FAQS = [
+  {
+    question: "How do I remove an image background online for free?",
+    answer: "Drag and drop any photo (PNG, JPG, or JPEG) into our dash workspace. Our smart AI extractor evaluates pixel boundaries instantly and separates backgrounds beautifully. Download your cutout with zero charge."
+  },
+  {
+    question: "Can I replace the cut out background with customized colors?",
+    answer: "Yes, My Loves PDF provides pre-loaded flat backdrops and landscape preset backgrounds. Choose a custom shade, fit your cutout, and save as a high-quality JPG or PNG."
+  },
+  {
+    question: "Is this AI background remover private?",
+    answer: "Absolutely, yes. High encryption is used on our smart segmentation routes and no image files are stored, retained, or cached on our backend systems."
+  }
+];
+
 
 // --- Comparison Slider Component ---
 
@@ -474,6 +491,12 @@ export default function BackgroundRemover() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors relative overflow-hidden">
       <Navbar />
+      <SEO 
+        title="AI Background Remover - Remove Image Backgrounds Free" 
+        description="Remove backgrounds from images instantly for free with AI. Get transparent cutouts from PNGs or JPGs, change backgrounds, and export perfect high-quality portraits."
+        path="/background-remover"
+        faqs={BG_REMOVER_FAQS}
+      />
       <FloatingShapes />
       
       <main className="max-w-7xl mx-auto px-4 py-12 relative z-10">
@@ -969,6 +992,50 @@ export default function BackgroundRemover() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Visual FAQ & Interlinking Section */}
+      <section className="bg-slate-50 dark:bg-slate-950/40 py-24 border-t border-slate-100 dark:border-slate-800/80 font-sans z-20 relative">
+        <div className="max-w-4xl mx-auto px-4">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">Frequently Asked Questions</h2>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">Quick answers regarding neural AI photo segmentation and transparency.</p>
+          </div>
+
+          <div className="space-y-8 mb-20 animate-fade-in">
+            {BG_REMOVER_FAQS.map((faq, index) => (
+              <div key={index} className="p-8 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/50 hover:border-cyan-500 transition-colors">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-start gap-3">
+                  <span className="text-cyan-600 dark:text-cyan-400 font-black">Q.</span>
+                  {faq.question}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 font-medium pl-6 leading-relaxed">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Internal Interlinking Banner */}
+          <div className="p-10 bg-cyan-50/25 dark:bg-cyan-950/10 rounded-[2.5rem] border border-cyan-100/30 dark:border-cyan-900/20 text-center">
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Need PDF/Image Compressors next?</h3>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 max-w-lg mx-auto">Explore high-quality sizing utilities built to downscale, merge, protect, or optimize all your documents.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/compress-image" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-cyan-400 dark:hover:border-cyan-800 transition-all hover:scale-105">
+                Optimize Image Quality
+              </Link>
+              <Link to="/compress-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-cyan-400 dark:hover:border-cyan-800 transition-all hover:scale-105">
+                Compress PDF Size
+              </Link>
+              <Link to="/merge-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-cyan-400 dark:hover:border-cyan-800 transition-all hover:scale-105">
+                Merge PDFs
+              </Link>
+              <Link to="/ai-gen" className="px-6 py-4 bg-cyan-600 text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-cyan-200 dark:shadow-none transition-all hover:scale-105">
+                AI Image Designer
+              </Link>
+            </div>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

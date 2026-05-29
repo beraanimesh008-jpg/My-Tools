@@ -8,6 +8,23 @@ import confetti from 'canvas-confetti';
 import * as pdfjs from 'pdfjs-dist';
 import { PDFDocument } from 'pdf-lib';
 import { useDropzone } from 'react-dropzone';
+import SEO from '@/src/components/SEO';
+
+const COMPRESS_PDF_FAQS = [
+  {
+    question: "How do I reduce the file size of a PDF online for free?",
+    answer: "Simply upload your PDF by clicking inside the dashed dropzone or dropping it in. Choose your preferred optimization level using the precision slider, and click 'Compress PDF'. Your shrunken document compiles locally and triggers a safe automatic download."
+  },
+  {
+    question: "Is there a limit on how small I can make my PDF files?",
+    answer: "Our tool offers Low, Medium, and Strong compression profiles, allowing you to reduce the document size by up to 90% depending on the volume of embedded elements and images."
+  },
+  {
+    question: "Is browser-side compression secure?",
+    answer: "Yes, My Loves PDF executes all operations directly within your local client sandbox. This ensures and guarantees that sensitive data is never dispatched to cloud processing servers."
+  }
+];
+
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
@@ -217,6 +234,12 @@ export default function CompressPdf() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors">
       <Navbar />
+      <SEO 
+        title="Compress PDF Online - Shrink PDF File Size Free" 
+        description="Reduce PDF file size online within your browser securely. Free tool to compress high quality PDFs, shrink images, and optimize documents for web sharing."
+        path="/compress-pdf"
+        faqs={COMPRESS_PDF_FAQS}
+      />
       
       <main className="max-w-7xl mx-auto px-4 py-16">
         {!resultUrl ? (
@@ -414,7 +437,7 @@ export default function CompressPdf() {
           </div>
           <div className="p-10 bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
             <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center mb-6">
-              <Link to="/tools/merge-pdf" className="text-slate-600 dark:text-slate-300">
+              <Link to="/merge-pdf" className="text-slate-600 dark:text-slate-300">
                 <Settings className="w-8 h-8" />
               </Link>
             </div>
@@ -424,6 +447,49 @@ export default function CompressPdf() {
             </p>
           </div>
         </section>
+
+        {/* Dynamic Mobile Optimized FAQ Segment */}
+        <section className="mt-32 max-w-4xl mx-auto font-sans">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">Frequently Asked Questions</h2>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">Quick answers regarding document optimization safety and metrics.</p>
+          </div>
+
+          <div className="space-y-8 mb-20">
+            {COMPRESS_PDF_FAQS.map((faq, idx) => (
+              <div key={idx} className="p-8 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 hover:border-rose-100 dark:hover:border-rose-900/40 transition-all">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-start gap-3">
+                  <span className="text-rose-600 dark:text-rose-400 font-black">Q.</span>
+                  {faq.question}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 font-medium pl-6 leading-relaxed">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Internal Interlinking Banner */}
+          <div className="p-10 bg-rose-50/25 dark:bg-rose-950/10 rounded-[2.5rem] border border-rose-100/50 dark:border-rose-900/30 text-center">
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Expand Your Workflow Directory</h3>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 max-w-lg mx-auto">Access other high-precision tools designed to fast-track your office productivity completely free.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/merge-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
+                Merge Multiple PDFs
+              </Link>
+              <Link to="/pdf-to-jpg" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
+                Extract PDF to JPG
+              </Link>
+              <Link to="/jpg-to-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
+                Convert JPG to PDF
+              </Link>
+              <Link to="/background-remover" className="px-6 py-4 bg-rose-600 text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-rose-200 dark:shadow-none transition-all hover:scale-105">
+                Remove Background (AI)
+              </Link>
+            </div>
+          </div>
+        </section>
+
       </main>
 
       {/* Password Modal */}

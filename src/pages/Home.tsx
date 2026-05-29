@@ -5,6 +5,23 @@ import CategorySection from '../components/CategorySection';
 import AdSenseBanner from '../components/AdSenseBanner';
 import BannerAd from '../components/BannerAd';
 import SidebarAd from '../components/SidebarAd';
+import SEO from '../components/SEO';
+
+const HOME_FAQS = [
+  {
+    question: "What is My Loves PDF?",
+    answer: "My Loves PDF is a highly flexible multi-tool workspace providing completely free web applications to merge PDFs, compress file size with maximum preservation, convert formats, generate secure parameters, parse voiceovers with TTS, and remove picture backgrounds."
+  },
+  {
+    question: "How secure is My Loves PDF for processing private data?",
+    answer: "Extremely secure. All critical PDF tools operate and run directly inside your client's web browser session using WebAssembly compilation, guaranteeing that your raw documents are never dispatched to or cached by remote cloud systems."
+  },
+  {
+    question: "Are there any file processing limits or hidden memberships?",
+    answer: "No, My Loves PDF is 100% free. There are no registration forms, no usage credits, and no paywalled gates."
+  }
+];
+
 
 const PDF_TOOLS = [
   { name: 'Merge PDF', description: 'Combine multiple PDF files into one single document seamlessly.', icon: Layers, href: '/merge-pdf', color: 'bg-rose-500' },
@@ -81,6 +98,12 @@ export default function Home() {
 
   return (
     <div className="pb-20">
+      <SEO 
+        title="My Loves PDF - Free Online PDF Tools" 
+        description="Merge, compress, split, convert and edit PDF files online for free. Explore premium image studios, neural background removers, password creators, and voice tools."
+        path="/"
+        faqs={HOME_FAQS}
+      />
       {/* Hero Section */}
       <section className="relative py-24 overflow-hidden">
         <div className="absolute inset-0 bg-rose-50 dark:bg-slate-900 -z-10" />

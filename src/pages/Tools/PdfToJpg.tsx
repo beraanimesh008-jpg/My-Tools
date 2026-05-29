@@ -30,6 +30,23 @@ import confetti from 'canvas-confetti';
 import * as pdfjs from 'pdfjs-dist';
 import JSZip from 'jszip';
 import { useDropzone } from 'react-dropzone';
+import SEO from '@/src/components/SEO';
+
+const PDF_TO_JPG_FAQS = [
+  {
+    question: "How do I convert PDF pages to JPG images online for free?",
+    answer: "Simply upload your PDF document, select your preferred quality multiplier (80%, 90%, 100%), and let our high-speed tool extract every page into a crisp JPG. Download them as individual files or a aggregated ZIP file package safely."
+  },
+  {
+    question: "Is there a page count limit when extracting images from PDF?",
+    answer: "No, My Loves PDF provides uncompromised bulk extraction. You can convert short invoices or multi-hundred page ebooks completely free of charge and signup limitations."
+  },
+  {
+    question: "Is my document data secure?",
+    answer: "Absolutely, privacy is guaranteed. All PDF to image rendering is mapped in your secure client environment, assuring no external leaks ever occur."
+  }
+];
+
 
 // Configure PDF.js worker
 pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
@@ -204,6 +221,12 @@ export default function PdfToJpg() {
   return (
     <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors">
       <Navbar />
+      <SEO 
+        title="Convert PDF to JPG Online - Free PDF Image Extractor" 
+        description="Extract images and convert PDF pages into beautiful high-resolution JPG photos easily. Bulk export pages inside a ZIP file directly in your browser."
+        path="/pdf-to-jpg"
+        faqs={PDF_TO_JPG_FAQS}
+      />
       
       <main className="max-w-7xl mx-auto px-4 py-16">
         <AnimatePresence mode="wait">
@@ -411,6 +434,48 @@ export default function PdfToJpg() {
             <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
               Don't manually save every page. One click to bundle all your extracted images into a single ZIP archive.
             </p>
+          </div>
+        </section>
+
+        {/* Dynamic Mobile Optimized FAQ Segment */}
+        <section className="mt-32 max-w-4xl mx-auto font-sans">
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">Frequently Asked Questions</h2>
+            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">Quick answers regarding bulk extraction, confidentiality, and performance.</p>
+          </div>
+
+          <div className="space-y-8 mb-20">
+            {PDF_TO_JPG_FAQS.map((faq, idx) => (
+              <div key={idx} className="p-8 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 hover:border-rose-100 dark:hover:border-rose-900/40 transition-all">
+                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-start gap-3">
+                  <span className="text-rose-600 dark:text-rose-400 font-black">Q.</span>
+                  {faq.question}
+                </h3>
+                <p className="text-slate-600 dark:text-slate-400 font-medium pl-6 leading-relaxed">
+                  {faq.answer}
+                </p>
+              </div>
+            ))}
+          </div>
+
+          {/* Internal Interlinking Directory */}
+          <div className="p-10 bg-rose-50/25 dark:bg-rose-950/10 rounded-[2.5rem] border border-rose-100/50 dark:border-rose-900/30 text-center">
+            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Need Sibling Converter Upgrades?</h3>
+            <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 max-w-lg mx-auto">Access other fast-conversion modules built to merge, size-down, or rebuild documents safely.</p>
+            <div className="flex flex-wrap justify-center gap-4">
+              <Link to="/merge-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
+                Merge PDFs
+              </Link>
+              <Link to="/compress-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
+                Compress PDF Size
+              </Link>
+              <Link to="/jpg-to-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
+                JPG to PDF Convert
+              </Link>
+              <Link to="/background-remover" className="px-6 py-4 bg-rose-600 text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-rose-200 dark:shadow-none transition-all hover:scale-105">
+                Cut Background (AI)
+              </Link>
+            </div>
           </div>
         </section>
       </main>
