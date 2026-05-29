@@ -31,6 +31,7 @@ import * as pdfjs from 'pdfjs-dist';
 import JSZip from 'jszip';
 import { useDropzone } from 'react-dropzone';
 import SEO from '@/src/components/SEO';
+import PdfToJpgAd from '@/src/components/PdfToJpgAd';
 
 const PDF_TO_JPG_FAQS = [
   {
@@ -257,19 +258,22 @@ export default function PdfToJpg() {
               )}
 
               {!file ? (
-                <div 
-                  {...getRootProps()}
-                  className={`w-full max-w-4xl min-h-[400px] flex flex-col items-center justify-center p-12 rounded-[3.5rem] border-4 border-dashed transition-all duration-300 cursor-pointer
-                    ${isDragActive ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-900/10' : 'border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700'}
-                  `}
-                >
-                  <input {...getInputProps()} />
-                  <div className="w-32 h-32 bg-rose-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-rose-200 dark:shadow-none mb-8">
-                    <FileText className="text-white w-16 h-16" />
+                <>
+                  <div 
+                    {...getRootProps()}
+                    className={`w-full max-w-4xl min-h-[400px] flex flex-col items-center justify-center p-12 rounded-[3.5rem] border-4 border-dashed transition-all duration-300 cursor-pointer
+                      ${isDragActive ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-900/10' : 'border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700'}
+                    `}
+                  >
+                    <input {...getInputProps()} />
+                    <div className="w-32 h-32 bg-rose-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-rose-200 dark:shadow-none mb-8">
+                      <FileText className="text-white w-16 h-16" />
+                    </div>
+                    <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Select PDF file</h2>
+                    <p className="text-slate-500 dark:text-slate-400 text-lg font-bold">or drag and drop here</p>
                   </div>
-                  <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Select PDF file</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-lg font-bold">or drag and drop here</p>
-                </div>
+                  <PdfToJpgAd />
+                </>
               ) : (
                 <div className="w-full max-w-md">
                   <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 border-2 border-slate-100 dark:border-slate-700 shadow-2xl space-y-8">

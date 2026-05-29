@@ -28,6 +28,7 @@ import confetti from 'canvas-confetti';
 import { PDFDocument, PageSizes } from 'pdf-lib';
 import { useDropzone } from 'react-dropzone';
 import SEO from '@/src/components/SEO';
+import JpgToPdfAd from '@/src/components/JpgToPdfAd';
 
 const JPG_TO_PDF_FAQS = [
   {
@@ -352,19 +353,22 @@ export default function JpgToPdf() {
               )}
 
               {imageList.length === 0 ? (
-                <div 
-                  {...getRootProps()}
-                  className={`w-full max-w-4xl min-h-[400px] flex flex-col items-center justify-center p-12 rounded-[3.5rem] border-4 border-dashed transition-all duration-300 cursor-pointer
-                    ${isDragActive ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-900/10' : 'border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700'}
-                  `}
-                >
-                  <input {...getInputProps()} />
-                  <div className="w-32 h-32 bg-rose-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-rose-200 dark:shadow-none mb-8">
-                    <ImagePlus className="text-white w-16 h-16" />
+                <>
+                  <div 
+                    {...getRootProps()}
+                    className={`w-full max-w-4xl min-h-[400px] flex flex-col items-center justify-center p-12 rounded-[3.5rem] border-4 border-dashed transition-all duration-300 cursor-pointer
+                      ${isDragActive ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-900/10' : 'border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700'}
+                    `}
+                  >
+                    <input {...getInputProps()} />
+                    <div className="w-32 h-32 bg-rose-600 rounded-[2.5rem] flex items-center justify-center shadow-2xl shadow-rose-200 dark:shadow-none mb-8">
+                      <ImagePlus className="text-white w-16 h-16" />
+                    </div>
+                    <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Select JPG images</h2>
+                    <p className="text-slate-500 dark:text-slate-400 text-lg font-bold">or drag and drop images here</p>
                   </div>
-                  <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Select JPG images</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-lg font-bold">or drag and drop images here</p>
-                </div>
+                  <JpgToPdfAd />
+                </>
               ) : (
                 <div className="w-full space-y-12">
                   <div className="flex flex-col lg:flex-row gap-8 items-start">
