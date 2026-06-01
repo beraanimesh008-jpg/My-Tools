@@ -269,11 +269,18 @@ function runPrerendering() {
       fs.writeFileSync(templatePath, injectedHtml, 'utf-8');
       console.log('✅ Prerendered root index.html');
     } else {
-      // Create subfolder, write index.html inside it
-      const targetDir = path.join(DIST_PATH, urlPath.substring(1));
+      const folderName = urlPath.substring(1);
+      
+      // Option A: Folder routing (e.g. dist/merge-pdf/index.html)
+      const targetDir = path.join(DIST_PATH, folderName);
       ensureDir(targetDir);
       fs.writeFileSync(path.join(targetDir, 'index.html'), injectedHtml, 'utf-8');
-      console.log(`✅ Prerendered routing path: ${urlPath}`);
+
+      // Option B: Flat file routing (e.g. dist/merge-pdf.html)
+      const flatFilePath = path.join(DIST_PATH, `${folderName}.html`);
+      fs.writeFileSync(flatFilePath, injectedHtml, 'utf-8');
+
+      console.log(`✅ Prerendered routing path (Dual-mode): ${urlPath}`);
     }
   });
 
@@ -282,7 +289,8 @@ function runPrerendering() {
   ensureDir(blogIndexDir);
   const blogIndexHtml = preInjectSeo(rawHtml, '/blog');
   fs.writeFileSync(path.join(blogIndexDir, 'index.html'), blogIndexHtml, 'utf-8');
-  console.log('✅ Prerendered path: /blog');
+  fs.writeFileSync(path.join(DIST_PATH, 'blog.html'), blogIndexHtml, 'utf-8');
+  console.log('✅ Prerendered path (Dual-mode): /blog');
 
   // 3. Process each dynamic blog post slug
   Object.keys(BLOG_POSTS).forEach(slug => {
@@ -291,7 +299,8 @@ function runPrerendering() {
     ensureDir(targetDir);
     const postHtml = preInjectSeo(rawHtml, postPath);
     fs.writeFileSync(path.join(targetDir, 'index.html'), postHtml, 'utf-8');
-    console.log(`✅ Prerendered Blog Post slug: ${postPath}`);
+    fs.writeFileSync(path.join(blogIndexDir, `${slug}.html`), postHtml, 'utf-8');
+    console.log(`✅ Prerendered Blog Post slug (Dual-mode): ${postPath}`);
   });
 
   // 4. Generate sitemap.xml and robots.txt inside dist/

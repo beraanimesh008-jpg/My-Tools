@@ -903,6 +903,15 @@ async function startServer() {
         }
       } catch (_) {}
 
+      // Dual-mode: check if pre-rendered flat html file exists
+      try {
+        const potentialFlatFile = path.join(distPath, `${urlPath}.html`);
+        if (fs.existsSync(potentialFlatFile)) {
+          res.sendFile(potentialFlatFile);
+          return;
+        }
+      } catch (_) {}
+
       // Fail-safe dynamic injection if any route was missed or represents a special route
       try {
         const rawHtml = fs.readFileSync(path.join(distPath, "index.html"), "utf-8");
