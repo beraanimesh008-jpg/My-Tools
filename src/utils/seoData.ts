@@ -431,7 +431,7 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     ],
     relatedTools: [
       { name: "Image Compressor", href: "/compress-image" },
-      { name: "AI Image Generator", href: "/ai-gen" },
+      { name: "Image Converter", href: "/image-converter" },
       { name: "JPG to PDF", href: "/jpg-to-pdf" }
     ],
     longSeoContent: `

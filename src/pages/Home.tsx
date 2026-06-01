@@ -39,14 +39,9 @@ const IMAGE_TOOLS = [
   { name: 'Image Converter', description: 'Re-encode and convert images to PNG, WebP, or JPG formats.', icon: ImageIcon, href: '/image-converter', color: 'bg-orange-500', isNew: true },
 ];
 
-const AI_TOOLS = [
-  { name: 'AI Image Generator', description: 'Create stunning images from simple text descriptions.', icon: Zap, href: '/ai-gen', color: 'bg-purple-600', isNew: true },
-  { name: 'AI Logo Maker', description: 'Craft unique and professional logos for your brand.', icon: Layout, href: '/ai-logo', color: 'bg-purple-600' },
-  { name: 'Text to Speech', description: 'Convert written text into natural-sounding voiceovers.', icon: Mail, href: '/tts', color: 'bg-purple-600' },
-];
-
 const UTILITY_TOOLS = [
   { name: 'Visitor Tracking', description: 'Real-time visitor analytic statistics, interactive graphs, and auditing dashboard.', icon: Layout, href: '/visitor-tracker', color: 'bg-indigo-600', isNew: true },
+  { name: 'Text to Speech', description: 'Convert written text into natural-sounding voiceovers.', icon: Mail, href: '/tts', color: 'bg-emerald-500', isNew: true },
   { name: 'QR Generator', description: 'Generate custom QR codes for links, text, or vCards.', icon: QrCode, href: '/qr-gen', color: 'bg-emerald-500' },
   { name: 'Password Gen', description: 'Generate strong, secure, and random passwords instantly.', icon: Lock, href: '/password-gen', color: 'bg-emerald-500' },
   { name: 'Resume Builder', description: 'Build a professional resume with ease using templates.', icon: FileText, href: '/resume-builder', color: 'bg-emerald-500' },
@@ -152,7 +147,6 @@ export default function Home() {
         <div className="flex-1 w-full space-y-8">
           <CategorySection title="PDF Management" icon={FileText} color="bg-rose-500" tools={PDF_TOOLS} />
           <CategorySection title="Image Studio" icon={ImageIcon} color="bg-orange-500" tools={IMAGE_TOOLS} />
-          <CategorySection title="Magical AI" icon={Zap} color="bg-purple-600" tools={AI_TOOLS} />
           <CategorySection title="Daily Utilities" icon={Terminal} color="bg-emerald-500" tools={UTILITY_TOOLS} />
         </div>
 

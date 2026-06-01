@@ -1029,8 +1029,8 @@ export default function BackgroundRemover() {
               <Link to="/merge-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-cyan-400 dark:hover:border-cyan-800 transition-all hover:scale-105">
                 Merge PDFs
               </Link>
-              <Link to="/ai-gen" className="px-6 py-4 bg-cyan-600 text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-cyan-200 dark:shadow-none transition-all hover:scale-105">
-                AI Image Designer
+              <Link to="/image-converter" className="px-6 py-4 bg-cyan-600 text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-cyan-200 dark:shadow-none transition-all hover:scale-105">
+                Image Converter
               </Link>
             </div>
           </div>
