@@ -169,30 +169,32 @@ function preInjectSeo(html: string, urlPath: string): string {
     // Root HTML Prerender Injection for Search Spiders (so Ctrl+U will display full readable body paragraphs)
     const renderedBody = `
 <div id="root">
-  <div style="padding: 40px 20px; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
-    <h1 style="font-size: 2.5rem; font-weight: 800; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.025em;">${h1}</h1>
-    <p style="font-size: 1.125rem; color: #475569; margin-bottom: 30px;">${intro}</p>
-    
-    ${features.length > 0 ? `
-      <h2 style="font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-top: 40px; margin-bottom: 15px;">Key Features</h2>
-      <ul style="margin-bottom: 30px; padding-left: 20px;">
-        ${features.map(f => `<li><strong>${f.title}</strong>: ${f.description}</li>`).join("")}
-      </ul>
-    ` : ""}
+  <div id="prerender-seo-wrapper">
+    <div style="padding: 40px 20px; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+      <h1 style="font-size: 2.5rem; font-weight: 800; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.025em;">${h1}</h1>
+      <p style="font-size: 1.125rem; color: #475569; margin-bottom: 30px;">${intro}</p>
+      
+      ${features.length > 0 ? `
+        <h2 style="font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-top: 40px; margin-bottom: 15px;">Key Features</h2>
+        <ul style="margin-bottom: 30px; padding-left: 20px;">
+          ${features.map(f => `<li><strong>${f.title}</strong>: ${f.description}</li>`).join("")}
+        </ul>
+      ` : ""}
 
-    ${longSeoContent}
+      ${longSeoContent}
 
-    ${faqs.length > 0 ? `
-      <h2 style="font-size: 1.75rem; font-weight: 700; color: #0f172a; margin-top: 50px; margin-bottom: 20px;">Frequently Asked Questions</h2>
-      <div>
-        ${faqs.map(faq => `
-          <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
-            <h3 style="font-size: 1.125rem; font-weight: 600; color: #0f172a; margin-bottom: 8px;">${faq.question}</h3>
-            <p style="color: #475569; font-size: 0.950rem;">${faq.answer}</p>
-          </div>
-        `).join("")}
-      </div>
-    ` : ""}
+      ${faqs.length > 0 ? `
+        <h2 style="font-size: 1.75rem; font-weight: 700; color: #0f172a; margin-top: 50px; margin-bottom: 20px;">Frequently Asked Questions</h2>
+        <div>
+          ${faqs.map(faq => `
+            <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
+              <h3 style="font-size: 1.125rem; font-weight: 600; color: #0f172a; margin-bottom: 8px;">${faq.question}</h3>
+              <p style="color: #475569; font-size: 0.950rem;">${faq.answer}</p>
+            </div>
+          `).join("")}
+        </div>
+      ` : ""}
+    </div>
   </div>
 </div>`;
 
