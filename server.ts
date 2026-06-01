@@ -884,21 +884,26 @@ async function startServer() {
       
       if (urlPath === "/sitemap.xml") {
         res.header("Content-Type", "application/xml");
-        res.send(generateSitemapXml());
+        res.sendFile(path.join(distPath, "sitemap.xml"));
         return;
       }
       
       if (urlPath === "/robots.txt") {
         res.header("Content-Type", "text/plain");
-        res.send(`User-agent: *
-Allow: /
-Disallow: /api/
-
-Sitemap: https://mylovespdf.com/sitemap.xml`);
+        res.sendFile(path.join(distPath, "robots.txt"));
         return;
       }
 
-      // Read production static file and inject SEO meta content prior to dispatching
+      // Check if a physical subfolder index.html exists for this route from build-time prerendering
+      try {
+        const potentialHtmlFile = path.join(distPath, urlPath, "index.html");
+        if (fs.existsSync(potentialHtmlFile)) {
+          res.sendFile(potentialHtmlFile);
+          return;
+        }
+      } catch (_) {}
+
+      // Fail-safe dynamic injection if any route was missed or represents a special route
       try {
         const rawHtml = fs.readFileSync(path.join(distPath, "index.html"), "utf-8");
         const parsedHtml = preInjectSeo(rawHtml, urlPath);

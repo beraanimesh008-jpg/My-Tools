@@ -5,7 +5,15 @@
   # Disable directory browsing for security
   Options -Indexes
 
-  # Redirect all requests to index.html if they do not match an existing file or directory
+  # Serve sitemap.xml and robots.txt directly
+  RewriteRule ^sitemap\.xml$ sitemap.xml [L]
+  RewriteRule ^robots\.txt$ robots.txt [L]
+
+  # Clean URL routing: if a directory with index.html exists, serve it internally
+  RewriteCond %{DOCUMENT_ROOT}/$1/index.html -f
+  RewriteRule ^([^.]+)/?$ /$1/index.html [L]
+
+  # Redirect all other requests to index.html if they do not match an existing file or directory
   RewriteRule ^index\.html$ - [L]
   RewriteCond %{REQUEST_FILENAME} !-f
   RewriteCond %{REQUEST_FILENAME} !-d
