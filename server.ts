@@ -743,7 +743,6 @@ async function startServer() {
       "/background-remover",
       "/compress-image",
       "/image-converter",
-      "/ai-gen",
       "/qr-gen",
       "/password-gen",
       "/tts",

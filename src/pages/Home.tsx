@@ -40,7 +40,6 @@ const IMAGE_TOOLS = [
 ];
 
 const AI_TOOLS = [
-  { name: 'AI Image Generator', description: 'Create stunning images from simple text descriptions.', icon: Zap, href: '/ai-gen', color: 'bg-purple-600', isNew: true },
   { name: 'AI Logo Maker', description: 'Craft unique and professional logos for your brand.', icon: Layout, href: '/ai-logo', color: 'bg-purple-600' },
   { name: 'Text to Speech', description: 'Convert written text into natural-sounding voiceovers.', icon: Mail, href: '/tts', color: 'bg-purple-600' },
 ];
