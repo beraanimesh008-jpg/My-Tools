@@ -26,15 +26,17 @@ const HOME_FAQS = [
 const PDF_TOOLS = [
   { name: 'Merge PDF', description: 'Combine multiple PDF files into one single document seamlessly.', icon: Layers, href: '/merge-pdf', color: 'bg-rose-500' },
   { name: 'Compress PDF', description: 'Reduce PDF file size while maintaining the best quality.', icon: Shrink, href: '/compress-pdf', color: 'bg-rose-500' },
+  { name: 'Split PDF', description: 'Separate pages or extract specific continuous ranges instantly.', icon: Scissors, href: '/split-pdf', color: 'bg-rose-500', isNew: true },
   { name: 'JPG to PDF', description: 'Convert your JPG/JPEG images to PDF documents in seconds.', icon: ImagePlus, href: '/jpg-to-pdf', color: 'bg-rose-500' },
   { name: 'PDF to JPG', description: 'Extract images from a PDF or convert every page to JPG.', icon: ImageIcon, href: '/pdf-to-jpg', color: 'bg-rose-500' },
+  { name: 'PDF to Word', description: 'Convert PDF tables and text back into editable Word formats.', icon: FileText, href: '/pdf-to-word', color: 'bg-rose-500', isNew: true },
+  { name: 'Word to PDF', description: 'Compile Word DOCX files into beautiful standards-compliant PDFs.', icon: FileText, href: '/word-to-pdf', color: 'bg-rose-500', isNew: true },
 ];
 
 const IMAGE_TOOLS = [
   { name: 'Background Remover', description: 'Remove backgrounds from images automatically using AI.', icon: Scissors, href: '/background-remover', color: 'bg-cyan-500', isNew: true },
   { name: 'Image Compressor', description: 'Shrink image file sizes without losing visual quality.', icon: Shrink, href: '/compress-image', color: 'bg-orange-500' },
-  { name: 'Image Resizer', description: 'Change the dimensions of your images for any use case.', icon: Layout, href: '/resize-image', color: 'bg-orange-500' },
-  { name: 'Passport Photo', description: 'Create perfectly sized passport photos with one click.', icon: User, href: '/passport-photo', color: 'bg-orange-500' },
+  { name: 'Image Converter', description: 'Re-encode and convert images to PNG, WebP, or JPG formats.', icon: ImageIcon, href: '/image-converter', color: 'bg-orange-500', isNew: true },
 ];
 
 const AI_TOOLS = [

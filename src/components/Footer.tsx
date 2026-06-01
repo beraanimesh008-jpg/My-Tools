@@ -52,8 +52,7 @@ export default function Footer() {
           <div>
             <h4 className="text-slate-900 dark:text-white font-bold mb-6">Company</h4>
             <ul className="space-y-4 text-slate-500 dark:text-slate-400 font-medium">
-              <li><a href="#" className="hover:text-rose-600">About Us</a></li>
-              <li><a href="#" className="hover:text-rose-600">Our Story</a></li>
+              <li><Link to="/blog" className="hover:text-rose-600">Our Blog</Link></li>
               <li><a href="#" className="hover:text-rose-600">Privacy Policy</a></li>
               <li><a href="#" className="hover:text-rose-600">Terms of Service</a></li>
             </ul>
@@ -63,7 +62,7 @@ export default function Footer() {
             <h4 className="text-slate-900 dark:text-white font-bold mb-6">Popular Tools</h4>
             <ul className="space-y-4 text-slate-500 dark:text-slate-400 font-medium">
               <li><Link to="/merge-pdf" className="hover:text-rose-600">Merge PDF</Link></li>
-              <li><Link to="/bg-remover" className="hover:text-rose-600">Background Remover</Link></li>
+              <li><Link to="/background-remover" className="hover:text-rose-600">Background Remover</Link></li>
               <li><Link to="/ai-gen" className="hover:text-rose-600">AI Image Generator</Link></li>
               <li><Link to="/qr-gen" className="hover:text-rose-600">QR Code Generator</Link></li>
             </ul>

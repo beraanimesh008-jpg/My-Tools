@@ -12,6 +12,9 @@ import ResumeBuilder from './pages/Tools/ResumeBuilder';
 import CompressPdf from './pages/Tools/CompressPdf';
 import PdfToJpg from './pages/Tools/PdfToJpg';
 import BackgroundRemover from './pages/Tools/BackgroundRemover';
+import GenericToolTemplate from './pages/Tools/GenericToolTemplate';
+import BlogIndex from './pages/Blog/BlogIndex';
+import BlogPost from './pages/Blog/BlogPost';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import VisitorTrackerTrigger from './components/VisitorTrackerTrigger';
@@ -47,6 +50,16 @@ export default function App() {
         <Route path="/compress-pdf" element={<CompressPdf />} />
         <Route path="/pdf-to-jpg" element={<PdfToJpg />} />
         <Route path="/background-remover" element={<BackgroundRemover />} />
+
+        {/* Custom New SEO Tools */}
+        <Route path="/split-pdf" element={<GenericToolTemplate toolPath="/split-pdf" />} />
+        <Route path="/pdf-to-word" element={<GenericToolTemplate toolPath="/pdf-to-word" />} />
+        <Route path="/word-to-pdf" element={<GenericToolTemplate toolPath="/word-to-pdf" />} />
+        <Route path="/image-converter" element={<GenericToolTemplate toolPath="/image-converter" />} />
+
+        {/* Global SEO Blog System */}
+        <Route path="/blog" element={<BlogIndex />} />
+        <Route path="/blog/:slug" element={<BlogPost />} />
         
         {/* Analytics Visitor Tracker */}
         <Route path="/visitor-tracker" element={<VisitorTracker />} />

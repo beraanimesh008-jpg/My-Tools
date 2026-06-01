@@ -7,6 +7,8 @@ import sharp from "sharp";
 import { fileURLToPath } from "url";
 import fs from "fs";
 import { initializeApp } from "firebase/app";
+import { SEO_CONFIG } from "./src/utils/seoData";
+import { BLOG_POSTS } from "./src/utils/blogData";
 import { 
   getFirestore, 
   doc, 
@@ -726,6 +728,147 @@ async function startServer() {
     }
   });
 
+  // --- Sitemap & Robots Generator ---
+  const generateSitemapXml = (): string => {
+    const base = "https://mylovespdf.com";
+    const paths = [
+      "",
+      "/merge-pdf",
+      "/compress-pdf",
+      "/split-pdf",
+      "/pdf-to-jpg",
+      "/jpg-to-pdf",
+      "/pdf-to-word",
+      "/word-to-pdf",
+      "/background-remover",
+      "/compress-image",
+      "/image-converter",
+      "/ai-gen",
+      "/qr-gen",
+      "/password-gen",
+      "/tts",
+      "/resume-builder",
+      "/blog"
+    ];
+    
+    let xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
+    
+    paths.forEach(p => {
+      const priority = p === "" ? "1.0" : p.startsWith("/blog") ? "0.7" : "0.9";
+      xml += `\n  <url>\n    <loc>${base}${p}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>${priority}</priority>\n  </url>`;
+    });
+
+    Object.keys(BLOG_POSTS).forEach(slug => {
+      xml += `\n  <url>\n    <loc>${base}/blog/${slug}</loc>\n    <changefreq>weekly</changefreq>\n    <priority>0.6</priority>\n  </url>`;
+    });
+
+    xml += `\n</urlset>`;
+    return xml;
+  };
+
+  const preInjectSeo = (html: string, urlPath: string): string => {
+    try {
+      let title = "My Loves PDF - Free Online PDF, Image, & AI Utilities Studio";
+      let h1 = "Free Premium PDF Tools & Creative AI Studio";
+      let desc = "Combine, compress, convert, and manage high-resolution PDF documents. Unlock advanced neural AI features.";
+      let intro = "";
+      let longSeoContent = "";
+      let features: { title: string; description: string }[] = [];
+      let faqs: { question: string; answer: string }[] = [];
+      let isMatch = false;
+
+      if (SEO_CONFIG[urlPath]) {
+        const config = SEO_CONFIG[urlPath];
+        title = config.title;
+        h1 = config.h1;
+        desc = config.description;
+        intro = config.intro;
+        features = config.features;
+        faqs = config.faqs;
+        longSeoContent = config.longSeoContent;
+        isMatch = true;
+      } else if (urlPath.startsWith("/blog/")) {
+        const slug = urlPath.replace("/blog/", "");
+        if (BLOG_POSTS[slug]) {
+          const post = BLOG_POSTS[slug];
+          title = post.title;
+          h1 = post.title;
+          desc = post.description;
+          intro = post.description;
+          longSeoContent = post.content;
+          isMatch = true;
+        }
+      } else if (urlPath === "/blog") {
+        title = "My Loves PDF Blog - Expert Productivity & Document Guides";
+        h1 = "The Loves PDF Blog";
+        desc = "Explore detailed operating checklists, optimization guides, format conversions tricks, and AI tutorials.";
+        intro = "Actionable guides, speed checklists, and developer-grade summaries to help you optimize documents.";
+        longSeoContent = "<h2>Latest Industry Articles</h2><ul>" + Object.values(BLOG_POSTS).map(p => `<li><a href="/blog/${p.slug}">${p.title}</a> - ${p.description}</li>`).join("") + "</ul>";
+        isMatch = true;
+      }
+
+      if (!isMatch) return html;
+
+      // Header Meta replacement
+      html = html.replace(/<title>[^<]*<\/title>/i, `<title>${title} | My Loves PDF</title>`);
+
+      const fullUrl = `https://mylovespdf.com${urlPath}`;
+      const defaultImage = "https://mylovespdf.com/og-image.png";
+
+      const headMetaInjections = `
+  <meta name="description" content="${desc.replace(/"/g, '&quot;')}" />
+  <link rel="canonical" href="${fullUrl}" />
+  <meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />
+  <meta property="og:description" content="${desc.replace(/"/g, '&quot;')}" />
+  <meta property="og:url" content="${fullUrl}" />
+  <meta property="og:image" content="${defaultImage}" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="My Loves PDF" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
+  <meta name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
+  <meta name="twitter:image" content="${defaultImage}" />`;
+
+      html = html.replace("</head>", `${headMetaInjections}\n</head>`);
+
+      // Root Prerender Injection for search crawler spiders
+      const renderedBody = `
+<div id="root">
+  <div style="padding: 40px 20px; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+    <h1 style="font-size: 2.5rem; font-weight: 800; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.025em;">${h1}</h1>
+    <p style="font-size: 1.125rem; color: #475569; margin-bottom: 30px;">${intro}</p>
+    
+    ${features.length > 0 ? `
+      <h2 style="font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-top: 40px; margin-bottom: 15px;">Key Features</h2>
+      <ul style="margin-bottom: 30px; padding-left: 20px;">
+        ${features.map(f => `<li><strong>${f.title}</strong>: ${f.description}</li>`).join("")}
+      </ul>
+    ` : ""}
+
+    ${longSeoContent}
+
+    ${faqs.length > 0 ? `
+      <h2 style="font-size: 1.75rem; font-weight: 700; color: #0f172a; margin-top: 50px; margin-bottom: 20px;">Frequently Asked Questions</h2>
+      <div>
+        ${faqs.map(faq => `
+          <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
+            <h3 style="font-size: 1.125rem; font-weight: 600; color: #0f172a; margin-bottom: 8px;">${faq.question}</h3>
+            <p style="color: #475569; font-size: 0.950rem;">${faq.answer}</p>
+          </div>
+        `).join("")}
+      </div>
+    ` : ""}
+  </div>
+</div>`;
+
+      html = html.replace(/<div id="root">\s*<\/div>/i, renderedBody);
+      return html;
+    } catch (err) {
+      console.warn("preInjectSeo fallback trigger:", err);
+      return html;
+    }
+  };
+
   // --- Vite / Static Serving ---
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
@@ -736,8 +879,35 @@ async function startServer() {
   } else {
     const distPath = path.join(process.cwd(), "dist");
     app.use(express.static(distPath));
+    
     app.get("*", (req, res) => {
-      res.sendFile(path.join(distPath, "index.html"));
+      const urlPath = req.path;
+      
+      if (urlPath === "/sitemap.xml") {
+        res.header("Content-Type", "application/xml");
+        res.send(generateSitemapXml());
+        return;
+      }
+      
+      if (urlPath === "/robots.txt") {
+        res.header("Content-Type", "text/plain");
+        res.send(`User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://mylovespdf.com/sitemap.xml`);
+        return;
+      }
+
+      // Read production static file and inject SEO meta content prior to dispatching
+      try {
+        const rawHtml = fs.readFileSync(path.join(distPath, "index.html"), "utf-8");
+        const parsedHtml = preInjectSeo(rawHtml, urlPath);
+        res.send(parsedHtml);
+      } catch (e) {
+        console.error("Static index loader exception:", e);
+        res.sendFile(path.join(distPath, "index.html"));
+      }
     });
   }
 

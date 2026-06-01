@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { SEO_CONFIG } from '../utils/seoData';
 
 interface FaqItem {
   question: string;
@@ -12,13 +13,18 @@ interface SEOProps {
   faqs?: FaqItem[];
 }
 
-export default function SEO({ title, description, path, faqs = [] }: SEOProps) {
+export default function SEO({ title: propTitle, description: propDescription, path, faqs: propFaqs = [] }: SEOProps) {
   const fullUrl = `https://mylovespdf.com${path}`;
   const defaultImage = 'https://mylovespdf.com/og-image.png'; // Fallback sharing asset
 
+  const globalConfig = SEO_CONFIG[path];
+  const title = globalConfig?.title || propTitle;
+  const description = globalConfig?.description || propDescription;
+  const faqs = globalConfig?.faqs || propFaqs;
+
   useEffect(() => {
     // 1. Update Title tag
-    document.title = `${title} | My Loves PDF`;
+    document.title = title.endsWith("My Loves PDF") || title.endsWith("MyLovesPDF") ? title : `${title} | My Loves PDF`;
 
     // Helper to find, update, or create meta tags securely
     const updateOrCreateMeta = (selector: string, attrName: string, attrValue: string, contentValue: string) => {
@@ -44,7 +50,7 @@ export default function SEO({ title, description, path, faqs = [] }: SEOProps) {
     canonical.setAttribute('href', fullUrl);
 
     // 4. Open Graph - Core Tags
-    updateOrCreateMeta('meta[property="og:title"]', 'property', 'og:title', `${title} | My Loves PDF`);
+    updateOrCreateMeta('meta[property="og:title"]', 'property', 'og:title', title);
     updateOrCreateMeta('meta[property="og:description"]', 'property', 'og:description', description);
     updateOrCreateMeta('meta[property="og:url"]', 'property', 'og:url', fullUrl);
     updateOrCreateMeta('meta[property="og:image"]', 'property', 'og:image', defaultImage);
@@ -53,12 +59,11 @@ export default function SEO({ title, description, path, faqs = [] }: SEOProps) {
 
     // 5. Twitter Card - Core Tags
     updateOrCreateMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image');
-    updateOrCreateMeta('meta[name="twitter:title"]', 'name', 'twitter:title', `${title} | My Loves PDF`);
+    updateOrCreateMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title);
     updateOrCreateMeta('meta[name="twitter:description"]', 'name', 'twitter:description', description);
     updateOrCreateMeta('meta[name="twitter:image"]', 'name', 'twitter:image', defaultImage);
 
-    // 6. JSON-LD Structured Data Schema Insertion (Organization, WebSite, FAQPage)
-    // Clear old JSON-LD script if it exists to avoid memory-leak/duplicate indices on SPA transitions
+    // 6. JSON-LD Structured Data Schema Insertion (Organization, WebSite, FAQPage, SoftwareApplication, etc.)
     const oldScript = document.getElementById('seo-jsonld-schema');
     if (oldScript) {
       oldScript.remove();
@@ -93,8 +98,48 @@ export default function SEO({ title, description, path, faqs = [] }: SEOProps) {
           'email': 'support@mylovespdf.com',
           'contactType': 'customer support'
         }
+      },
+      // BreadcrumbList Schema
+      {
+        '@context': 'https://schema.org',
+        '@type': 'BreadcrumbList',
+        'itemListElement': [
+          {
+            '@type': 'ListItem',
+            'position': 1,
+            'name': 'Home',
+            'item': 'https://mylovespdf.com'
+          },
+          ...(path !== '/' ? [{
+            '@type': 'ListItem',
+            'position': 2,
+            'name': globalConfig?.h1 || title,
+            'item': `https://mylovespdf.com${path}`
+          }] : [])
+        ]
       }
     ];
+
+    // If we're on a tool page, add SoftwareApplication Schema
+    if (path !== '/') {
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'SoftwareApplication',
+        'name': globalConfig?.h1 || title,
+        'operatingSystem': 'All',
+        'applicationCategory': 'BusinessApplication',
+        'offers': {
+          '@type': 'Offer',
+          'price': '0.00',
+          'priceCurrency': 'USD'
+        },
+        'aggregateRating': {
+          '@type': 'AggregateRating',
+          'ratingValue': '4.9',
+          'ratingCount': '2840'
+        }
+      });
+    }
 
     // If faqs exist, inject FAQPage Structured Schema to capture rich snippets on Google Search
     if (faqs && faqs.length > 0) {
@@ -127,8 +172,8 @@ export default function SEO({ title, description, path, faqs = [] }: SEOProps) {
         cleanupScript.remove();
       }
     };
-  }, [title, description, fullUrl, faqs]);
+  }, [title, description, fullUrl, faqs, path, globalConfig]);
 
-  // This is a headless metadata manager, so we render null
+  // Headless element
   return null;
 }

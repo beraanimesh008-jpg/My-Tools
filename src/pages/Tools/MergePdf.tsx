@@ -29,6 +29,8 @@ import confetti from 'canvas-confetti';
 import { useDropzone } from 'react-dropzone';
 import MergePdfAd from '@/src/components/MergePdfAd';
 import SEO from '@/src/components/SEO';
+import ToolSeoSection from '@/src/components/ToolSeoSection';
+import Footer from '@/src/components/Footer';
 
 const MERGE_PDF_FAQS = [
   {
@@ -627,49 +629,8 @@ export default function MergePdf() {
         </div>
       </section>
 
-      {/* Visual Semantic FAQ Section & Sibling Internal Links */}
-      <section className="bg-white dark:bg-slate-900 py-20 border-t border-slate-100 dark:border-slate-800/60 font-sans">
-        <div className="max-w-4xl mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">Frequently Asked Questions</h2>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">Everything you need to know about combining your PDFs.</p>
-          </div>
-
-          <div className="space-y-8 mb-20">
-            {MERGE_PDF_FAQS.map((faq, index) => (
-              <div key={index} className="p-8 bg-slate-[40] dark:bg-slate-850 rounded-3xl border border-slate-100 dark:border-slate-800/70 hover:border-rose-100 dark:hover:border-rose-950 transition-colors">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-start gap-3">
-                  <span className="text-rose-600 text-lg font-black shrink-0">Q.</span>
-                  {faq.question}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 font-medium pl-6 leading-relaxed">
-                  {faq.answer}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Internal Linking Directory */}
-          <div className="p-10 bg-rose-50/30 dark:bg-rose-950/10 rounded-[2.5rem] border border-rose-100/50 dark:border-rose-900/20 text-center">
-            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Need More PDF or Image Tweaks?</h3>
-            <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 max-w-lg mx-auto">Explore other lightning-fast utilities crafted to speed up your content workflow securely.</p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/compress-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
-                Compress PDF Size
-              </Link>
-              <Link to="/jpg-to-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
-                Convert JPG to PDF
-              </Link>
-              <Link to="/pdf-to-jpg" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
-                Extract PDF to JPG
-              </Link>
-              <Link to="/background-remover" className="px-6 py-3.5 bg-rose-600 text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-rose-200 dark:shadow-none transition-all hover:scale-105">
-                AI Background Remover
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ToolSeoSection path="/merge-pdf" />
+      <Footer />
 
 
       {/* Password Modal */}

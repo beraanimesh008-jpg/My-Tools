@@ -10,6 +10,8 @@ import { PDFDocument } from 'pdf-lib';
 import { useDropzone } from 'react-dropzone';
 import SEO from '@/src/components/SEO';
 import CompressPdfAd from '@/src/components/CompressPdfAd';
+import ToolSeoSection from '@/src/components/ToolSeoSection';
+import Footer from '@/src/components/Footer';
 
 const COMPRESS_PDF_FAQS = [
   {
@@ -494,7 +496,10 @@ export default function CompressPdf() {
           </div>
         </section>
 
+        <ToolSeoSection path="/compress-pdf" />
       </main>
+
+      <Footer />
 
       {/* Password Modal */}
       <AnimatePresence>
