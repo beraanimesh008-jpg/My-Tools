@@ -743,6 +743,7 @@ async function startServer() {
       "/background-remover",
       "/compress-image",
       "/image-converter",
+      "/ai-gen",
       "/qr-gen",
       "/password-gen",
       "/tts",
@@ -884,35 +885,21 @@ async function startServer() {
       
       if (urlPath === "/sitemap.xml") {
         res.header("Content-Type", "application/xml");
-        res.sendFile(path.join(distPath, "sitemap.xml"));
+        res.send(generateSitemapXml());
         return;
       }
       
       if (urlPath === "/robots.txt") {
         res.header("Content-Type", "text/plain");
-        res.sendFile(path.join(distPath, "robots.txt"));
+        res.send(`User-agent: *
+Allow: /
+Disallow: /api/
+
+Sitemap: https://mylovespdf.com/sitemap.xml`);
         return;
       }
 
-      // Check if a physical subfolder index.html exists for this route from build-time prerendering
-      try {
-        const potentialHtmlFile = path.join(distPath, urlPath, "index.html");
-        if (fs.existsSync(potentialHtmlFile)) {
-          res.sendFile(potentialHtmlFile);
-          return;
-        }
-      } catch (_) {}
-
-      // Dual-mode: check if pre-rendered flat html file exists
-      try {
-        const potentialFlatFile = path.join(distPath, `${urlPath}.html`);
-        if (fs.existsSync(potentialFlatFile)) {
-          res.sendFile(potentialFlatFile);
-          return;
-        }
-      } catch (_) {}
-
-      // Fail-safe dynamic injection if any route was missed or represents a special route
+      // Read production static file and inject SEO meta content prior to dispatching
       try {
         const rawHtml = fs.readFileSync(path.join(distPath, "index.html"), "utf-8");
         const parsedHtml = preInjectSeo(rawHtml, urlPath);

@@ -79,7 +79,7 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/compress-pdf": {
-    title: "Compress PDF Online Free | Reduce PDF Size Without Losing Quality | MyLovesPDF",
+    title: "Compress PDF Online Free - Reduce PDF File Size and Maintain Quality",
     description: "Lower the storage space of PDF documents while preserving crisp typography and original pixel grids. Optimize and shrink PDFs online.",
     h1: "High-Fidelity PDF Compressor with Multi-Level Shrink Modes",
     intro: "Shrink your document sizes easily with our intelligent online PDF compressor. Specify the target balance between text optimization, vector rendering, and DPI limits to download fully optimized PDFs.",
@@ -129,7 +129,7 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/merge-pdf": {
-    title: "Merge PDF Files Online Free | Combine PDFs Instantly | MyLovesPDF",
+    title: "Merge PDF Online Free - Combine PDF Files Instantly | MyLovesPDF",
     description: "Combine multiple PDF documents into a single file quickly. Reorder pages, upload blocks in bulk, and compile high-resolution records easily.",
     h1: "Merge PDF Files Online with Visual Sorting Control",
     intro: "Unite disjointed documents in seconds. Our free online PDF merge utility maps raw files, lets you re-order document sequences visually, and creates single, polished downloads.",
@@ -267,7 +267,7 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/jpg-to-pdf": {
-    title: "JPG to PDF Converter Online Free | MyLovesPDF",
+    title: "Convert JPG to PDF Online - Free Image to PDF | MyLovesPDF",
     description: "Convert JPG, JPEG, and PNG images into a clean PDF document. Reorder photos visually, set margins, customize layouts, and save.",
     h1: "Convert JPG and PNG Images to PDF Documents",
     intro: "Rebuild your photos and design files into single, organized PDFs. Adjust layout parameters like page size, margins, and paper orientation to get a polished document.",
@@ -431,7 +431,7 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     ],
     relatedTools: [
       { name: "Image Compressor", href: "/compress-image" },
-      { name: "Image Converter", href: "/image-converter" },
+      { name: "AI Image Generator", href: "/ai-gen" },
       { name: "JPG to PDF", href: "/jpg-to-pdf" }
     ],
     longSeoContent: `

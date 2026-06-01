@@ -63,7 +63,7 @@ export default function Footer() {
             <ul className="space-y-4 text-slate-500 dark:text-slate-400 font-medium">
               <li><Link to="/merge-pdf" className="hover:text-rose-600">Merge PDF</Link></li>
               <li><Link to="/background-remover" className="hover:text-rose-600">Background Remover</Link></li>
-              <li><Link to="/image-converter" className="hover:text-rose-600">Image Converter</Link></li>
+              <li><Link to="/ai-gen" className="hover:text-rose-600">AI Image Generator</Link></li>
               <li><Link to="/qr-gen" className="hover:text-rose-600">QR Code Generator</Link></li>
             </ul>
           </div>

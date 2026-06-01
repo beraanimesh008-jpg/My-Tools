@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import MergePdf from './pages/Tools/MergePdf';
 import CompressImage from './pages/Tools/CompressImage';
+import AiGenerator from './pages/Tools/AiGenerator';
 import QrGenerator from './pages/Tools/QrGenerator';
 import PasswordGenerator from './pages/Tools/PasswordGenerator';
 import JpgToPdf from './pages/Tools/JpgToPdf';
@@ -40,6 +41,7 @@ export default function App() {
         {/* PDF Tools */}
         <Route path="/merge-pdf" element={<MergePdf />} />
         <Route path="/compress-image" element={<CompressImage />} />
+        <Route path="/ai-gen" element={<AiGenerator />} />
         <Route path="/qr-gen" element={<QrGenerator />} />
         <Route path="/password-gen" element={<PasswordGenerator />} />
         <Route path="/jpg-to-pdf" element={<JpgToPdf />} />
