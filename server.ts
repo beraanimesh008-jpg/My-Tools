@@ -1059,6 +1059,34 @@ async function startServer() {
       server: { middlewareMode: true },
       appType: "spa",
     });
+
+    // Handle dev-mode SEO pre-injection so that Ctrl+U (source views) also show updated Title and Description in dev site
+    app.get("*", async (req, res, next) => {
+      const urlPath = req.path;
+      // Skip static assets, APIs, and dev-only/HMR paths
+      if (
+        urlPath.includes(".") || 
+        urlPath.startsWith("/api/") || 
+        urlPath.startsWith("/@vite/") || 
+        urlPath.startsWith("/@react-refresh") || 
+        req.headers.accept?.includes("text/event-stream")
+      ) {
+        return next();
+      }
+
+      try {
+        let rawHtml = fs.readFileSync(path.join(process.cwd(), "index.html"), "utf-8");
+        // Apply Vite's internal HTML transforms to keep script injects and HMR running
+        rawHtml = await vite.transformIndexHtml(req.originalUrl || req.url, rawHtml);
+        // Pre-inject the route-specific SEO titles and descriptions
+        const parsedHtml = preInjectSeo(rawHtml, urlPath);
+        res.status(200).set({ "Content-Type": "text/html" }).send(parsedHtml);
+      } catch (e) {
+        console.error("Dev mode index SEO loader exception:", e);
+        next(e);
+      }
+    });
+
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
