@@ -629,6 +629,98 @@ async function startServer() {
     }
   });
 
+  // Background Removal API Key & Account Check Route (for validation & fail-fast testing)
+  app.get("/api/tools/image/remove-bg-account", async (req: any, res) => {
+    try {
+      // Support custom api key in headers as well as server environment variables
+      const rawCustomKey = req.headers["x-custom-api-key"];
+      const customKey = Array.isArray(rawCustomKey) ? rawCustomKey[0] : rawCustomKey;
+      const apiKey = customKey || process.env.REMOVE_BG_API_KEY || process.env.VITE_REMOVE_BG_API_KEY;
+
+      const hasGlobalKey = !!(process.env.REMOVE_BG_API_KEY || process.env.VITE_REMOVE_BG_API_KEY);
+
+      if (!apiKey) {
+        return res.status(200).json({
+          valid: false,
+          hasGlobalKey,
+          error: "API Key Not Configured",
+          message: "No remove.bg API key has been configured on the server. Please define the REMOVE_BG_API_KEY variable in your server configuration or enter your personal API key override in the front-end settings."
+        });
+      }
+
+      console.log("Verifying remove.bg API key credentials with account endpoints...");
+      const response = await fetch("https://api.remove.bg/v1.0/account", {
+        method: "GET",
+        headers: {
+          "X-Api-Key": apiKey,
+        }
+      });
+
+      const responseStatus = response.status;
+      const contentType = response.headers.get("content-type") || "";
+
+      if (responseStatus === 403 || responseStatus === 401) {
+        console.error(`remove.bg validation returned authentication failure (${responseStatus}). Key: ${apiKey.slice(0, 4)}...`);
+        return res.status(200).json({
+          valid: false,
+          hasGlobalKey,
+          error: "Invalid API Key",
+          message: "The provided remove.bg API key is invalid or unauthorized. Please verify your credentials on remove.bg dashboard."
+        });
+      }
+
+      if (!response.ok) {
+        let details = "An error occurred with remove.bg account request.";
+        if (contentType.includes("application/json")) {
+          const errBody: any = await response.json();
+          details = errBody.errors?.[0]?.title || errBody.details || details;
+        } else {
+          details = (await response.text()).slice(0, 150);
+        }
+        console.error(`remove.bg validation returned network flat fail: ${details}`);
+        return res.status(200).json({
+          valid: false,
+          hasGlobalKey,
+          error: "Validation Query Failed",
+          message: `The server received error: ${details} (HTTP ${responseStatus})`
+        });
+      }
+
+      if (contentType.includes("application/json")) {
+        const accountData: any = await response.json();
+        const attribs = accountData.data?.attributes;
+        const credits = attribs?.credits;
+        const totalCredits = credits ? (credits.total || credits.pay_as_you_go + credits.free_api_calls + credits.subscription) : 0;
+
+        console.log(`remove.bg validation succeeded! Active Credit Pool: ${totalCredits}`);
+
+        return res.status(200).json({
+          valid: true,
+          hasGlobalKey,
+          credits: credits || {},
+          totalCredits,
+          rateLimit: attribs?.api?.rate_limit || 500,
+          api: attribs?.api || {}
+        });
+      } else {
+        const txt = await response.text();
+        return res.status(200).json({
+          valid: true,
+          hasGlobalKey,
+          details: "Validated, but account properties returned non-JSON representation.",
+          rawSnippet: txt.slice(0, 100)
+        });
+      }
+    } catch (err: any) {
+      console.error("Exception in remove-bg-account proxy check:", err);
+      res.status(500).json({ 
+        valid: false,
+        error: "Server Exception", 
+        message: err?.message || "An internal error occurred while trying to authenticate your API key overrides." 
+      });
+    }
+  });
+
   // Background Removal Proxy API (remove.bg)
   app.post("/api/tools/image/remove-bg", upload.single("file"), async (req: any, res) => {
     try {
@@ -643,11 +735,11 @@ async function startServer() {
       if (!apiKey) {
         return res.status(400).json({ 
           error: "API Key Not Found", 
-          details: "No remove.bg API key is configured on the server. Please define REMOVE_BG_API_KEY on your server or provide a custom key override."
+          details: "No remove.bg API key has been configured on the server. Please define REMOVE_BG_API_KEY on your server or provide a custom key override."
         });
       }
 
-      console.log("Forwarding image file to remove.bg API securely from server...");
+      console.log(`Forwarding image file to remove.bg API securely from server... Size: ${file.size} bytes`);
       const formData = new FormData();
       formData.append("image_file", new Blob([file.buffer], { type: file.mimetype }), file.originalname);
       formData.append("size", "auto");
@@ -660,26 +752,47 @@ async function startServer() {
         body: formData,
       });
 
+      const responseStatus = response.status;
+      const contentType = response.headers.get("content-type") || "";
+
+      // Log headers for debugging
+      console.log(`remove.bg API response received. HTTP status: ${responseStatus}, content-type: ${contentType}`);
+
       if (!response.ok) {
         let errorMessage = "Failed to remove background.";
+        let errCode = "unknown_error";
+        
         try {
-          const contentType = response.headers.get("content-type");
-          if (contentType && contentType.includes("application/json")) {
+          if (contentType.includes("application/json")) {
             const errorData: any = await response.json();
+            console.error("remove.bg API returned JSON error:", errorData);
             errorMessage = errorData.errors?.[0]?.title || errorData.details || errorData.error || errorMessage;
+            errCode = errorData.errors?.[0]?.code || errCode;
           } else {
             const errorText = await response.text();
-            errorMessage = errorText.slice(0, 150) || `Error ${response.status}: ${response.statusText}`;
+            console.error(`remove.bg API returned raw error content (truncated): ${errorText.slice(0, 300)}`);
+            errorMessage = errorText.slice(0, 200) || `Error ${responseStatus}: ${response.statusText}`;
           }
-        } catch (parseErr) {
-          errorMessage = `Error ${response.status}: ${response.statusText || "Unknown API Error"}`;
+        } catch (parseErr: any) {
+          console.error("Failed to parse remove.bg error response:", parseErr);
+          errorMessage = `Error ${responseStatus}: ${response.statusText || "Unknown API Error"}`;
         }
-        return res.status(response.status).json({ error: errorMessage });
+
+        // Return structured JSON error, never return HTML
+        return res.status(responseStatus).json({ 
+          error: errorMessage,
+          code: errCode,
+          status: responseStatus,
+          apiDetails: `Failed connection to remove.bg API holding error status: ${responseStatus}` 
+        });
       }
 
-      const contentType = response.headers.get("content-type");
-      if (contentType && contentType.includes("text/html")) {
-        return res.status(500).json({ error: "API returned an HTML page instead of an image. Verify your remove.bg account and keys." });
+      if (contentType.includes("text/html")) {
+        console.error("remove.bg unexpectedly returned an HTML page instead of binary transparency mask.");
+        return res.status(500).json({ 
+          error: "API returned an HTML page instead of an image. Verify your remove.bg account and keys.",
+          code: "unexpected_html"
+        });
       }
 
       const responseBuffer = Buffer.from(await response.arrayBuffer());
@@ -689,8 +802,11 @@ async function startServer() {
       res.setHeader("Content-Disposition", `attachment; filename=removed_${file.originalname}`);
       res.send(responseBuffer);
     } catch (error: any) {
-      console.error("Error in background removal proxy route:", error);
-      res.status(500).json({ error: error?.message || "Internal server-side background removal error." });
+      console.error("Exception in background removal proxy route:", error);
+      res.status(500).json({ 
+        error: "Internal server-side background removal error.",
+        details: error?.message || "An exception occurred in the server-side proxy routine."
+      });
     }
   });
 
