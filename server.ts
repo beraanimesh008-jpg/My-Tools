@@ -990,7 +990,11 @@ async function startServer() {
       if (!isMatch) return html;
 
       // Header Meta replacement
-      html = html.replace(/<title>[^<]*<\/title>/i, `<title>${title} | My Loves PDF</title>`);
+      const cleanTitle = title.includes("My Loves PDF") ? title : `${title} | My Loves PDF`;
+      html = html.replace(/<title>[^<]*<\/title>/i, `<title>${cleanTitle}</title>`);
+
+      // Strip any existing default meta description tag to prevent duplicates in Ctrl+U view
+      html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/gi, "");
 
       const fullUrl = `https://mylovespdf.com${urlPath}`;
       const defaultImage = "https://mylovespdf.com/og-image.png";
