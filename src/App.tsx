@@ -18,6 +18,7 @@ import Footer from './components/Footer';
 import Navbar from './components/Navbar';
 import VisitorTrackerTrigger from './components/VisitorTrackerTrigger';
 import VisitorTracker from './pages/Tools/VisitorTracker';
+import ScrollToTop from './components/ScrollToTop';
 
 // Functional Component to handle Layout wrapper if needed
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
@@ -32,6 +33,9 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => (
 export default function App() {
   return (
     <BrowserRouter>
+      {/* Automatically restore scroll position to top on navigation */}
+      <ScrollToTop />
+      
       {/* Background tracking of routers */}
       <VisitorTrackerTrigger />
       
