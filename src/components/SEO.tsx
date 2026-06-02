@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { Helmet } from 'react-helmet-async';
 import { SEO_CONFIG } from '../utils/seoData';
 
 interface FaqItem {
@@ -24,185 +24,149 @@ export default function SEO({ title: propTitle, description: propDescription, pa
   const faqs = globalConfig?.faqs || propFaqs;
   const keywords = globalConfig?.keywords || propKeywords;
 
-  useEffect(() => {
-    // 1. Update Title tag
-    document.title = title.endsWith("My Loves PDF") || title.endsWith("MyLovesPDF") ? title : `${title} | My Loves PDF`;
+  // Render Page Title
+  const cleanTitle = title.endsWith("My Loves PDF") || title.endsWith("MyLovesPDF") ? title : `${title} | My Loves PDF`;
 
-    // Helper to find, update, or create meta tags securely
-    const updateOrCreateMeta = (selector: string, attrName: string, attrValue: string, contentValue: string) => {
-      let element = document.querySelector(selector);
-      if (!element) {
-        element = document.createElement('meta');
-        element.setAttribute(attrName, attrValue);
-        document.head.appendChild(element);
+  // Build JSON-LD Structured Schema
+  const schemas: any[] = [
+    // WebSite Schema
+    {
+      '@context': 'https://schema.org',
+      '@type': 'WebSite',
+      'name': 'My Loves PDF',
+      'url': 'https://mylovespdf.com',
+      'potentialAction': {
+        '@type': 'SearchAction',
+        'target': 'https://mylovespdf.com/?q={search_term_string}',
+        'query-input': 'required name=search_term_string'
       }
-      element.setAttribute('content', contentValue);
-    };
-
-    // 2. Head Description
-    updateOrCreateMeta('meta[name="description"]', 'name', 'description', description);
-
-    // 2a. Meta Robots
-    updateOrCreateMeta('meta[name="robots"]', 'name', 'robots', 'index, follow');
-
-    // 2b. Meta Keywords support for search crawlers
-    if (keywords) {
-      updateOrCreateMeta('meta[name="keywords"]', 'name', 'keywords', keywords);
-    }
-
-    // 3. Canonical Link tag
-    let canonical = document.querySelector('link[rel="canonical"]');
-    if (!canonical) {
-      canonical = document.createElement('link');
-      canonical.setAttribute('rel', 'canonical');
-      document.head.appendChild(canonical);
-    }
-    canonical.setAttribute('href', fullUrl);
-
-    // 4. Open Graph - Core Tags
-    updateOrCreateMeta('meta[property="og:title"]', 'property', 'og:title', title);
-    updateOrCreateMeta('meta[property="og:description"]', 'property', 'og:description', description);
-    updateOrCreateMeta('meta[property="og:url"]', 'property', 'og:url', fullUrl);
-    updateOrCreateMeta('meta[property="og:image"]', 'property', 'og:image', defaultImage);
-    updateOrCreateMeta('meta[property="og:type"]', 'property', 'og:type', 'website');
-    updateOrCreateMeta('meta[property="og:site_name"]', 'property', 'og:site_name', 'My Loves PDF');
-
-    // 5. Twitter Card - Core Tags
-    updateOrCreateMeta('meta[name="twitter:card"]', 'name', 'twitter:card', 'summary_large_image');
-    updateOrCreateMeta('meta[name="twitter:title"]', 'name', 'twitter:title', title);
-    updateOrCreateMeta('meta[name="twitter:description"]', 'name', 'twitter:description', description);
-    updateOrCreateMeta('meta[name="twitter:image"]', 'name', 'twitter:image', defaultImage);
-
-    // 6. JSON-LD Structured Data Schema Insertion (Organization, WebSite, FAQPage, SoftwareApplication, etc.)
-    const oldScript = document.getElementById('seo-jsonld-schema');
-    if (oldScript) {
-      oldScript.remove();
-    }
-
-    const schemas: any[] = [
-      // WebSite Schema
-      {
-        '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        'name': 'My Loves PDF',
-        'url': 'https://mylovespdf.com',
-        'potentialAction': {
-          '@type': 'SearchAction',
-          'target': 'https://mylovespdf.com/?q={search_term_string}',
-          'query-input': 'required name=search_term_string'
-        }
-      },
-      // Organization Schema
-      {
-        '@context': 'https://schema.org',
-        '@type': 'Organization',
-        'name': 'My Loves PDF',
-        'url': 'https://mylovespdf.com',
-        'logo': 'https://mylovespdf.com/favicon.ico',
-        'sameAs': [
-          'https://twitter.com/mylovespdf',
-          'https://github.com/mylovespdf'
-        ],
-        'contactPoint': {
-          '@type': 'ContactPoint',
-          'email': 'support@mylovespdf.com',
-          'contactType': 'customer support'
-        }
-      },
-      // BreadcrumbList Schema
-      {
-        '@context': 'https://schema.org',
-        '@type': 'BreadcrumbList',
-        'itemListElement': [
-          {
-            '@type': 'ListItem',
-            'position': 1,
-            'name': 'Home',
-            'item': 'https://mylovespdf.com'
-          },
-          ...(path !== '/' ? [{
-            '@type': 'ListItem',
-            'position': 2,
-            'name': globalConfig?.h1 || title,
-            'item': `https://mylovespdf.com${path}`
-          }] : [])
-        ]
+    },
+    // Organization Schema
+    {
+      '@context': 'https://schema.org',
+      '@type': 'Organization',
+      'name': 'My Loves PDF',
+      'url': 'https://mylovespdf.com',
+      'logo': 'https://mylovespdf.com/favicon.ico',
+      'sameAs': [
+        'https://twitter.com/mylovespdf',
+        'https://github.com/mylovespdf'
+      ],
+      'contactPoint': {
+        '@type': 'ContactPoint',
+        'email': 'support@mylovespdf.com',
+        'contactType': 'customer support'
       }
-    ];
-
-    // If we're on a tool page, add SoftwareApplication and WebApplication Schemas
-    if (path !== '/') {
-      schemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'SoftwareApplication',
-        'name': globalConfig?.h1 || title,
-        'operatingSystem': 'All',
-        'applicationCategory': 'BusinessApplication',
-        'offers': {
-          '@type': 'Offer',
-          'price': '0.00',
-          'priceCurrency': 'USD'
+    },
+    // BreadcrumbList Schema
+    {
+      '@context': 'https://schema.org',
+      '@type': 'BreadcrumbList',
+      'itemListElement': [
+        {
+          '@type': 'ListItem',
+          'position': 1,
+          'name': 'Home',
+          'item': 'https://mylovespdf.com'
         },
-        'aggregateRating': {
-          '@type': 'AggregateRating',
-          'ratingValue': '4.9',
-          'ratingCount': '2840'
-        }
-      });
-
-      schemas.push({
-        '@context': 'https://schema.org',
-        '@type': 'WebApplication',
-        'name': globalConfig?.h1 || title,
-        'operatingSystem': 'All',
-        'applicationCategory': 'BusinessApplication',
-        'browserRequirements': 'Requires HTML5 and Javascript support',
-        'offers': {
-          '@type': 'Offer',
-          'price': '0.00',
-          'priceCurrency': 'USD'
-        },
-        'aggregateRating': {
-          '@type': 'AggregateRating',
-          'ratingValue': '4.9',
-          'ratingCount': '2840'
-        }
-      });
+        ...(path !== '/' ? [{
+          '@type': 'ListItem',
+          'position': 2,
+          'name': globalConfig?.h1 || title,
+          'item': `https://mylovespdf.com${path}`
+        }] : [])
+      ]
     }
+  ];
 
-    // If faqs exist, inject FAQPage Structured Schema to capture rich snippets on Google Search
-    if (faqs && faqs.length > 0) {
-      const faqSchema = {
-        '@context': 'https://schema.org',
-        '@type': 'FAQPage',
-        'mainEntity': faqs.map(item => ({
-          '@type': 'Question',
-          'name': item.question,
-          'acceptedAnswer': {
-            '@type': 'Answer',
-            'text': item.answer
-          }
-        }))
-      };
-      schemas.push(faqSchema);
-    }
-
-    // Embed combined script
-    const script = document.createElement('script');
-    script.id = 'seo-jsonld-schema';
-    script.type = 'application/ld+json';
-    script.innerHTML = JSON.stringify(schemas);
-    document.head.appendChild(script);
-
-    return () => {
-      // Cleanup on component unmount
-      const cleanupScript = document.getElementById('seo-jsonld-schema');
-      if (cleanupScript) {
-        cleanupScript.remove();
+  // If we're on a tool page, add SoftwareApplication and WebApplication Schemas
+  if (path !== '/') {
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'SoftwareApplication',
+      'name': globalConfig?.h1 || title,
+      'operatingSystem': 'All',
+      'applicationCategory': 'BusinessApplication',
+      'offers': {
+        '@type': 'Offer',
+        'price': '0.00',
+        'priceCurrency': 'USD'
+      },
+      'aggregateRating': {
+        '@type': 'AggregateRating',
+        'ratingValue': '4.9',
+        'ratingCount': '2840'
       }
-    };
-  }, [title, description, fullUrl, faqs, path, globalConfig]);
+    });
 
-  // Headless element
-  return null;
+    schemas.push({
+      '@context': 'https://schema.org',
+      '@type': 'WebApplication',
+      'name': globalConfig?.h1 || title,
+      'operatingSystem': 'All',
+      'applicationCategory': 'BusinessApplication',
+      'browserRequirements': 'Requires HTML5 and Javascript support',
+      'offers': {
+        '@type': 'Offer',
+        'price': '0.00',
+        'priceCurrency': 'USD'
+      },
+      'aggregateRating': {
+        '@type': 'AggregateRating',
+        'ratingValue': '4.9',
+        'ratingCount': '2840'
+      }
+    });
+  }
+
+  // If faqs exist, inject FAQPage Structured Schema to capture rich snippets on Google Search
+  if (faqs && faqs.length > 0) {
+    const faqSchema = {
+      '@context': 'https://schema.org',
+      '@type': 'FAQPage',
+      'mainEntity': faqs.map(item => ({
+        '@type': 'Question',
+        'name': item.question,
+        'acceptedAnswer': {
+          '@type': 'Answer',
+          'text': item.answer
+        }
+      }))
+    };
+    schemas.push(faqSchema);
+  }
+
+  return (
+    <Helmet>
+      {/* 1. Page Title */}
+      <title>{cleanTitle}</title>
+
+      {/* 2. Core Meta Description */}
+      <meta name="description" content={description} />
+      <meta name="robots" content="index, follow" />
+      {keywords && <meta name="keywords" content={keywords} />}
+
+      {/* 3. Canonical Link Tag */}
+      <link rel="canonical" href={fullUrl} />
+
+      {/* 4. Open Graph Social Sharing Tags */}
+      <meta property="og:title" content={title} />
+      <meta property="og:description" content={description} />
+      <meta property="og:url" content={fullUrl} />
+      <meta property="og:image" content={defaultImage} />
+      <meta property="og:type" content="website" />
+      <meta property="og:site_name" content="My Loves PDF" />
+
+      {/* 5. Twitter Card Tags */}
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={title} />
+      <meta name="twitter:description" content={description} />
+      <meta name="twitter:image" content={defaultImage} />
+
+      {/* 6. JSON-LD Structured Schema script tag */}
+      <script type="application/ld+json">
+        {JSON.stringify(schemas)}
+      </script>
+    </Helmet>
+  );
 }

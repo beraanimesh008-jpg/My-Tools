@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Navbar from '@/src/components/Navbar';
+import SEO from '@/src/components/SEO';
 import { trackFileProcessed } from '@/src/utils/analytics';
 import { FileText, Download, User, Mail, Phone, MapPin, Briefcase, GraduationCap, Plus, Trash2 } from 'lucide-react';
 import { motion } from 'motion/react';
@@ -52,6 +53,11 @@ export default function ResumeBuilder() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
       <Navbar />
+      <SEO 
+        title="Free PDF Resume Builder - Create Professional Resumes Online"
+        description="Build and design professional PDF resumes with customizable templates. Download polished resumes instantly. Fast, easy, and free."
+        path="/resume-builder"
+      />
       
       <main className="max-w-7xl mx-auto px-4 py-16">
         <div className="grid lg:grid-cols-2 gap-12">

@@ -20,6 +20,8 @@ import VisitorTrackerTrigger from './components/VisitorTrackerTrigger';
 import VisitorTracker from './pages/Tools/VisitorTracker';
 import ScrollToTop from './components/ScrollToTop';
 
+import { HelmetProvider } from 'react-helmet-async';
+
 // Functional Component to handle Layout wrapper if needed
 const AppLayout = ({ children }: { children: React.ReactNode }) => (
   <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
@@ -32,7 +34,8 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => (
 
 export default function App() {
   return (
-    <BrowserRouter>
+    <HelmetProvider>
+      <BrowserRouter>
       {/* Automatically restore scroll position to top on navigation */}
       <ScrollToTop />
       
@@ -69,6 +72,7 @@ export default function App() {
         {/* Placeholder for other tools to avoid 404s in demo */}
         <Route path="*" element={<AppLayout><Navbar /><Home /></AppLayout>} />
       </Routes>
-    </BrowserRouter>
+      </BrowserRouter>
+    </HelmetProvider>
   );
 }

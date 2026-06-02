@@ -548,5 +548,154 @@ export const SEO_CONFIG: Record<string, SEOData> = {
       <h3>Safe, Browser-Side Image Processing</h3>
       <p>We prioritize security by running converts locally in your browser sandbox, keeping your photos secure and private.</p>
     `
+  },
+  "/qr-gen": {
+    title: "Free QR Code Generator - Create Custom QR Codes Online",
+    description: "Generate custom QR codes instantly for free. Create QR codes for URLs, text, Wi-Fi, or contact info. Fast, easy, and secure.",
+    h1: "Free Custom QR Code Generator",
+    intro: "Create high-resolution QR codes in seconds. Share URLs, contacts, texts, or Wi-Fi configurations quickly with secure local browser generation.",
+    features: [
+      { title: "Instant QR Generation", description: "Generate QR codes instantly as you type your URL or text instructions represently." },
+      { title: "Custom High DPI Downloads", description: "Save and download sharp, print-ready, high-resolution QR codes that scan easily." },
+      { title: "Fully Local & Private", description: "Zero server storage or external lookups. Your text payload is compiled safely within your browser." }
+    ],
+    howItWorks: [
+      { heading: "Input Text or URL", text: "Type or paste the digital content, Wi-Fi keys, or web link into the text input field." },
+      { heading: "Live Render preview", text: "Our generator processes the data patterns and renders a live scan preview instantly." },
+      { heading: "Download High Quality", text: "Click the download button to grab your printable QR code image." }
+    ],
+    benefits: [
+      { title: "Perfect for Marketing", description: "Create scannable layouts for menus, business cards, flyers, and posters easily." },
+      { title: "Fast Sharing", description: "Skip spelling out complex web links—generate a QR code for quick connections." },
+      { title: "Completely Free", description: "Produce unlimited high-quality QR codes with zero subscription gates, expirations, or cost rules." }
+    ],
+    faqs: [
+      { question: "Do these custom QR codes expire?", answer: "No, the QR codes generated are static, meaning they will continue to work indefinitely as long as your destination link remains active." },
+      { question: "Is my inputted data sent to external servers?", answer: "Never. All data formatting and code translations occur 100% locally in your browser's workspace." },
+      { question: "What formats can I save them in?", answer: "You can download QR codes as high-density PNG images, making them ready to drop into print documents or online guides." }
+    ],
+    relatedTools: [
+      { name: "Password Generator", href: "/password-gen" },
+      { name: "Text to Speech Reader", href: "/tts" },
+      { name: "AI Background Remover", href: "/background-remover" }
+    ],
+    longSeoContent: `
+      <h2>The Easiest and Safest Way to Build Static QR Codes</h2>
+      <p>QR codes are highly effective tools for bridging print layouts and mobile destinations. Modern users expect quick camera-based actions to access menus, maps, business cards, or download files. Our QR code generator provides a simple way to create high-quality, static codes with zero cost or expiry limits.</p>
+      
+      <h3>Excellent Quality for Both Print and Digital Use</h3>
+      <p>We generate QR codes with optimized margin buffers, making them readable by smartphones even when printed at small sizes on paper, flyers, or nameplates.</p>
+    `
+  },
+  "/password-gen": {
+    title: "Secure Password Generator - Create Strong Random Passwords",
+    description: "Generate extremely strong, random, and secure passwords with custom lengths, symbols, and numbers. 100% private and secure.",
+    h1: "Secure Online Password Generator",
+    intro: "Generate strong, randomized, and secure passwords instantly. Protect your digital accounts, apps, and vaults with customizable density and local cryptography.",
+    features: [
+      { title: "Custom Length Control", description: "Select lengths up to 64 characters to defeat password cracking algorithms." },
+      { title: "Complexity Presets", description: "Toggle uppercase letters, lowercase letters, numbers, and custom special characters easily." },
+      { title: "100% Client-Side Safe", description: "Codes are generated using secure browser cryptographical APIs, meaning nothing leaves your device." }
+    ],
+    howItWorks: [
+      { heading: "Set Complexity Rules", text: "Toggle your desired settings for capital letters, numbers, and symbols." },
+      { heading: "Choose Character Length", text: "Drag the length slider to the desired amount of characters." },
+      { heading: "Copy & Use", text: "Click the copy button and paste your secure, newly-generated password into your account manager." }
+    ],
+    benefits: [
+      { title: "Protect Accounts Safely", description: "Stop using weak passwords that are vulnerable to automated dictionary-attack loops." },
+      { title: "No Server Logging", description: "Because the passwords are compiled strictly locally, there are no database caches to leak." },
+      { title: "Zero Ads or Fees", description: "Create unlimited premium secure credentials without login barriers or pricing rules." }
+    ],
+    faqs: [
+      { question: "Are my passwords saved on your web servers?", answer: "No, passwords are generated locally on your device, ensuring complete privacy." },
+      { question: "What makes a strong password?", answer: "A strong password is at least 12 characters long and uses a mix of uppercase and lowercase letters, numbers, and special symbols to prevent simple guess-work." },
+      { question: "Is this password generator free?", answer: "Yes, our tool is 100% free and private for corporate, personal, or administrative use." }
+    ],
+    relatedTools: [
+      { name: "QR Code Generator", href: "/qr-gen" },
+      { name: "Resume Builder", href: "/resume-builder" }
+    ],
+    longSeoContent: `
+      <h2>The Gold Standard of Browser-Side Password Generation</h2>
+      <p>Weak passwords are a leading cause of digital account breaches. Hackers use automated tools to test common dictionary words, date strings, and simple keyboard patterns in seconds. Our secure generator uses high-entropy browser cryptography to create random credentials that protect your assets.</p>
+      
+      <h3>Complete Customization with No Storage Risk</h3>
+      <p>We combine numbers, letters, and symbols to ensure your passwords keep your accounts secure.</p>
+    `
+  },
+  "/tts": {
+    title: "Free AI Text to Speech Converter - Human-Like Voice Reader",
+    description: "Convert text to speech online for free. Realistic human-like AI voices read your files or notes instantly. Fast, natural, and secure.",
+    h1: "Realistic AI Text-to-Speech Converter",
+    intro: "Read your documents, notes, and academic papers aloud instantly. Convert custom text into natural human-like speech right in your web browser.",
+    features: [
+      { title: "Multiple Realistic Voices", description: "Choose from standard, deep, or melodic vocal presets to match your listening style." },
+      { title: "Speed & Pitch Controls", description: "Adjust reading speeds and vocal pitch values for optimal learning rates." },
+      { title: "Immediate In-Browser Playback", description: "Listen to your custom outputs immediately with zero downloading or converting delays." }
+    ],
+    howItWorks: [
+      { heading: "Enter Your Text", text: "Paste or type your study notes, articles, or scripts into the text area." },
+      { heading: "Choose Voice & Options", text: "Select your desired voice and adjust playback range settings like speed." },
+      { heading: "Listen & Learn", text: "Click the play button to start listening to your content immediately." }
+    ],
+    benefits: [
+      { title: "Improve Productivity", description: "Listen to long documents, books, and articles while multitasking on other tasks." },
+      { title: "Accessibility Friendly", description: "Supports visual learning and reading accommodation needs perfectly." },
+      { title: "Fully Free & Safe", description: "Process unlimited documents with zero daily word counts or paid tiers." }
+    ],
+    faqs: [
+      { question: "Is there a word or page limit?", answer: "No, you can read long notes, texts, and passages without worry." },
+      { question: "Are my texts sent to external databases?", answer: "No, all speech synthesis is done locally in your browser with HTML5 Speech Synthesis, keeping your data secure." },
+      { question: "Can I adjust the speaking speed?", answer: "Yes, you can easily speed up or slow down playback parameters using the speed control slider." }
+    ],
+    relatedTools: [
+      { name: "Resume Builder", href: "/resume-builder" },
+      { name: "QR Code Generator", href: "/qr-gen" }
+    ],
+    longSeoContent: `
+      <h2>A Free and Natural Way to Read Text Aloud</h2>
+      <p>Audio is a great way to consume textbooks, learn pronunciation, or edit written documents by listening to them. Our free text-to-speech reader parses text inside your browser to deliver clear, human-like voice synthesis instantly.</p>
+      
+      <h3>Versatile Learning and Accessibility Support</h3>
+      <p>Adjust reading speeds to match your study preferences and improve your workflow.</p>
+    `
+  },
+  "/resume-builder": {
+    title: "Free PDF Resume Builder - Create Professional Resumes Online",
+    description: "Build and design professional PDF resumes with customizable templates. Download polished resumes instantly. Fast, easy, and free.",
+    h1: "Free Professional PDF Resume Builder",
+    intro: "Create beautiful, job-ready resumes in minutes. Input your details, choose a template, and download a polished, recruiter-approved PDF resume instantly.",
+    features: [
+      { title: "Clean Template Designs", description: "Choose elegant layouts styled with professional spacing, borders, and typography pairings." },
+      { title: "Live visual Previewing", description: "View resume updates in real-time as you enter your job history and skills." },
+      { title: "High-Resolution PDF Export", description: "Compile and download clean, print-ready PDFs without unwanted margins or layout shifts." }
+    ],
+    howItWorks: [
+      { heading: "Fill Out Your Details", text: "Enter your contact info, career summaries, job history, and education details." },
+      { heading: "Select Layout Template", text: "Choose a design template (like Conservative Corporate or Innovative Tech)." },
+      { heading: "Download Clean PDF", text: "Click the compile button and save your polished PDF resume immediately." }
+    ],
+    benefits: [
+      { title: "No Premium Watermarks", description: "Unlike other sites, we let you download standard resumes with zero watermarks or pricing walls." },
+      { title: "Recruiter-Approved Formats", description: "Our templates use standard, readable formats designed to clear ATS screening filters." },
+      { title: "Fast & User Friendly", description: "Skip formatting headaches—our tool structures margins and font sizes automatically." }
+    ],
+    faqs: [
+      { question: "Are my professional records kept private?", answer: "Yes, all your job histories and personal details are compiled locally on your device, ensuring complete security." },
+      { question: "Can I edit my resume after downloading?", answer: "Yes, simply return to the builder layout anytime, update your information, and download a new PDF." },
+      { question: "Is this resume builder truly free?", answer: "Yes, My Loves PDF lets you build and export professional resumes with zero fees or memberships." }
+    ],
+    relatedTools: [
+      { name: "Merge PDF Documents", href: "/merge-pdf" },
+      { name: "AI Background Remover", href: "/background-remover" }
+    ],
+    longSeoContent: `
+      <h2>Craft a Winning Resume in Minutes</h2>
+      <p>Building a professional resume requires balancing crisp layouts, legible typography, and clear structures. Our premium resume builder handles the formatting so you can focus on writing high-quality professional achievements.</p>
+      
+      <h3>Engineered for Recruiters and Applicant Tracking Systems (ATS)</h3>
+      <p>Our templates are designed to be highly readable by recruiters and clear ATS scanning filters easily.</p>
+    `
   }
 };

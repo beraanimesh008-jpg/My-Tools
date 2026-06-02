@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import Navbar from '@/src/components/Navbar';
+import SEO from '@/src/components/SEO';
 import { trackFileProcessed } from '@/src/utils/analytics';
 import { QrCode, Download, RefreshCw, Layers } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -50,6 +51,11 @@ export default function QrGenerator() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
       <Navbar />
+      <SEO 
+        title="Free QR Code Generator - Create Custom QR Codes Online"
+        description="Generate custom QR codes instantly for free. Create QR codes for URLs, text, Wi-Fi, or contact info. Fast, easy, and secure."
+        path="/qr-gen"
+      />
       
       <main className="max-w-4xl mx-auto px-4 py-20">
         <div className="text-center mb-16">

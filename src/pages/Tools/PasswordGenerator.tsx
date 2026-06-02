@@ -1,5 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
 import Navbar from '@/src/components/Navbar';
+import SEO from '@/src/components/SEO';
 import { Lock, Copy, Check, RefreshCw, ShieldCheck } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 
@@ -51,6 +52,11 @@ export default function PasswordGenerator() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
       <Navbar />
+      <SEO 
+        title="Secure Password Generator - Create Strong Random Passwords"
+        description="Generate extremely strong, random, and secure passwords with custom lengths, symbols, and numbers. 100% private and secure."
+        path="/password-gen"
+      />
       
       <main className="max-w-4xl mx-auto px-4 py-20">
         <div className="text-center mb-16">

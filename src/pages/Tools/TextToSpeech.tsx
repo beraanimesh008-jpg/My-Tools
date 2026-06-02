@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Navbar from '@/src/components/Navbar';
+import SEO from '@/src/components/SEO';
 import { trackFileProcessed } from '@/src/utils/analytics';
 import { Volume2, Play, Pause, RotateCcw, VolumeX, Sliders } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
@@ -51,6 +52,11 @@ export default function TextToSpeech() {
   return (
     <div className="min-h-screen bg-slate-50 dark:bg-slate-900 transition-colors">
       <Navbar />
+      <SEO 
+        title="Free AI Text to Speech Converter - Human-Like Voice Reader"
+        description="Convert text to speech online for free. Realistic human-like AI voices read your files or notes instantly. Fast, natural, and secure."
+        path="/tts"
+      />
       
       <main className="max-w-4xl mx-auto px-4 py-20">
         <div className="text-center mb-16">
