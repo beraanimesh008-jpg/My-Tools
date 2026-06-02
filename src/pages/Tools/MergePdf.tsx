@@ -377,8 +377,8 @@ export default function MergePdf() {
     <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors">
       <Navbar />
       <SEO 
-        title="Merge PDF Files Online - 100% Free Merger" 
-        description="Combine multiple PDF documents into one single file easily. Reorder pages visually, merge immediately with no signup, and secure processing."
+        title="Merge PDF Online Free - Combine PDF Files Easily" 
+        description="Merge multiple PDF files into a single document online for free. Fast, secure and easy PDF merger with no installation required."
         path="/merge-pdf"
         faqs={MERGE_PDF_FAQS}
       />

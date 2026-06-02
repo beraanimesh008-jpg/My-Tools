@@ -133,8 +133,8 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/merge-pdf": {
-    title: "Merge PDF Online Free - Combine PDF Files Instantly | MyLovesPDF",
-    description: "Combine multiple PDF documents into a single file quickly. Reorder pages, upload blocks in bulk, and compile high-resolution records easily.",
+    title: "Merge PDF Online Free - Combine PDF Files Easily",
+    description: "Merge multiple PDF files into a single document online for free. Fast, secure and easy PDF merger with no installation required.",
     h1: "Merge PDF Files Online with Visual Sorting Control",
     intro: "Unite disjointed documents in seconds. Our free online PDF merge utility maps raw files, lets you re-order document sequences visually, and creates single, polished downloads.",
     features: [

@@ -100,8 +100,8 @@ export default function Home() {
   return (
     <div className="pb-20">
       <SEO 
-        title="My Loves PDF - Free Online PDF Tools" 
-        description="Merge, compress, split, convert and edit PDF files online for free. Explore premium image studios, neural background removers, password creators, and voice tools."
+        title="My Loves PDF - Free Online PDF & Image Tools" 
+        description="Use free online PDF and image tools to merge, split, compress, convert, edit PDFs, remove backgrounds, compress images and more. Fast, secure and easy to use."
         path="/"
         faqs={HOME_FAQS}
       />
