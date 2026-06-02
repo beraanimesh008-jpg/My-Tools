@@ -16,6 +16,7 @@ export interface StepItem {
 export interface SEOData {
   title: string;
   description: string;
+  keywords?: string;
   h1: string;
   intro: string;
   features: FeatureItem[];
@@ -55,8 +56,11 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     relatedTools: [
       { name: "Merge PDF", href: "/merge-pdf" },
       { name: "Compress PDF", href: "/compress-pdf" },
+      { name: "Split PDF", href: "/split-pdf" },
+      { name: "JPG to PDF", href: "/jpg-to-pdf" },
       { name: "PDF to JPG", href: "/pdf-to-jpg" },
-      { name: "Background Remover", href: "/background-remover" }
+      { name: "PDF to Word", href: "/pdf-to-word" },
+      { name: "Word to PDF", href: "/word-to-pdf" }
     ],
     longSeoContent: `
       <h2>The Ultimate Cloud-Free Document Assistant For Global Creators</h2>
@@ -454,10 +458,11 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/compress-image": {
-    title: "Image Compressor Free - Shrink Image Quality Online",
-    description: "Compress image file sizes online without losing quality. Optimize JPG, JPEG, and PNG files with our adjustable quality slider.",
-    h1: "Frictionless Image Compressor Studio",
-    intro: "Optimize your graphics and photo files. Our tool shrinks storage size while keeping your image details, highlights, and colors looking sharp.",
+    title: "AI Ultra Image Compressor – Compress Images Without Losing Quality",
+    description: "Compress JPG, PNG, WEBP images online with AI Ultra Image Compressor. Reduce image size while maintaining high quality. Fast, secure and free.",
+    keywords: "image compressor, compress image online, reduce image size, jpg compressor, png compressor, webp compressor, ai image compressor, image optimizer, photo compressor, compress image to 100kb, compress image to 200kb, compress image to 300kb, compress image to 500kb",
+    h1: "AI Ultra Image Compressor",
+    intro: "Compress JPG, PNG, WEBP images online with AI Ultra Image Compressor. Reduce image size while maintaining high quality. Fast, secure and free.",
     features: [
       { title: "Adjustable Compression Slider", description: "Adjust compression percentages from 10% to 100% to balance file size and visual metrics." },
       { title: "Wide Format Support", description: "Compress JPG, PNG, and JPEG formats in seconds." },

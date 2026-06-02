@@ -11,9 +11,10 @@ interface SEOProps {
   description: string;
   path: string;
   faqs?: FaqItem[];
+  keywords?: string;
 }
 
-export default function SEO({ title: propTitle, description: propDescription, path, faqs: propFaqs = [] }: SEOProps) {
+export default function SEO({ title: propTitle, description: propDescription, path, faqs: propFaqs = [], keywords: propKeywords }: SEOProps) {
   const fullUrl = `https://mylovespdf.com${path}`;
   const defaultImage = 'https://mylovespdf.com/og-image.png'; // Fallback sharing asset
 
@@ -21,6 +22,7 @@ export default function SEO({ title: propTitle, description: propDescription, pa
   const title = globalConfig?.title || propTitle;
   const description = globalConfig?.description || propDescription;
   const faqs = globalConfig?.faqs || propFaqs;
+  const keywords = globalConfig?.keywords || propKeywords;
 
   useEffect(() => {
     // 1. Update Title tag
@@ -39,6 +41,11 @@ export default function SEO({ title: propTitle, description: propDescription, pa
 
     // 2. Head Description
     updateOrCreateMeta('meta[name="description"]', 'name', 'description', description);
+
+    // 2b. Meta Keywords support for search crawlers
+    if (keywords) {
+      updateOrCreateMeta('meta[name="keywords"]', 'name', 'keywords', keywords);
+    }
 
     // 3. Canonical Link tag
     let canonical = document.querySelector('link[rel="canonical"]');

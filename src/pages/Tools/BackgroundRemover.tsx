@@ -26,7 +26,8 @@ import {
   Monitor,
   Layout,
   Star,
-  Plus
+  Plus,
+  Settings
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Link } from 'react-router-dom';
@@ -200,6 +201,8 @@ export default function BackgroundRemover() {
   const [sliderPosition, setSliderPosition] = useState(50);
   const [processingProgress, setProcessingProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
+  const [userApiKey, setUserApiKey] = useState<string>(() => localStorage.getItem('CUSTOM_REMOVE_BG_API_KEY') || '');
+  const [showApiKeySetting, setShowApiKeySetting] = useState<boolean>(false);
 
   const getPreviewStyle = () => {
     if (bgImage) {
@@ -249,13 +252,6 @@ export default function BackgroundRemover() {
       return;
     }
 
-    const clientApiKey = import.meta.env.VITE_REMOVE_BG_API_KEY;
-    if (!clientApiKey) {
-      setError('VITE_REMOVE_BG_API_KEY is not defined. Please configure VITE_REMOVE_BG_API_KEY in your Netlify/Vercel environment variables to run the AI Background Remover.');
-      setIsProcessing(false);
-      return;
-    }
-
     // Simulated loader progress for cloud fetch
     const interval = setInterval(() => {
       setProcessingProgress(p => {
@@ -265,16 +261,19 @@ export default function BackgroundRemover() {
     }, 400);
 
     try {
-      console.log('Sending direct client-side request to remove.bg...');
+      console.log('Sending secure custom proxy request to backend remove-bg endpoint...');
       const formData = new FormData();
-      formData.append('image_file', targetFile);
-      formData.append('size', 'auto');
+      formData.append('file', targetFile);
 
-      const response = await fetch('https://api.remove.bg/v1.0/removebg', {
+      const headers: Record<string, string> = {};
+      const customKey = localStorage.getItem('CUSTOM_REMOVE_BG_API_KEY') || userApiKey;
+      if (customKey) {
+        headers['x-custom-api-key'] = customKey;
+      }
+
+      const response = await fetch('/api/tools/image/remove-bg', {
         method: 'POST',
-        headers: {
-          'X-Api-Key': clientApiKey,
-        },
+        headers,
         body: formData,
       });
 
@@ -286,15 +285,15 @@ export default function BackgroundRemover() {
           const contentType = response.headers.get('content-type');
           if (contentType && contentType.includes('application/json')) {
             const errorData = await response.json();
-            errorMessage = errorData.errors?.[0]?.title || errorData.details || errorData.error || errorMessage;
+            errorMessage = errorData.error || errorData.details || errorMessage;
           } else {
             const errorText = await response.text();
             errorMessage = errorText.slice(0, 150) || `Error ${response.status}: ${response.statusText}`;
           }
         } catch (parseErr) {
-          errorMessage = `Error ${response.status}: ${response.statusText || 'Unknown API Error'}`;
+          errorMessage = `Error ${response.status}: ${response.statusText || 'Unknown API proxy Error'}`;
         }
-        throw new Error(`remove.bg API Error: ${errorMessage}`);
+        throw new Error(errorMessage);
       }
 
       setProcessingProgress(100);
@@ -302,7 +301,7 @@ export default function BackgroundRemover() {
       
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('text/html')) {
-        throw new Error("API returned an HTML page instead of an image. Ensure you are calling the real remove.bg server.");
+        throw new Error("Server returned an HTML page. Please verify your remove.bg key credentials and API request limits.");
       }
 
       const url = URL.createObjectURL(blob);
@@ -320,6 +319,17 @@ export default function BackgroundRemover() {
     } catch (err: any) {
       console.error('Background removal error:', err);
       setError(err.message || 'AI Processing failed. Please check your API key configuration.');
+      
+      // Auto expand custom key settings if it looks like a credentials error
+      if (err.message && (
+        err.message.toLowerCase().includes('key') || 
+        err.message.toLowerCase().includes('authorized') || 
+        err.message.toLowerCase().includes('credit') || 
+        err.message.toLowerCase().includes('limit') ||
+        err.message.toLowerCase().includes('invalid')
+      )) {
+        setShowApiKeySetting(true);
+      }
     } finally {
       setIsProcessing(false);
     }
@@ -530,14 +540,14 @@ export default function BackgroundRemover() {
               </div>
 
               {/* Cloud API Key Configuration required warning */}
-              {!import.meta.env.VITE_REMOVE_BG_API_KEY && (
-                <div className="w-full max-w-4xl mb-12 p-8 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-900/10 border-2 border-amber-200 dark:border-amber-900/30 rounded-[2.5rem] text-slate-800 dark:text-slate-200 shadow-xl">
+              {!import.meta.env.VITE_REMOVE_BG_API_KEY && !userApiKey && (
+                <div className="w-full max-w-4xl mb-8 p-8 bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-950/20 dark:to-orange-900/10 border-2 border-amber-200 dark:border-amber-900/30 rounded-[2.5rem] text-slate-800 dark:text-slate-200 shadow-xl">
                   <div className="flex flex-col md:flex-row items-start gap-6">
                     <div className="p-4 bg-amber-100 dark:bg-amber-900/40 text-amber-600 dark:text-amber-400 rounded-2xl shrink-0">
                       <Sparkles className="w-8 h-8" />
                     </div>
                     <div className="space-y-3">
-                      <h3 className="text-xl font-black text-amber-900 dark:text-amber-400">API Key Configuration Required</h3>
+                      <h3 className="text-xl font-black text-amber-900 dark:text-amber-400">API Key Configuration Notice</h3>
                       <p className="text-sm font-medium leading-relaxed text-slate-600 dark:text-slate-300">
                         This AI Background Remover uses the secure, direct <strong className="font-extrabold text-slate-800 dark:text-slate-100">remove.bg API</strong> to produce flawless results. To get this running on your deployment:
                       </p>
@@ -551,6 +561,59 @@ export default function BackgroundRemover() {
                 </div>
               )}
 
+              {/* Optional Config toggle or key entry widget */}
+              <div className="w-full max-w-2xl mb-8">
+                <button
+                  type="button"
+                  onClick={() => setShowApiKeySetting(!showApiKeySetting)}
+                  className="mx-auto flex items-center gap-2 text-xs font-bold text-slate-500 hover:text-cyan-600 dark:text-slate-400 dark:hover:text-cyan-400 bg-slate-100 dark:bg-slate-800 px-4 py-2.5 rounded-xl transition-all outline-none"
+                >
+                  <Settings className="w-3.5 h-3.5" />
+                  {showApiKeySetting ? "Hide Custom API Key Option" : "Got your own remove.bg API Key? Enter here (Optional)"}
+                </button>
+
+                {showApiKeySetting && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    className="mt-3 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700/60 p-5 rounded-2xl shadow-md text-left space-y-3 overflow-hidden"
+                  >
+                    <h3 className="text-sm font-black text-slate-800 dark:text-white flex items-center gap-2">
+                      <Zap className="w-4 h-4 text-cyan-600" />
+                      Custom remove.bg API Key Override (Optional)
+                    </h3>
+                    <p className="text-[11px] text-slate-550 dark:text-slate-400 leading-relaxed font-semibold">
+                      If the global backend server key is invalid, exhausted, or unconfigured, paste your own free API key below. It will stay stored securely on your browser's localStorage and is sent securely via the backend proxy.
+                    </p>
+                    <div className="flex gap-2">
+                      <input
+                        type="password"
+                        placeholder="Paste your API key (e.g., ABcDeFgHiJkLmNoP12345678)"
+                        value={userApiKey}
+                        onChange={(e) => {
+                          const val = e.target.value.trim();
+                          setUserApiKey(val);
+                          localStorage.setItem('CUSTOM_REMOVE_BG_API_KEY', val);
+                        }}
+                        className="flex-1 text-xs px-3.5 py-2.5 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-850 rounded-xl focus:outline-none focus:border-cyan-500 font-mono text-slate-705 dark:text-white"
+                      />
+                      {userApiKey && (
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setUserApiKey('');
+                            localStorage.removeItem('CUSTOM_REMOVE_BG_API_KEY');
+                          }}
+                          className="bg-rose-50 dark:bg-rose-955 text-rose-600 dark:text-rose-455 hover:bg-rose-100 text-xs px-3 py-2 rounded-xl font-bold transition-all"
+                        >
+                          Clear
+                        </button>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+
               {error && (
                 <div className="w-full max-w-2xl mb-8 p-6 bg-rose-50 dark:bg-rose-950/20 border-2 border-rose-200 dark:border-rose-900/30 rounded-3xl flex flex-col gap-4 items-center text-center animate-fade-in">
                   <div className="flex items-start gap-3 text-rose-700 dark:text-rose-400">
@@ -561,7 +624,13 @@ export default function BackgroundRemover() {
                     </div>
                   </div>
 
-                  <div className="flex flex-wrap gap-3 mt-3 justify-center">
+                  {error.toLowerCase().includes('key') && (
+                    <p className="text-xs text-slate-500 dark:text-slate-400 font-semibold leading-relaxed max-w-md">
+                      Tip: You can register for a free API key at <a href="https://www.remove.bg/api" target="_blank" rel="noopener noreferrer" className="text-cyan-600 dark:text-cyan-405 font-bold hover:underline">remove.bg</a> and input it in the key override settings above of this page to bypass this server error!
+                    </p>
+                  )}
+
+                  <div className="flex flex-wrap gap-3 mt-1 justify-center">
                     {file && (
                       <button 
                         type="button"

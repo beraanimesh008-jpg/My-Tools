@@ -629,6 +629,71 @@ async function startServer() {
     }
   });
 
+  // Background Removal Proxy API (remove.bg)
+  app.post("/api/tools/image/remove-bg", upload.single("file"), async (req: any, res) => {
+    try {
+      const file = req.file;
+      if (!file) return res.status(400).json({ error: "No file uploaded" });
+
+      // Support custom api key in headers as well as server environment variables
+      const rawCustomKey = req.headers["x-custom-api-key"];
+      const customKey = Array.isArray(rawCustomKey) ? rawCustomKey[0] : rawCustomKey;
+      const apiKey = customKey || process.env.REMOVE_BG_API_KEY || process.env.VITE_REMOVE_BG_API_KEY;
+
+      if (!apiKey) {
+        return res.status(400).json({ 
+          error: "API Key Not Found", 
+          details: "No remove.bg API key is configured on the server. Please define REMOVE_BG_API_KEY on your server or provide a custom key override."
+        });
+      }
+
+      console.log("Forwarding image file to remove.bg API securely from server...");
+      const formData = new FormData();
+      formData.append("image_file", new Blob([file.buffer], { type: file.mimetype }), file.originalname);
+      formData.append("size", "auto");
+
+      const response = await fetch("https://api.remove.bg/v1.0/removebg", {
+        method: "POST",
+        headers: {
+          "X-Api-Key": apiKey,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        let errorMessage = "Failed to remove background.";
+        try {
+          const contentType = response.headers.get("content-type");
+          if (contentType && contentType.includes("application/json")) {
+            const errorData: any = await response.json();
+            errorMessage = errorData.errors?.[0]?.title || errorData.details || errorData.error || errorMessage;
+          } else {
+            const errorText = await response.text();
+            errorMessage = errorText.slice(0, 150) || `Error ${response.status}: ${response.statusText}`;
+          }
+        } catch (parseErr) {
+          errorMessage = `Error ${response.status}: ${response.statusText || "Unknown API Error"}`;
+        }
+        return res.status(response.status).json({ error: errorMessage });
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && contentType.includes("text/html")) {
+        return res.status(500).json({ error: "API returned an HTML page instead of an image. Verify your remove.bg account and keys." });
+      }
+
+      const responseBuffer = Buffer.from(await response.arrayBuffer());
+      await addFilesProcessedTrack(1);
+
+      res.setHeader("Content-Type", contentType || "image/png");
+      res.setHeader("Content-Disposition", `attachment; filename=removed_${file.originalname}`);
+      res.send(responseBuffer);
+    } catch (error: any) {
+      console.error("Error in background removal proxy route:", error);
+      res.status(500).json({ error: error?.message || "Internal server-side background removal error." });
+    }
+  });
+
   // JPG to PDF API
   app.post("/api/tools/pdf/jpg-to-pdf", upload.array("files"), async (req: any, res) => {
     try {
