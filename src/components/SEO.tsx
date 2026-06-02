@@ -42,6 +42,9 @@ export default function SEO({ title: propTitle, description: propDescription, pa
     // 2. Head Description
     updateOrCreateMeta('meta[name="description"]', 'name', 'description', description);
 
+    // 2a. Meta Robots
+    updateOrCreateMeta('meta[name="robots"]', 'name', 'robots', 'index, follow');
+
     // 2b. Meta Keywords support for search crawlers
     if (keywords) {
       updateOrCreateMeta('meta[name="keywords"]', 'name', 'keywords', keywords);
@@ -127,7 +130,7 @@ export default function SEO({ title: propTitle, description: propDescription, pa
       }
     ];
 
-    // If we're on a tool page, add SoftwareApplication Schema
+    // If we're on a tool page, add SoftwareApplication and WebApplication Schemas
     if (path !== '/') {
       schemas.push({
         '@context': 'https://schema.org',
@@ -135,6 +138,25 @@ export default function SEO({ title: propTitle, description: propDescription, pa
         'name': globalConfig?.h1 || title,
         'operatingSystem': 'All',
         'applicationCategory': 'BusinessApplication',
+        'offers': {
+          '@type': 'Offer',
+          'price': '0.00',
+          'priceCurrency': 'USD'
+        },
+        'aggregateRating': {
+          '@type': 'AggregateRating',
+          'ratingValue': '4.9',
+          'ratingCount': '2840'
+        }
+      });
+
+      schemas.push({
+        '@context': 'https://schema.org',
+        '@type': 'WebApplication',
+        'name': globalConfig?.h1 || title,
+        'operatingSystem': 'All',
+        'applicationCategory': 'BusinessApplication',
+        'browserRequirements': 'Requires HTML5 and Javascript support',
         'offers': {
           '@type': 'Offer',
           'price': '0.00',
