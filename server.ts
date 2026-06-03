@@ -991,27 +991,27 @@ async function startServer() {
 
       // Header Meta replacement
       const cleanTitle = title.includes("My Loves PDF") ? title : `${title} | My Loves PDF`;
-      html = html.replace(/<title>[^<]*<\/title>/i, `<title>${cleanTitle}</title>`);
+      html = html.replace(/<title[^>]*>[^<]*<\/title>/i, `<title data-rh="true">${cleanTitle}</title>`);
 
-      // Strip any existing default meta description tag to prevent duplicates in Ctrl+U view
-      html = html.replace(/<meta\s+name="description"\s+content="[^"]*"\s*\/?>/gi, "");
+      // Strip any existing default meta description tag regardless of attributes or position to prevent duplicates in Ctrl+U view
+      html = html.replace(/<meta\s+[^>]*name="description"[^>]*\/?>/gi, "");
 
       const fullUrl = `https://mylovespdf.com${urlPath}`;
       const defaultImage = "https://mylovespdf.com/og-image.png";
 
       const headMetaInjections = `
-  <meta name="description" content="${desc.replace(/"/g, '&quot;')}" />
-  <link rel="canonical" href="${fullUrl}" />
-  <meta property="og:title" content="${title.replace(/"/g, '&quot;')}" />
-  <meta property="og:description" content="${desc.replace(/"/g, '&quot;')}" />
-  <meta property="og:url" content="${fullUrl}" />
-  <meta property="og:image" content="${defaultImage}" />
-  <meta property="og:type" content="website" />
-  <meta property="og:site_name" content="My Loves PDF" />
-  <meta name="twitter:card" content="summary_large_image" />
-  <meta name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
-  <meta name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
-  <meta name="twitter:image" content="${defaultImage}" />`;
+  <meta data-rh="true" name="description" content="${desc.replace(/"/g, '&quot;')}" />
+  <link data-rh="true" rel="canonical" href="${fullUrl}" />
+  <meta data-rh="true" property="og:title" content="${title.replace(/"/g, '&quot;')}" />
+  <meta data-rh="true" property="og:description" content="${desc.replace(/"/g, '&quot;')}" />
+  <meta data-rh="true" property="og:url" content="${fullUrl}" />
+  <meta data-rh="true" property="og:image" content="${defaultImage}" />
+  <meta data-rh="true" property="og:type" content="website" />
+  <meta data-rh="true" property="og:site_name" content="My Loves PDF" />
+  <meta data-rh="true" name="twitter:card" content="summary_large_image" />
+  <meta data-rh="true" name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
+  <meta data-rh="true" name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
+  <meta data-rh="true" name="twitter:image" content="${defaultImage}" />`;
 
       html = html.replace("</head>", `${headMetaInjections}\n</head>`);
 
