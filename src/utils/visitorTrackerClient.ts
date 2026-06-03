@@ -411,7 +411,12 @@ export async function fetchAnalyticsPayloadClient(): Promise<AnalyticStatsPayloa
   try {
     return await withTimeout(fetchDirectFirestore(), 2500);
   } catch (directErr: any) {
-    console.error("Direct Firestore stats retrieval failed/timed out:", directErr);
+    const isQuota = directErr?.message?.includes("Quota") || directErr?.code === "resource-exhausted" || directErr?.message?.toLowerCase().includes("quota");
+    if (isQuota) {
+      console.warn("Direct Firestore stats retrieval matches quota limits (serving local fallback graceful stats).");
+    } else {
+      console.warn("Direct Firestore stats retrieval skipped/timed out (serving local fallback):", directErr?.message || directErr);
+    }
     // Secure safe fallback so loading is NEVER stuck
     const todayKey = getTodayDateKey();
     
