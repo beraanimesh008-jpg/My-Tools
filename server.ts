@@ -999,8 +999,9 @@ async function startServer() {
     return xml;
   };
 
-  const preInjectSeo = (html: string, urlPath: string): string => {
+  const preInjectSeo = (html: string, req: any): string => {
     try {
+      const urlPath = typeof req === "string" ? req : (req?.path || "/");
       let title = "My Loves PDF - Free Online PDF, Image, & AI Utilities Studio";
       let h1 = "Free Premium PDF Tools & Creative AI Studio";
       let desc = "Combine, compress, convert, and manage high-resolution PDF documents. Unlock advanced neural AI features.";
@@ -1040,8 +1041,15 @@ async function startServer() {
         isMatch = true;
       }
 
+      // Add required logging:
+      // console.log("SEO Route:", req.path)
+      // console.log("SEO Title:", title)
+      const fakeReq = typeof req === "object" && req !== null ? req : { path: urlPath };
+      console.log("SEO Route:", fakeReq.path);
+      console.log("SEO Title:", title);
+
       // Header Meta replacement
-      const cleanTitle = title.includes("My Loves PDF") ? title : `${title} | My Loves PDF`;
+      const cleanTitle = (title.includes("My Loves PDF") || title.includes("MyLovesPDF")) ? title : `${title} | My Loves PDF`;
       
       // Clean up any stray old title or meta description tags if present to guarantee strictly exactly one in the static markup
       html = html.replace(/<title[^>]*>[^<]*<\/title>/gi, "");
@@ -1065,7 +1073,7 @@ async function startServer() {
   <meta data-rh="true" name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
   <meta data-rh="true" name="twitter:image" content="${defaultImage}" />`;
 
-      html = html.replace("</head>", `${headMetaInjections}\n</head>`);
+      html = html.replace(/<\/head>/i, `${headMetaInjections}\n</head>`);
 
       // Root Prerender Injection for search crawler spiders
       const renderedBody = `
@@ -1131,7 +1139,7 @@ async function startServer() {
         // Apply Vite's internal HTML transforms to keep script injects and HMR running
         rawHtml = await vite.transformIndexHtml(req.originalUrl || req.url, rawHtml);
         // Pre-inject the route-specific SEO titles and descriptions
-        const parsedHtml = preInjectSeo(rawHtml, urlPath);
+        const parsedHtml = preInjectSeo(rawHtml, req);
         res.status(200).set({ "Content-Type": "text/html" }).send(parsedHtml);
       } catch (e) {
         console.error("Dev mode index SEO loader exception:", e);
@@ -1142,7 +1150,8 @@ async function startServer() {
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), "dist");
-    app.use(express.static(distPath));
+    // Ensure express.static() is not serving index.html before SEO injection by configuring { index: false }
+    app.use(express.static(distPath, { index: false }));
     
     app.get("*", (req, res) => {
       const urlPath = req.path;
@@ -1163,14 +1172,31 @@ Sitemap: https://mylovespdf.com/sitemap.xml`);
         return;
       }
 
-      // Read production static file and inject SEO meta content prior to dispatching
+      // Ensure raw index.html is never served directly for page routes. Always inject SEO metadata.
       try {
-        const rawHtml = fs.readFileSync(path.join(distPath, "index.html"), "utf-8");
-        const parsedHtml = preInjectSeo(rawHtml, urlPath);
+        const rawHtml = fs.readFileSync(
+          path.join(distPath, "index.html"),
+          "utf8"
+        );
+
+        const parsedHtml = preInjectSeo(rawHtml, req);
+
+        res.setHeader("Content-Type", "text/html");
         res.send(parsedHtml);
       } catch (e) {
         console.error("Static index loader exception:", e);
-        res.sendFile(path.join(distPath, "index.html"));
+        try {
+          // Robust fallback injecting default root SEO configuration
+          const rawHtml = fs.readFileSync(
+            path.join(distPath, "index.html"),
+            "utf8"
+          );
+          const parsedHtml = preInjectSeo(rawHtml, req);
+          res.setHeader("Content-Type", "text/html");
+          res.send(parsedHtml);
+        } catch (innerErr) {
+          res.status(500).send("Internal Server Error");
+        }
       }
     });
   }
