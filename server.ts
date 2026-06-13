@@ -999,9 +999,15 @@ async function startServer() {
     return xml;
   };
 
-  const preInjectSeo = (html: string, req: any): string => {
+  const preInjectSeo = (html: string, pathOrReq: any): string => {
     try {
-      const urlPath = typeof req === "string" ? req : (req?.path || "/");
+      let urlPath = typeof pathOrReq === "string" ? pathOrReq : (pathOrReq?.path || "/");
+      
+      // Normalize trailing slash
+      if (urlPath !== "/" && urlPath.endsWith("/")) {
+        urlPath = urlPath.slice(0, -1);
+      }
+
       let title = "My Loves PDF - Free Online PDF, Image, & AI Utilities Studio";
       let h1 = "Free Premium PDF Tools & Creative AI Studio";
       let desc = "Combine, compress, convert, and manage high-resolution PDF documents. Unlock advanced neural AI features.";
@@ -1044,8 +1050,8 @@ async function startServer() {
       // Add required logging:
       // console.log("SEO Route:", req.path)
       // console.log("SEO Title:", title)
-      const fakeReq = typeof req === "object" && req !== null ? req : { path: urlPath };
-      console.log("SEO Route:", fakeReq.path);
+      const req = typeof pathOrReq === "string" ? { path: pathOrReq } : pathOrReq;
+      console.log("SEO Route:", req.path);
       console.log("SEO Title:", title);
 
       // Header Meta replacement
@@ -1139,7 +1145,7 @@ async function startServer() {
         // Apply Vite's internal HTML transforms to keep script injects and HMR running
         rawHtml = await vite.transformIndexHtml(req.originalUrl || req.url, rawHtml);
         // Pre-inject the route-specific SEO titles and descriptions
-        const parsedHtml = preInjectSeo(rawHtml, req);
+        const parsedHtml = preInjectSeo(rawHtml, req.path);
         res.status(200).set({ "Content-Type": "text/html" }).send(parsedHtml);
       } catch (e) {
         console.error("Dev mode index SEO loader exception:", e);
@@ -1172,6 +1178,12 @@ Sitemap: https://mylovespdf.com/sitemap.xml`);
         return;
       }
 
+      // Skip static assets or file paths so that they don't incorrectly trigger index fallbacks
+      if (urlPath.includes(".") || urlPath.startsWith("/api/")) {
+        res.status(404).send("Not Found");
+        return;
+      }
+
       // Ensure raw index.html is never served directly for page routes. Always inject SEO metadata.
       try {
         const rawHtml = fs.readFileSync(
@@ -1179,7 +1191,7 @@ Sitemap: https://mylovespdf.com/sitemap.xml`);
           "utf8"
         );
 
-        const parsedHtml = preInjectSeo(rawHtml, req);
+        const parsedHtml = preInjectSeo(rawHtml, req.path);
 
         res.setHeader("Content-Type", "text/html");
         res.send(parsedHtml);
@@ -1191,7 +1203,7 @@ Sitemap: https://mylovespdf.com/sitemap.xml`);
             path.join(distPath, "index.html"),
             "utf8"
           );
-          const parsedHtml = preInjectSeo(rawHtml, req);
+          const parsedHtml = preInjectSeo(rawHtml, req.path);
           res.setHeader("Content-Type", "text/html");
           res.send(parsedHtml);
         } catch (innerErr) {
