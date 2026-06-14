@@ -505,8 +505,8 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/image-converter": {
-    title: "Image Converter Online Free - Convert JPG, PNG, WebP | MyLovesPDF",
-    description: "Convert image files between JPG, PNG, WebP, and other formats instantly. Free, batch conversion with high-resolution details.",
+    title: "Lossless Image Converter",
+    description: "Convert Image Formats Instantly Online",
     h1: "Convert Image Formats Instantly Online",
     intro: "Convert your image formats instantly in your browser. Re-encode files between JPG, PNG, WebP, and raw formats with adjustable dimensions.",
     features: [
