@@ -18,14 +18,20 @@ export default function SEO({ title: propTitle, description: propDescription, pa
   const fullUrl = `https://mylovespdf.com${path}`;
   const defaultImage = 'https://mylovespdf.com/og-image.png'; // Fallback sharing asset
 
-  const globalConfig = SEO_CONFIG[path];
+  let normalizedPath = path || "/";
+  if (normalizedPath !== "/" && normalizedPath.endsWith("/")) {
+    normalizedPath = normalizedPath.slice(0, -1);
+  }
+
+  const globalConfig = SEO_CONFIG[normalizedPath];
   const title = globalConfig?.title || propTitle;
   const description = globalConfig?.description || propDescription;
   const faqs = globalConfig?.faqs || propFaqs;
   const keywords = globalConfig?.keywords || propKeywords;
 
   // Render Page Title
-  const cleanTitle = title.endsWith("My Loves PDF") || title.endsWith("MyLovesPDF") ? title : `${title} | My Loves PDF`;
+  const hasBrand = title.toLowerCase().includes("my loves pdf") || title.toLowerCase().includes("mylovespdf");
+  const cleanTitle = hasBrand ? title : `${title} | My Loves PDF`;
 
   // Build JSON-LD Structured Schema
   const schemas: any[] = [
