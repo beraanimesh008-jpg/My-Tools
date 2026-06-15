@@ -9,6 +9,7 @@ import fs from "fs";
 import { initializeApp } from "firebase/app";
 import { SEO_CONFIG } from "./src/utils/seoData";
 import { BLOG_POSTS } from "./src/utils/blogData";
+import { preInjectSeo as helperPreInjectSeo } from "./src/utils/preInjectSeo";
 import { 
   getFirestore, 
   doc, 
@@ -1000,6 +1001,7 @@ async function startServer() {
   };
 
   const preInjectSeo = (html: string, pathOrReq: any): string => {
+    return helperPreInjectSeo(html, pathOrReq);
     try {
       let urlPath = typeof pathOrReq === "string" ? pathOrReq : (pathOrReq?.path || "/");
       
