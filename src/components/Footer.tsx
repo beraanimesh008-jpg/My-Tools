@@ -81,31 +81,7 @@ export default function Footer() {
           </div>
         </div>
 
-        {/* Live Counter Aligned Bottom Center */}
-        <div className="mt-16 py-6 border-t border-slate-100 dark:border-slate-850/60 flex flex-col items-center justify-center">
-          <div className="bg-slate-50 dark:bg-[#0c1221] border border-slate-100 dark:border-slate-850/80 rounded-2xl p-4 md:px-6 md:py-3.5 flex flex-col sm:flex-row items-center gap-4 sm:gap-8 shadow-inner">
-            <div className="flex items-center gap-2.5">
-              <div className="relative">
-                <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full animate-ping absolute inset-0" />
-                <div className="w-2.5 h-2.5 bg-emerald-500 rounded-full" />
-              </div>
-              <span className="text-xs font-display font-bold text-slate-400 uppercase tracking-wider">Live Online</span>
-              <span className="text-sm font-black text-emerald-650 dark:text-emerald-400 bg-emerald-50/60 dark:bg-emerald-950/30 px-2.5 py-0.5 rounded-lg border border-emerald-200/30 dark:border-emerald-950">
-                {visitorStats ? visitorStats.active : 1}
-              </span>
-            </div>
 
-            <div className="hidden sm:block h-4 w-[1px] bg-slate-200 dark:bg-slate-800" />
-
-            <div className="flex items-center gap-2.5">
-              <Users className="w-4 h-4 text-indigo-550 dark:text-indigo-400" />
-              <span className="text-xs font-display font-bold text-slate-400 uppercase tracking-wider">Total Hits</span>
-              <span className="text-sm font-black text-indigo-650 dark:text-indigo-400 bg-indigo-50/60 dark:bg-indigo-950/30 px-2.5 py-0.5 rounded-lg border border-indigo-200/30 dark:border-indigo-950">
-                {visitorStats?.total !== undefined ? visitorStats.total.toLocaleString() : 'Loading...'}
-              </span>
-            </div>
-          </div>
-        </div>
 
         <div className="mt-6 pt-6 border-t border-slate-100 dark:border-slate-850/60 flex flex-col md:flex-row justify-between items-center gap-4 text-center">
           <p className="text-slate-450 dark:text-slate-500 font-medium text-sm">
