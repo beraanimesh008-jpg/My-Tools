@@ -1,6 +1,12 @@
 import { SEO_CONFIG } from "./seoData";
 import { BLOG_POSTS } from "./blogData";
 
+export const isBot = (userAgent: string | undefined | null): boolean => {
+  if (!userAgent) return false;
+  const botRegex = /googlebot|bingbot|yandexbot|baiduspider|duckduckbot|slurp|facebot|facebookexternalhit|twitterbot|linkedinbot|embedly|applebot|pinterest|slackbot|discordbot|telegrambot|whatsapp|screaming frog|semrushbot|ahrefsbot|mj12bot|bot|crawler|spider/i;
+  return botRegex.test(userAgent);
+};
+
 export const preInjectSeo = (html: string, pathOrReq: any): string => {
   try {
     let urlPath = typeof pathOrReq === "string" ? pathOrReq : (pathOrReq?.path || "/");
@@ -8,6 +14,16 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
     // Normalize trailing slash
     if (urlPath !== "/" && urlPath.endsWith("/")) {
       urlPath = urlPath.slice(0, -1);
+    }
+
+    let isBotRequest = false;
+    let userAgent = "";
+    if (typeof pathOrReq === "string") {
+      isBotRequest = true; // Treating static build-prerendering as bot request to generate search engine indexing content
+    } else if (pathOrReq && typeof pathOrReq === "object") {
+      userAgent = pathOrReq.headers?.["user-agent"] || "";
+      isBotRequest = isBot(userAgent);
+      console.log(`SEO Crawler Check: Path="${urlPath}", UA="${userAgent}" -> isBot: ${isBotRequest}`);
     }
 
     let title = "My Loves PDF - Free Online PDF, Image, & AI Utilities Studio";
@@ -106,7 +122,14 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
   </div>
 </div>`;
 
-    html = html.replace(/<div id="root">\s*<\/div>/i, renderedBody);
+    if (isBotRequest) {
+      html = html.replace(/<div id="root">\s*<\/div>/i, renderedBody);
+    } else {
+      // For human visitors, strip out any nested container pre-rendered content (if index.html was modified statically)
+      // to keep it perfectly clean as <div id="root"></div> to prevent any hydration content flash
+      html = html.replace(/<div id="root">[\s\S]*?<\/div>\s*<\/div>/i, '<div id="root"></div>');
+      html = html.replace(/<div id="root">\s*[\s\S]*?\s*<\/div>/i, '<div id="root"></div>');
+    }
     return html;
   } catch (err) {
     console.warn("preInjectSeo fallback trigger:", err);

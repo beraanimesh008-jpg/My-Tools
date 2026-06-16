@@ -6,11 +6,16 @@ import { preInjectSeo } from "./src/utils/preInjectSeo";
 
 const distPath = path.join(process.cwd(), "dist");
 const indexPath = path.join(distPath, "index.html");
+const indexCleanPath = path.join(distPath, "index-clean.html");
 
 if (!fs.existsSync(indexPath)) {
   console.error("Prerender Error: dist/index.html not found! Run 'npm run build' first.");
   process.exit(1);
 }
+
+// Backup a pristine index.html that contains exactly <div id="root"></div> without pre-rendered SEO content
+fs.copyFileSync(indexPath, indexCleanPath);
+console.log("Cached clean baseline template to dist/index-clean.html");
 
 const rawHtml = fs.readFileSync(indexPath, "utf8");
 

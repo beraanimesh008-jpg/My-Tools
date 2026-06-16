@@ -1147,7 +1147,7 @@ async function startServer() {
         // Apply Vite's internal HTML transforms to keep script injects and HMR running
         rawHtml = await vite.transformIndexHtml(req.originalUrl || req.url, rawHtml);
         // Pre-inject the route-specific SEO titles and descriptions
-        const parsedHtml = preInjectSeo(rawHtml, req.path);
+        const parsedHtml = preInjectSeo(rawHtml, req);
         res.status(200).set({ "Content-Type": "text/html" }).send(parsedHtml);
       } catch (e) {
         console.error("Dev mode index SEO loader exception:", e);
@@ -1188,12 +1188,13 @@ Sitemap: https://mylovespdf.com/sitemap.xml`);
 
       // Ensure raw index.html is never served directly for page routes. Always inject SEO metadata.
       try {
-        const rawHtml = fs.readFileSync(
-          path.join(distPath, "index.html"),
-          "utf8"
-        );
+        const templatePath = fs.existsSync(path.join(distPath, "index-clean.html"))
+          ? path.join(distPath, "index-clean.html")
+          : path.join(distPath, "index.html");
 
-        const parsedHtml = preInjectSeo(rawHtml, req.path);
+        const rawHtml = fs.readFileSync(templatePath, "utf8");
+
+        const parsedHtml = preInjectSeo(rawHtml, req);
 
         res.setHeader("Content-Type", "text/html");
         res.send(parsedHtml);
@@ -1201,11 +1202,12 @@ Sitemap: https://mylovespdf.com/sitemap.xml`);
         console.error("Static index loader exception:", e);
         try {
           // Robust fallback injecting default root SEO configuration
-          const rawHtml = fs.readFileSync(
-            path.join(distPath, "index.html"),
-            "utf8"
-          );
-          const parsedHtml = preInjectSeo(rawHtml, req.path);
+          const templatePath = fs.existsSync(path.join(distPath, "index-clean.html"))
+            ? path.join(distPath, "index-clean.html")
+            : path.join(distPath, "index.html");
+
+          const rawHtml = fs.readFileSync(templatePath, "utf8");
+          const parsedHtml = preInjectSeo(rawHtml, req);
           res.setHeader("Content-Type", "text/html");
           res.send(parsedHtml);
         } catch (innerErr) {
