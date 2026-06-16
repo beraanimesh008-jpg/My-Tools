@@ -15,51 +15,67 @@ export default function Navbar() {
   };
 
   return (
-    <nav className="sticky top-0 z-50 w-full bg-white/80 dark:bg-slate-900/80 backdrop-blur-md border-b border-rose-100 dark:border-slate-800 transition-colors duration-300">
+    <nav className="sticky top-0 z-50 w-full bg-white/75 dark:bg-[#0b0f19]/75 backdrop-blur-lg border-b border-rose-100/40 dark:border-slate-800/60 transition-colors duration-300 shadow-sm shadow-slate-100/10">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-2 group">
-            <div className="w-10 h-10 bg-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-rose-200 group-hover:scale-110 transition-transform">
-              <Zap className="text-white w-6 h-6 fill-white" />
+          <Link to="/" className="flex items-center gap-3.5 group">
+            <div className="w-11 h-11 bg-gradient-to-tr from-rose-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-200/50 dark:shadow-none group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
+              <Zap className="text-white w-6 h-6 fill-white/20 animate-float" />
             </div>
-            <span className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-rose-400">MyLovesPDF</span>
+            <div className="flex flex-col">
+              <span className="text-2xl font-display font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-600 via-pink-500 to-rose-500">
+                MyLovesPDF
+              </span>
+              <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 tracking-wider uppercase -mt-1 pl-0.5">
+                Creative Studio
+              </span>
+            </div>
           </Link>
-
+ 
           {/* Desktop Search */}
-          <div className="hidden md:flex flex-1 max-w-md mx-8">
-            <div className="relative w-full">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4" />
+          <div className="hidden md:flex flex-1 max-w-sm mx-8">
+            <div className="relative w-full group">
+              <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 w-4 h-4 group-focus-within:text-rose-500 transition-colors" />
               <input 
                 type="text" 
-                placeholder="Search tools..." 
-                className="w-full bg-slate-100 dark:bg-slate-800 border-none rounded-full py-2 pl-10 pr-4 focus:ring-2 focus:ring-rose-500 focus:outline-none transition-all"
+                placeholder="Search premium tools..." 
+                className="w-full bg-slate-50 dark:bg-slate-800/60 text-slate-700 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-full py-2 pl-11 pr-4 focus:bg-white dark:focus:bg-slate-800 focus:ring-2 focus:ring-rose-500/20 focus:border-rose-400 dark:focus:border-rose-500/40 focus:outline-none transition-all shadow-sm focus:shadow-md"
               />
             </div>
           </div>
-
+ 
           {/* Desktop Actions */}
-          <div className="hidden md:flex items-center gap-4">
-            <button onClick={toggleDarkMode} className="p-2 rounded-full hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors">
-              {isDarkMode ? <Sun className="w-5 h-5 text-yellow-500" /> : <Moon className="w-5 h-5 text-slate-600" />}
+          <div className="hidden md:flex items-center gap-5">
+            <button 
+              onClick={toggleDarkMode} 
+              className="p-2.5 rounded-xl hover:bg-slate-50 dark:hover:bg-slate-800/80 text-slate-500 dark:text-slate-400 hover:text-rose-600 transition-all active:scale-95 border border-transparent hover:border-slate-100 dark:hover:border-slate-800"
+              aria-label="Toggle dark mode"
+            >
+              {isDarkMode ? <Sun className="w-5 h-5 text-amber-500" /> : <Moon className="w-5 h-5" />}
             </button>
             
             {user ? (
-              <div className="flex items-center gap-4">
-                <Link to="/dashboard" className="text-sm font-medium text-slate-700 dark:text-slate-200 hover:text-rose-600">Dashboard</Link>
+              <div className="flex items-center gap-5">
+                <Link 
+                  to="/dashboard" 
+                  className="text-sm font-semibold text-slate-650 dark:text-slate-350 hover:text-rose-600 dark:hover:text-rose-400 transition-colors"
+                >
+                  Dashboard
+                </Link>
                 <div className="relative group">
-                  <button className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center overflow-hidden border-2 border-rose-500">
-                    {user.photoURL ? <img src={user.photoURL} alt="pfp" /> : <User className="w-5 h-5 text-rose-600" />}
+                  <button className="w-9 h-9 rounded-full bg-rose-50 dark:bg-rose-950/20 flex items-center justify-center overflow-hidden border-2 border-rose-500 hover:scale-105 transition-transform">
+                    {user.photoURL ? <img src={user.photoURL} alt="pfp" className="w-full h-full object-cover" /> : <User className="w-5 h-5 text-rose-600" />}
                   </button>
-                  <div className="absolute right-0 mt-2 w-48 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-100 dark:border-slate-700 hidden group-hover:block py-2 animate-in fade-in slide-in-from-top-1">
-                    <button onClick={logOut} className="w-full text-left px-4 py-2 text-sm text-rose-600 hover:bg-rose-50">Logout</button>
+                  <div className="absolute right-0 mt-2.5 w-48 bg-white dark:bg-slate-800 rounded-2xl shadow-xl border border-slate-100/80 dark:border-slate-700/80 hidden group-hover:block py-2 animate-in fade-in slide-in-from-top-2 z-50">
+                    <button onClick={logOut} className="w-full text-left px-4 py-2.5 text-sm font-medium text-rose-600 hover:bg-rose-50 dark:hover:bg-rose-950/20 transition-colors">Logout</button>
                   </div>
                 </div>
               </div>
             ) : (
               <button 
                 onClick={signInWithGoogle}
-                className="bg-rose-600 text-white px-6 py-2 rounded-full font-semibold hover:bg-rose-700 transition-colors shadow-lg shadow-rose-200"
+                className="bg-gradient-to-r from-rose-600 to-pink-600 hover:from-rose-500 hover:to-pink-500 text-white px-6 py-2.5 rounded-full font-bold text-sm tracking-wide transition-all shadow-md shadow-rose-200/40 dark:shadow-none hover:scale-[1.02] active:scale-95"
               >
                 Sign In
               </button>
