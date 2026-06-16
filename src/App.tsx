@@ -33,6 +33,14 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => (
 export default function App() {
   // Cleanup pre-rendered SEO content element to keep DOM pristine for the client session
   useEffect(() => {
+    // Safely remove any static header tags injected for crawlers before SPA hydrates/mounts
+    try {
+      const prerenderedTags = document.querySelectorAll('[data-prerendered="true"]');
+      prerenderedTags.forEach(el => el.remove());
+    } catch (e) {
+      console.warn("Failed to clean pre-rendered header tags:", e);
+    }
+
     const el = document.getElementById('prerendered-seo-content');
     if (el) {
       el.remove();

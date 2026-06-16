@@ -85,33 +85,44 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
         if (!isBot) {
           var style = document.createElement("style");
           style.id = "seo-hide-style";
-          style.innerHTML = "#prerendered-seo-content { display: none !important; }";
+          style.innerHTML = "#prerendered-seo-content { display: none !important; opacity: 0 !important; pointer-events: none !important; visibility: hidden !important; }";
           document.head.appendChild(style);
+
+          // Proactively remove the pre-rendered SEO content as soon as DOM is ready so no remnant remains
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', function() {
+              var el = document.getElementById('prerendered-seo-content');
+              if (el) el.remove();
+            });
+          } else {
+            var el = document.getElementById('prerendered-seo-content');
+            if (el) el.remove();
+          }
         }
       } catch (e) {}
     })();
   </script>`;
 
     const headMetaInjections = `
-  <title data-rh="true">${cleanTitle}</title>
-  <meta data-rh="true" name="description" content="${desc.replace(/"/g, '&quot;')}" />
-  <link data-rh="true" rel="canonical" href="${fullUrl}" />
-  <meta data-rh="true" property="og:title" content="${title.replace(/"/g, '&quot;')}" />
-  <meta data-rh="true" property="og:description" content="${desc.replace(/"/g, '&quot;')}" />
-  <meta data-rh="true" property="og:url" content="${fullUrl}" />
-  <meta data-rh="true" property="og:image" content="${defaultImage}" />
-  <meta data-rh="true" property="og:type" content="website" />
-  <meta data-rh="true" property="og:site_name" content="My Loves PDF" />
-  <meta data-rh="true" name="twitter:card" content="summary_large_image" />
-  <meta data-rh="true" name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
-  <meta data-rh="true" name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
-  <meta data-rh="true" name="twitter:image" content="${defaultImage}" />${crawlerCheckScript}`;
+  <title data-prerendered="true">${cleanTitle}</title>
+  <meta data-prerendered="true" name="description" content="${desc.replace(/"/g, '&quot;')}" />
+  <link data-prerendered="true" rel="canonical" href="${fullUrl}" />
+  <meta data-prerendered="true" property="og:title" content="${title.replace(/"/g, '&quot;')}" />
+  <meta data-prerendered="true" property="og:description" content="${desc.replace(/"/g, '&quot;')}" />
+  <meta data-prerendered="true" property="og:url" content="${fullUrl}" />
+  <meta data-prerendered="true" property="og:image" content="${defaultImage}" />
+  <meta data-prerendered="true" property="og:type" content="website" />
+  <meta data-prerendered="true" property="og:site_name" content="My Loves PDF" />
+  <meta data-prerendered="true" name="twitter:card" content="summary_large_image" />
+  <meta data-prerendered="true" name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
+  <meta data-prerendered="true" name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
+  <meta data-prerendered="true" name="twitter:image" content="${defaultImage}" />${crawlerCheckScript}`;
 
     html = html.replace(/<\/head>/i, `${headMetaInjections}\n</head>`);
 
     // Root Prerender Injection (outside of root div) for search crawler spiders
     const renderedBody = `
-<div id="prerendered-seo-content">
+<div id="prerendered-seo-content" style="display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; position: absolute !important; left: -9999px !important; top: -9999px !important; width: 0px !important; height: 0px !important; overflow: hidden !important; z-index: -9999 !important;">
   <div style="padding: 40px 20px; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
     <h1 style="font-size: 2.5rem; font-weight: 800; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.025em;">${h1}</h1>
     <p style="font-size: 1.125rem; color: #475569; margin-bottom: 30px;">${intro}</p>

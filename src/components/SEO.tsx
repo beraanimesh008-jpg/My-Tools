@@ -37,50 +37,6 @@ export default function SEO({ title: propTitle, description: propDescription, pa
 
   console.log("SEO Component Eval:", { path, normalizedPath, cleanTitle });
 
-  // Cleanup effect ensuring document.head contains exactly one title and description tag after navigation
-  useEffect(() => {
-    if (typeof window === 'undefined') return;
-
-    const cleanupHeadMetadata = () => {
-      // 1. Keep only one title in <head> matching the active cleanTitle
-      const titles = Array.from(document.querySelectorAll('head title'));
-      if (titles.length > 1) {
-        let keepIdx = titles.findIndex(t => t.textContent?.trim() === cleanTitle.trim());
-        if (keepIdx === -1) {
-          keepIdx = titles.length - 1; // Default to last one (normally updated by Helmet)
-        }
-        titles.forEach((el, idx) => {
-          if (idx !== keepIdx) el.remove();
-        });
-      }
-
-      // 2. Keep only one description tag matching the active description
-      const descriptions = Array.from(document.querySelectorAll('head meta[name="description"]'));
-      if (descriptions.length > 1) {
-        let keepIdx = descriptions.findIndex(d => d.getAttribute('content') === description);
-        if (keepIdx === -1) {
-          keepIdx = descriptions.length - 1;
-        }
-        descriptions.forEach((el, idx) => {
-          if (idx !== keepIdx) el.remove();
-        });
-      }
-    };
-
-    cleanupHeadMetadata();
-    
-    // Staggered triggers to account for React state transitions and dynamic DOM injection updates
-    const t1 = setTimeout(cleanupHeadMetadata, 50);
-    const t2 = setTimeout(cleanupHeadMetadata, 200);
-    const t3 = setTimeout(cleanupHeadMetadata, 500);
-
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-    };
-  }, [cleanTitle, description]);
-
   // Build JSON-LD Structured Schema
   const schemas: any[] = [
     // WebSite Schema
