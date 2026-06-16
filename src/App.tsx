@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import MergePdf from './pages/Tools/MergePdf';
@@ -31,6 +31,14 @@ const AppLayout = ({ children }: { children: React.ReactNode }) => (
 );
 
 export default function App() {
+  // Cleanup pre-rendered SEO content element to keep DOM pristine for the client session
+  useEffect(() => {
+    const el = document.getElementById('prerendered-seo-content');
+    if (el) {
+      el.remove();
+    }
+  }, []);
+
   return (
     <BrowserRouter>
       {/* Automatically restore scroll position to top on navigation */}

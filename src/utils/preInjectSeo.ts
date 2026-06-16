@@ -75,6 +75,23 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
     const fullUrl = `https://mylovespdf.com${urlPath}`;
     const defaultImage = "https://mylovespdf.com/og-image.png";
 
+    // Inject crawler check script in head to instantly hide pre-rendered content from humans before body paint
+    const crawlerCheckScript = `
+  <script id="seo-crawler-check">
+    (function() {
+      try {
+        var ua = navigator.userAgent || "";
+        var isBot = /googlebot|bingbot|yandexbot|baiduspider|duckduckbot|slurp|facebot|facebookexternalhit|twitterbot|linkedinbot|embedly|applebot|pinterest|slackbot|discordbot|telegrambot|whatsapp|screaming frog|semrushbot|ahrefsbot|mj12bot|bot|crawler|spider/i.test(ua);
+        if (!isBot) {
+          var style = document.createElement("style");
+          style.id = "seo-hide-style";
+          style.innerHTML = "#prerendered-seo-content { display: none !important; }";
+          document.head.appendChild(style);
+        }
+      } catch (e) {}
+    })();
+  </script>`;
+
     const headMetaInjections = `
   <title data-rh="true">${cleanTitle}</title>
   <meta data-rh="true" name="description" content="${desc.replace(/"/g, '&quot;')}" />
@@ -88,13 +105,13 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
   <meta data-rh="true" name="twitter:card" content="summary_large_image" />
   <meta data-rh="true" name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
   <meta data-rh="true" name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
-  <meta data-rh="true" name="twitter:image" content="${defaultImage}" />`;
+  <meta data-rh="true" name="twitter:image" content="${defaultImage}" />${crawlerCheckScript}`;
 
     html = html.replace(/<\/head>/i, `${headMetaInjections}\n</head>`);
 
-    // Root Prerender Injection for search crawler spiders
+    // Root Prerender Injection (outside of root div) for search crawler spiders
     const renderedBody = `
-<div id="root">
+<div id="prerendered-seo-content">
   <div style="padding: 40px 20px; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
     <h1 style="font-size: 2.5rem; font-weight: 800; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.025em;">${h1}</h1>
     <p style="font-size: 1.125rem; color: #475569; margin-bottom: 30px;">${intro}</p>
@@ -122,13 +139,15 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
   </div>
 </div>`;
 
+    // Ensure we clean out any prior preloaded blocks first if any pre-rendered template is received
+    html = html.replace(/<!--PRERENDER_START-->[\s\S]*?<!--PRERENDER_END-->/g, "");
+
     if (isBotRequest) {
-      html = html.replace(/<div id="root">\s*<\/div>/i, renderedBody);
+      // Keep root pristine and append SEO content securely wrapped in clear comments
+      html = html.replace(/<div id="root">\s*<\/div>/i, '<div id="root"></div>\n<!--PRERENDER_START-->' + renderedBody + '<!--PRERENDER_END-->');
     } else {
-      // For human visitors, strip out any nested container pre-rendered content (if index.html was modified statically)
-      // to keep it perfectly clean as <div id="root"></div> to prevent any hydration content flash
-      html = html.replace(/<div id="root">[\s\S]*?<\/div>\s*<\/div>/i, '<div id="root"></div>');
-      html = html.replace(/<div id="root">\s*[\s\S]*?\s*<\/div>/i, '<div id="root"></div>');
+      // Guarantee <div id="root"></div> is perfectly clean and has absolutely no additional HTML injection for humans
+      html = html.replace(/<div id="root">[\s\S]*?<\/div>/i, '<div id="root"></div>');
     }
     return html;
   } catch (err) {
