@@ -33,7 +33,7 @@ export default function SEO({ title: propTitle, description: propDescription, pa
 
   // Render Page Title
   const hasBrand = title.toLowerCase().includes("my loves pdf") || title.toLowerCase().includes("mylovespdf");
-  const cleanTitle = hasBrand ? title : `${title} | My Loves PDF`;
+  const cleanTitle = hasBrand ? title.replace(/My Loves PDF/g, "MyLovesPDF") : `${title} | MyLovesPDF`;
 
   console.log("SEO Component Eval:", { path, normalizedPath, cleanTitle });
 
@@ -43,7 +43,7 @@ export default function SEO({ title: propTitle, description: propDescription, pa
     {
       '@context': 'https://schema.org',
       '@type': 'WebSite',
-      'name': 'My Loves PDF',
+      'name': 'MyLovesPDF',
       'url': 'https://mylovespdf.com',
       'potentialAction': {
         '@type': 'SearchAction',
@@ -55,7 +55,7 @@ export default function SEO({ title: propTitle, description: propDescription, pa
     {
       '@context': 'https://schema.org',
       '@type': 'Organization',
-      'name': 'My Loves PDF',
+      'name': 'MyLovesPDF',
       'url': 'https://mylovespdf.com',
       'logo': 'https://mylovespdf.com/favicon.ico',
       'sameAs': [
@@ -168,7 +168,7 @@ export default function SEO({ title: propTitle, description: propDescription, pa
       <meta property="og:url" content={fullUrl} />
       <meta property="og:image" content={defaultImage} />
       <meta property="og:type" content="website" />
-      <meta property="og:site_name" content="My Loves PDF" />
+      <meta property="og:site_name" content="MyLovesPDF" />
 
       {/* 5. Twitter Card Tags */}
       <meta name="twitter:card" content="summary_large_image" />
@@ -234,15 +234,169 @@ export default function SEO({ title: propTitle, description: propDescription, pa
       "name": "Is there a limit on how many PDF files I can merge?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No, My Loves PDF allows you to combine and merge any number of PDF files completely free, with no file count limits or hidden subscription gates."
+        "text": "No, MyLovesPDF allows you to combine and merge any number of PDF files completely free, with no file count limits or hidden subscription gates."
       }
     },
     {
       "@type": "Question",
-      "name": "Is my personal data secure with My Loves PDF?",
+      "name": "Is my personal data secure with MyLovesPDF?",
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Yes, absolute safety and data confidentiality are guaranteed. All PDF file merging is executed in your secure local web browser context, and files are purged immediately after processing. We never store, inspect, or retain your contents."
+      }
+    }
+  ]
+}`}
+          </script>
+        </>
+      )}
+      {normalizedPath === '/split-pdf' && (
+        <>
+          <script type="application/ld+json">
+            {`{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Split PDF Online Free",
+  "url": "https://mylovespdf.com/split-pdf",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "description": "Split PDF Online Free. Extract specific pages from heavy PDF documents or split individual files into multiple smaller PDF records online for free.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}`}
+          </script>
+          <script type="application/ld+json">
+            {`{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I split specific page ranges from a PDF?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Super simple! Upload your file, input your desired ranges (like '3-7, 12, 15'), and click split to compile those exact pages."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I split password-protected PDFs?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, as long as you decrypt the file first. Once unlocked, you can split its pages without any restrictions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Will my extracted PDFs lose original text formatting?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, our splits are non-destructive and preserve original text, layout structures, and formatting perfectly."
+      }
+    }
+  ]
+}`}
+          </script>
+        </>
+      )}
+    {normalizedPath === '/jpg-to-pdf' && (
+        <>
+          <script type="application/ld+json">
+            {`{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Convert JPG to PDF Online Free",
+  "url": "https://mylovespdf.com/jpg-to-pdf",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}`}
+          </script>
+          <script type="application/ld+json">
+            {`{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I convert JPG images into a PDF online for free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Simply upload your JPG, JPEG, or PNG images by dragging them into the dashboard. Customize your margin preferences and page layouts (A4, Letter, etc.), organize the image flow sequence, and click 'Convert to PDF' to enjoy your automatic download instantly."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I combine multiple list photos into a single PDF?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, MyLovesPDF is engineered to let you combine multiple JPG images into one cohesive PDF document easily. Reorder individual pages by dragging them visually before rendering."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there an image resolution loss during JPG to PDF conversion?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. Our high-fidelity rendering pipeline maps original image pixel grids perfectly inside container document streams, preventing any loss of resolution or text fuzziness."
+      }
+    }
+  ]
+}`}
+          </script>
+        </>
+      )}
+      {normalizedPath === '/pdf-to-jpg' && (
+        <>
+          <script type="application/ld+json">
+            {`{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Convert PDF to JPG Online Free",
+  "url": "https://mylovespdf.com/pdf-to-jpg",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}`}
+          </script>
+          <script type="application/ld+json">
+            {`{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I convert PDF pages to JPG images online for free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Simply upload your PDF document, select your preferred quality multiplier (80%, 90%, 100%), and let our high-speed tool extract every page into a crisp JPG. Download them as individual files or a aggregated ZIP file package safely."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a page count limit when extracting images from PDF?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, MyLovesPDF provides uncompromised bulk extraction. You can convert short invoices or multi-hundred page ebooks completely free of charge and signup limitations."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my document data secure?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Absolutely, privacy is guaranteed. All PDF to image rendering is mapped in your secure client environment, assuring no external leaks ever occur."
       }
     }
   ]

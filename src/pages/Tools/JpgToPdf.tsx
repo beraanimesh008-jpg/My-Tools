@@ -36,7 +36,7 @@ const JPG_TO_PDF_FAQS = [
   },
   {
     question: "Can I combine multiple list photos into a single PDF?",
-    answer: "Yes, My Loves PDF is engineered to let you combine multiple JPG images into one cohesive PDF document easily. Reorder individual pages by dragging them visually before rendering."
+    answer: "Yes, MyLovesPDF is engineered to let you combine multiple JPG images into one cohesive PDF document easily. Reorder individual pages by dragging them visually before rendering."
   },
   {
     question: "Is there an image resolution loss during JPG to PDF conversion?",
@@ -316,8 +316,8 @@ export default function JpgToPdf() {
     <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors">
       <Navbar />
       <SEO 
-        title="Convert JPG to PDF Online - Free Image to PDF" 
-        description="Convert your JPG and JPEG images into PDF documents easily. Reorder multiple photos visually, set margins, choose page layout, and compile with high resolution."
+        title="Convert JPG to PDF Online Free - JPG to PDF Converter | MyLovesPDF" 
+        description="Convert JPG, JPEG and PNG images to PDF online for free. Fast, secure and high-quality JPG to PDF converter with no installation required."
         path="/jpg-to-pdf"
         faqs={JPG_TO_PDF_FAQS}
       />
@@ -338,9 +338,9 @@ export default function JpgToPdf() {
                   <Monitor className="w-4 h-4" />
                   Visual JPG Converter
                 </div>
-                <h1 className="text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">JPG to PDF</h1>
-                <p className="text-slate-500 dark:text-slate-400 text-xl font-medium max-w-2xl mx-auto">
-                  Convert images to PDF in seconds. Easily adjust orientation and margins.
+                <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Convert JPG to PDF Online Free</h1>
+                <p className="text-slate-500 dark:text-slate-400 text-xl font-medium max-w-3xl mx-auto">
+                  Convert JPG to PDF Online Free. Convert images, photos, and scanned sequences to PDF in seconds. Easily adjust orientation, dimensions, and margins.
                 </p>
               </div>
 

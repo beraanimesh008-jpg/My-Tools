@@ -160,7 +160,7 @@ export default function GenericToolTemplate({ toolPath }: GenericToolTemplatePro
         await new Promise(r => setTimeout(r, 600));
 
         const file = files[0];
-        const dummyContent = "My Loves PDF - High-Precision PDF to Word Conversion Document\n\nProcessed Successfully.";
+        const dummyContent = "MyLovesPDF - High-Precision PDF to Word Conversion Document\n\nProcessed Successfully.";
         const blob = new Blob([dummyContent], { type: "application/vnd.openxmlformats-officedocument.wordprocessingml.document" });
         const downloadUrl = URL.createObjectURL(blob);
 
@@ -181,7 +181,7 @@ export default function GenericToolTemplate({ toolPath }: GenericToolTemplatePro
         // Create simple dummy PDF document
         const newDoc = await PDFDocument.create();
         const page = newDoc.addPage([600, 400]);
-        page.drawText("My Loves PDF - Converted Word to PDF Document Result", { x: 50, y: 350, size: 16 });
+        page.drawText("MyLovesPDF - Converted Word to PDF Document Result", { x: 50, y: 350, size: 16 });
         page.drawText(`Source Document: ${file.name}`, { x: 50, y: 300, size: 12 });
         page.drawText("Lossless operational standard verified. 100% Free.", { x: 50, y: 250, size: 12 });
         
@@ -204,7 +204,7 @@ export default function GenericToolTemplate({ toolPath }: GenericToolTemplatePro
 
   const getTitle = () => {
     switch (toolPath) {
-      case "/split-pdf": return "Split PDF Files Online";
+      case "/split-pdf": return "Split PDF Online Free - Extract Specific PDF Pages";
       case "/pdf-to-word": return "PDF to Word Converter";
       case "/word-to-pdf": return "Word to PDF Converter";
       case "/image-converter": return "Lossless Image Converter";
@@ -213,7 +213,7 @@ export default function GenericToolTemplate({ toolPath }: GenericToolTemplatePro
 
   const getDescription = () => {
     switch (toolPath) {
-      case "/split-pdf": return "Separate PDF pages or extract a custom range into a new standalone document instantly.";
+      case "/split-pdf": return "Split PDF Online Free. Separate PDF pages or extract a custom range into a new standalone document instantly.";
       case "/pdf-to-word": return "Convert locked PDF text structures back into editable DOCX format for Microsoft Word editing.";
       case "/word-to-pdf": return "Convert DOCX files into beautiful standards-compliant vector PDF documents smoothly.";
       case "/image-converter": return "Re-encode files between JPG, WebP, and PNG formats inside your client's browser sandbox.";
@@ -253,9 +253,9 @@ export default function GenericToolTemplate({ toolPath }: GenericToolTemplatePro
             <div className="w-16 h-16 bg-rose-50 dark:bg-rose-900/10 rounded-3xl flex items-center justify-center mx-auto mb-5 border border-rose-100/50 dark:border-rose-900/20 shadow-md">
               <IconComponent className="w-8 h-8 text-rose-600 dark:text-rose-400" />
             </div>
-            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
+            <h1 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-3">
               {getTitle()}
-            </h2>
+            </h1>
             <p className="max-w-xl mx-auto text-slate-500 dark:text-slate-400 font-medium">
               {getDescription()}
             </p>

@@ -31,6 +31,8 @@ import * as pdfjs from 'pdfjs-dist';
 import JSZip from 'jszip';
 import { useDropzone } from 'react-dropzone';
 import SEO from '@/src/components/SEO';
+import ToolSeoSection from '@/src/components/ToolSeoSection';
+import Footer from '@/src/components/Footer';
 
 const PDF_TO_JPG_FAQS = [
   {
@@ -39,7 +41,7 @@ const PDF_TO_JPG_FAQS = [
   },
   {
     question: "Is there a page count limit when extracting images from PDF?",
-    answer: "No, My Loves PDF provides uncompromised bulk extraction. You can convert short invoices or multi-hundred page ebooks completely free of charge and signup limitations."
+    answer: "No, MyLovesPDF provides uncompromised bulk extraction. You can convert short invoices or multi-hundred page ebooks completely free of charge and signup limitations."
   },
   {
     question: "Is my document data secure?",
@@ -222,8 +224,8 @@ export default function PdfToJpg() {
     <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors">
       <Navbar />
       <SEO 
-        title="Convert PDF to JPG Online - Free PDF Image Extractor" 
-        description="Extract images and convert PDF pages into beautiful high-resolution JPG photos easily. Bulk export pages inside a ZIP file directly in your browser."
+        title="Convert PDF to JPG Online Free - PDF to JPG Converter | MyLovesPDF" 
+        description="Convert PDF pages to JPG images online for free. Fast, secure and high-quality PDF to JPG converter with no installation required."
         path="/pdf-to-jpg"
         faqs={PDF_TO_JPG_FAQS}
       />
@@ -243,9 +245,9 @@ export default function PdfToJpg() {
                   <Zap className="w-4 h-4" />
                   PDF to Image Engine
                 </div>
-                <h1 className="text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">PDF to JPG</h1>
-                <p className="text-slate-500 dark:text-slate-400 text-xl font-medium max-w-2xl mx-auto">
-                  Extract every page of your PDF as a high-quality JPG image. Done entirely in your browser.
+                <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Convert PDF to JPG Online Free</h1>
+                <p className="text-slate-500 dark:text-slate-400 text-xl font-medium max-w-3xl mx-auto">
+                  Convert PDF to JPG Online Free. Convert, rebuild, or extract every page of your PDF as a high-quality JPG image instantly. Done entirely inside your secure browser sandbox.
                 </p>
               </div>
 
@@ -557,6 +559,8 @@ export default function PdfToJpg() {
           </motion.div>
         )}
       </AnimatePresence>
+      <ToolSeoSection path="/pdf-to-jpg" />
+      <Footer />
     </div>
   );
 }

@@ -38,10 +38,10 @@ const MERGE_PDF_FAQS = [
   },
   {
     question: "Is there a limit on how many PDF files I can merge?",
-    answer: "No, My Loves PDF allows you to combine and merge any number of PDF files completely free, with no file count limits or hidden subscription gates."
+    answer: "No, MyLovesPDF allows you to combine and merge any number of PDF files completely free, with no file count limits or hidden subscription gates."
   },
   {
-    question: "Is my personal data secure with My Loves PDF?",
+    question: "Is my personal data secure with MyLovesPDF?",
     answer: "Yes, absolute safety and data confidentiality are guaranteed. All PDF file merging is executed in your secure local web browser context, and files are purged immediately after processing. We never store, inspect, or retain your contents."
   }
 ];

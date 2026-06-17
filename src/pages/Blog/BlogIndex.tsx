@@ -27,7 +27,7 @@ export default function BlogIndex() {
     <div className="min-h-screen flex flex-col bg-slate-50 dark:bg-slate-900 transition-colors duration-300">
       <Navbar />
       <SEO 
-        title="My Loves PDF Blog - Expert Productivity & Document Guides"
+        title="MyLovesPDF Blog - Expert Productivity & Document Guides"
         description="Explore detailed operating checklists, optimization guides, format conversions tricks, and AI tutorials written by our document engineering team."
         path="/blog"
       />

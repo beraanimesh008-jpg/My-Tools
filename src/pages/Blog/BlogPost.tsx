@@ -32,7 +32,7 @@ export default function BlogPost() {
       
       {/* Target SEO head injection with breadcrumbs & JSON-LD */}
       <SEO 
-        title={`${post.title} | My Loves PDF`}
+        title={`${post.title} | MyLovesPDF`}
         description={post.description}
         path={`/blog/${post.slug}`}
       />

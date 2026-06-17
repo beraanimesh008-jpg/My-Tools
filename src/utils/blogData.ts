@@ -46,7 +46,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <p>Instead of embedding entire font families (comprising thousands of unused glyphs), subsetting parses only the precise characters used in your active document, saving massive space in the process.</p>
       
       <h2>3. Step-by-Step Selection to Compress Your Documents</h2>
-      <p>Follow these quick steps to optimize your document on My Loves PDF:</p>
+      <p>Follow these quick steps to optimize your document on MyLovesPDF:</p>
       <ol>
         <li>Navigate to our free <a href="/compress-pdf">Compress PDF</a> tool.</li>
         <li>Drag and drop your target document into our clientdropzone dashboard.</li>
@@ -88,8 +88,8 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       
       <h2>Top Free PDF Utilities to Bookmark Today</h2>
       
-      <h3>1. My Loves PDF (Merge, Compress, Convert)</h3>
-      <p>My Loves PDF stands out as a fast, comprehensive, and secure toolkit. Using browser-side WebAssembly, your sensitive documents never have to touch a remote server to combine, split, or compress. Features include:</p>
+      <h3>1. MyLovesPDF (Merge, Compress, Convert)</h3>
+      <p>MyLovesPDF stands out as a fast, comprehensive, and secure toolkit. Using browser-side WebAssembly, your sensitive documents never have to touch a remote server to combine, split, or compress. Features include:</p>
       <ul>
         <li>Visual page reordering and drag-and-drop merging.</li>
         <li>Powerful algorithms that shrink PDF sizes while preserving details.</li>
@@ -104,7 +104,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <p>Quickly separate large documents and extract specific chapters or ranges, allowing you to share only the necessary portions with classmates or coworkers.</p>
       
       <h2>Which Utility is Right for You?</h2>
-      <p>If you need to edit complex vector shapes or manage interactive forms, premium software may be helpful. But for everyday tasks like merging, shrinking, and converting, simple web-based utilities like My Loves PDF are much faster and completely free.</p>
+      <p>If you need to edit complex vector shapes or manage interactive forms, premium software may be helpful. But for everyday tasks like merging, shrinking, and converting, simple web-based utilities like MyLovesPDF are much faster and completely free.</p>
     `,
     relatedTools: [
       { name: "Merge PDF", href: "/merge-pdf" },
@@ -124,7 +124,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
     content: `
       <p>When applying for a loan, forwarding monthly expenses, or submitting a job application, attaching a dozen separate files looks messy and disorganized. Consolidating your documents into a single, clean PDF is much more professional and ensures they are read in the proper order.</p>
       
-      <p>This quick visual tutorial shows you how to merge PDFs on My Loves PDF cleanly, protecting your private data and keeping your formatting sharp in the process.</p>
+      <p>This quick visual tutorial shows you how to merge PDFs on MyLovesPDF cleanly, protecting your private data and keeping your formatting sharp in the process.</p>
       
       <h2>Why Merging PDFs Manually Can Be Challenging</h2>
       <p>Simply appending file structures together can result in bloated files, broken formatting, or scrambled pages. Managing documents properly requires aligning: </p>
@@ -214,7 +214,7 @@ export const BLOG_POSTS: Record<string, BlogPost> = {
       <h3>3. Cross-Device Alignment</h3>
       <p>Ensure your documents present consistently, without fonts shifting, margins drifting, or images distorting, on any screen or printer.</p>
       
-      <h2>How to Convert Your JPG Images to PDF On My Loves PDF</h2>
+      <h2>How to Convert Your JPG Images to PDF On MyLovesPDF</h2>
       <ol>
         <li>Go to our free <a href="/jpg-to-pdf">JPG to PDF</a> tool.</li>
         <li>Upload your photos or screenshots.</li>

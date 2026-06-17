@@ -35,16 +35,16 @@ import SEO from '../components/SEO';
 
 const HOME_FAQS = [
   {
-    question: "What is My Loves PDF?",
-    answer: "My Loves PDF is a highly flexible multi-tool workspace providing completely free web applications to merge PDFs, compress file size with maximum preservation, convert formats, generate secure parameters, and remove picture backgrounds."
+    question: "What is MyLovesPDF?",
+    answer: "MyLovesPDF is a highly flexible multi-tool workspace providing completely free web applications to merge PDFs, compress file size with maximum preservation, convert formats, generate secure parameters, and remove picture backgrounds."
   },
   {
-    question: "How secure is My Loves PDF for processing private data?",
+    question: "How secure is MyLovesPDF for processing private data?",
     answer: "Extremely secure. All critical PDF tools operate and run directly inside your client's web browser session using WebAssembly compilation, guaranteeing that your raw documents are never dispatched to or cached by remote cloud systems."
   },
   {
     question: "Are there any file processing limits or hidden memberships?",
-    answer: "No, My Loves PDF is 100% free. There are no registration forms, no usage credits, and no paywalled gates."
+    answer: "No, MyLovesPDF is 100% free. There are no registration forms, no usage credits, and no paywalled gates."
   }
 ];
 
@@ -139,7 +139,7 @@ export default function Home() {
   return (
     <div className="pb-24">
       <SEO 
-        title="My Loves PDF - Free Online PDF & Image Tools" 
+        title="MyLovesPDF - Free Online PDF & Image Tools" 
         description="Use free online PDF and image tools to merge, split, compress, convert, edit PDFs, remove backgrounds, compress images and more. Fast, secure and easy to use."
         path="/"
         faqs={HOME_FAQS}
