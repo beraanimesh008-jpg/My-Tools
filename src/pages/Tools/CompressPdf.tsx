@@ -1,50 +1,74 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Navbar from '@/src/components/Navbar';
 import { trackFileProcessed } from '@/src/utils/analytics';
-import { Shrink, Download, Loader2, CheckCircle, ArrowLeft, FileText, Settings, Zap, Shield, AlertCircle, Info, Trash2, Lock, Eye, EyeOff, ShieldAlert } from 'lucide-react';
+import { 
+  Shrink, 
+  Loader2, 
+  FileText, 
+  Settings, 
+  AlertCircle, 
+  Trash2, 
+  Lock, 
+  Eye, 
+  EyeOff, 
+  ShieldAlert, 
+  Sparkles,
+  SlidersHorizontal,
+  Check,
+  ShieldCheck,
+  ChevronDown,
+  ChevronUp
+} from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Link } from 'react-router-dom';
 import confetti from 'canvas-confetti';
 import * as pdfjs from 'pdfjs-dist';
-import { PDFDocument } from 'pdf-lib';
 import { useDropzone } from 'react-dropzone';
 import SEO from '@/src/components/SEO';
 import CompressPdfAd from '@/src/components/CompressPdfAd';
 import ToolSeoSection from '@/src/components/ToolSeoSection';
+import CompressPdfFaq from '@/src/components/CompressPdfFaq';
+import CompressPdfLanding from '@/src/components/CompressPdfLanding';
+import CompressPdfResult from '@/src/components/CompressPdfResult';
 import Footer from '@/src/components/Footer';
 
-const COMPRESS_PDF_FAQS = [
-  {
-    question: "How do I reduce the file size of a PDF online for free?",
-    answer: "Simply upload your PDF by clicking inside the dashed dropzone or dropping it in. Choose your preferred optimization level using the precision slider, and click 'Compress PDF'. Your shrunken document compiles locally and triggers a safe automatic download."
-  },
-  {
-    question: "Is there a limit on how small I can make my PDF files?",
-    answer: "Our tool offers Low, Medium, and Strong compression profiles, allowing you to reduce the document size by up to 90% depending on the volume of embedded elements and images."
-  },
-  {
-    question: "Is browser-side compression secure?",
-    answer: "Yes, My Loves PDF executes all operations directly within your local client sandbox. This ensures and guarantees that sensitive data is never dispatched to cloud processing servers."
-  }
-];
-
-
-// Configure PDF.js worker
-pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjs.version}/pdf.worker.min.mjs`;
+import { 
+  COMPRESSION_STEPS, 
+  CompressionStep, 
+  runCompressionWorkflow 
+} from '@/src/utils/pdfCompressionEngine';
 
 export default function CompressPdf() {
   const [files, setFiles] = useState<File[]>([]);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
+  
+  // Stats
   const [originalSize, setOriginalSize] = useState<number>(0);
   const [compressedSize, setCompressedSize] = useState<number>(0);
-  const [compressionPercent, setCompressionPercent] = useState(50);
+  const [totalPages, setTotalPages] = useState<number>(0);
+  const [progress, setProgress] = useState<number>(0);
   const [processingStatus, setProcessingStatus] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
 
-  // Password Decryption States & Helper
+  // Default level Recommended (2)
+  const [compressionLevel, setCompressionLevel] = useState<CompressionStep>(2);
+
+  // Advanced toggles
+  const [keepOriginalQuality, setKeepOriginalQuality] = useState<boolean>(false);
+  const [optimizeImages, setOptimizeImages] = useState<boolean>(true);
+  const [removeMetadata, setRemoveMetadata] = useState<boolean>(true);
+  const [fastCompression, setFastCompression] = useState<boolean>(true);
+  const [showAdvanced, setShowAdvanced] = useState<boolean>(false);
+
+  // Decryption variables
   const [passwordPrompt, setPasswordPrompt] = useState<{ fileName: string; resolve: (p: string | null) => void; error?: string } | null>(null);
   const [showPassword, setShowPassword] = useState(false);
+
+  // Refs for state retention across threads
+  const originalPagesInfo = useRef<{ pageCount: number; opCircleCounts: number[] } | null>(null);
+  const decryptedPdfBytesRef = useRef<Uint8Array | null>(null);
+  const pdfPasswordRef = useRef<string | null>(null);
 
   const askForPassword = (fileName: string, promptError?: string): Promise<string | null> => {
     return new Promise((resolve) => {
@@ -74,140 +98,170 @@ export default function CompressPdf() {
     multiple: false
   } as any);
 
-  const getCompressionInfo = (percent: number) => {
-    if (percent <= 30) return { title: 'Low Compression', desc: 'High Quality (Text & Images preserved)', color: 'text-emerald-500' };
-    if (percent <= 60) return { title: 'Medium Compression', desc: 'Balanced Quality (Optimized for Web)', color: 'text-orange-500' };
-    if (percent <= 85) return { title: 'Strong Compression', desc: 'Low Quality (Maximum Size Reduction)', color: 'text-rose-500' };
-    return { title: 'Extreme Compression', desc: 'Lowest Quality (Text might get slightly fuzzy)', color: 'text-rose-600' };
-  };
+  // Parse document page metadata and decryption loops on drop
+  useEffect(() => {
+    if (files.length === 0) {
+      setTotalPages(0);
+      originalPagesInfo.current = null;
+      decryptedPdfBytesRef.current = null;
+      pdfPasswordRef.current = null;
+      return;
+    }
 
+    const loadMeta = async () => {
+      setIsAnalyzing(true);
+      setError(null);
+      decryptedPdfBytesRef.current = null;
+      pdfPasswordRef.current = null;
+      try {
+        const file = files[0];
+        const arrayBuffer = await file.arrayBuffer();
+        
+        let pdf;
+        let password = '';
+        let unlockSuccess = false;
+        let wasEncrypted = false;
+
+        // Verify encryption first
+        try {
+          const loadingTask = pdfjs.getDocument({ data: arrayBuffer.slice(0) });
+          pdf = await loadingTask.promise;
+          unlockSuccess = true;
+        } catch (err: any) {
+          if (err.name === 'PasswordException' || String(err.message || '').toLowerCase().includes('password')) {
+            wasEncrypted = true;
+          } else {
+            throw err;
+          }
+        }
+
+        if (wasEncrypted) {
+          while (!unlockSuccess) {
+            try {
+              const loadingTask = pdfjs.getDocument({ data: arrayBuffer.slice(0), password: password || undefined });
+              pdf = await loadingTask.promise;
+              unlockSuccess = true;
+            } catch (err: any) {
+              if (err.name === 'PasswordException' || String(err.message || '').toLowerCase().includes('password')) {
+                const promptError = password ? 'Incorrect PDF password.' : undefined;
+                const enteredPassword = await askForPassword(file.name, promptError);
+                if (enteredPassword === null) {
+                  throw new Error(`This PDF is password protected. Password is required to optimize embedded streams.`);
+                }
+                password = enteredPassword;
+              } else {
+                throw err;
+              }
+            }
+          }
+        }
+
+        if (pdf) {
+          setTotalPages(pdf.numPages);
+          pdfPasswordRef.current = password || null;
+          
+          let decryptedBytes: Uint8Array;
+          try {
+            decryptedBytes = await pdf.saveDocument();
+          } catch (saveErr) {
+            console.warn("Could not extract clean bytes Copy, using standard arrayBuffer", saveErr);
+            decryptedBytes = new Uint8Array(arrayBuffer);
+          }
+          decryptedPdfBytesRef.current = decryptedBytes;
+
+          // Capture reference layout metrics to verify pages do not become blank
+          const opCircleCounts: number[] = [];
+          for (let i = 1; i <= pdf.numPages; i++) {
+            try {
+              const page = await pdf.getPage(i);
+              const opList = await page.getOperatorList();
+              opCircleCounts.push(opList.fnArray.length);
+            } catch (pErr) {
+              console.warn(`Could not capture reference operator list for page ${i}:`, pErr);
+              opCircleCounts.push(0);
+            }
+          }
+          originalPagesInfo.current = {
+            pageCount: pdf.numPages,
+            opCircleCounts
+          };
+        }
+      } catch (err: any) {
+        console.error("PDF Meta load error:", err);
+        setError(err.message || 'Could not parse document structure. File may be corrupted.');
+        setFiles([]);
+        decryptedPdfBytesRef.current = null;
+        pdfPasswordRef.current = null;
+      } finally {
+        setIsAnalyzing(false);
+      }
+    };
+
+    loadMeta();
+  }, [files]);
+
+  // Handle core compression sequence using utility module
   const handleCompress = async () => {
-    if (files.length === 0) return;
+    if (files.length === 0 || !originalPagesInfo.current) return;
     
     setIsProcessing(true);
-    setProcessingStatus('Starting compression...');
+    setProgress(10);
+    setProcessingStatus('Starting smart analyzer...');
     setOriginalSize(files[0].size);
     setError(null);
     
     try {
       const file = files[0];
       const arrayBuffer = await file.arrayBuffer();
+      const inputBytes = decryptedPdfBytesRef.current || new Uint8Array(arrayBuffer);
       
-      // Load PDF for processing with password support
-      setProcessingStatus('Analyzing document...');
-      let pdf;
-      let password = '';
-      let unlockSuccess = false;
-
-      while (!unlockSuccess) {
-        try {
-          const loadingTask = pdfjs.getDocument({ data: arrayBuffer.slice(0), password: password || undefined });
-          pdf = await loadingTask.promise;
-          unlockSuccess = true;
-        } catch (err: any) {
-          if (err.name === 'PasswordException' || String(err.message || '').toLowerCase().includes('password')) {
-            const promptError = password ? 'Incorrect password. Please try again.' : undefined;
-            const enteredPassword = await askForPassword(file.name, promptError);
-            if (enteredPassword === null) {
-              throw new Error(`Decrypting "${file.name}" was cancelled.`);
-            }
-            password = enteredPassword;
-          } else {
-            throw err;
-          }
-        }
-      }
-
-      if (!pdf) throw new Error('Failed to parse PDF document.');
-      const totalPages = pdf.numPages;
-
-      // Create new PDF with pdf-lib
-      const outPdf = await PDFDocument.create();
-      
-      // Determine quality parameters based on slider
-      // Higher compression % = lower scale and quality
-      let scale = 1.5;
-      let quality = 0.8;
-
-      if (compressionPercent <= 30) {
-        scale = 2.0;
-        quality = 0.9;
-      } else if (compressionPercent <= 60) {
-        scale = 1.5;
-        quality = 0.7;
-      } else if (compressionPercent <= 85) {
-        scale = 1.2;
-        quality = 0.5;
-      } else {
-        scale = 0.9;
-        quality = 0.3;
-      }
-
-      for (let i = 1; i <= totalPages; i++) {
-        setProcessingStatus(`Processing page ${i} of ${totalPages}...`);
-        
-        const page = await pdf.getPage(i);
-        const viewport = page.getViewport({ scale });
-        
-        // Render page to canvas
-        const canvas = document.createElement('canvas');
-        const context = canvas.getContext('2d');
-        if (!context) continue;
-
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-
-        await page.render({
-          canvasContext: context,
-          viewport: viewport
-        }).promise;
-
-        // Convert canvas to compressed JPG
-        const imageData = canvas.toDataURL('image/jpeg', quality);
-        const imageBytes = await fetch(imageData).then(res => res.arrayBuffer());
-        
-        // Embed image into new PDF
-        const pdfImage = await outPdf.embedJpg(imageBytes);
-        const newPage = outPdf.addPage([viewport.width, viewport.height]);
-        newPage.drawImage(pdfImage, {
-          x: 0,
-          y: 0,
-          width: viewport.width,
-          height: viewport.height,
-        });
-      }
-
-      setProcessingStatus('Finalizing document structure...');
-      const pdfBytes = await outPdf.save({
-        useObjectStreams: true,
-        addDefaultPage: false
+      const result = await runCompressionWorkflow(inputBytes, {
+        compressionLevel,
+        keepOriginalQuality,
+        optimizeImages,
+        removeMetadata,
+        onProgress: (pct, msg) => {
+          setProgress(pct);
+          setProcessingStatus(msg);
+        },
+        originalPagesInfo: originalPagesInfo.current,
+        password: pdfPasswordRef.current || undefined
       });
 
-      const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-      setCompressedSize(blob.size);
-      const url = URL.createObjectURL(blob);
+      const finalSize = result.finalPdfBytes.length;
+      if (finalSize <= 0) {
+        throw new Error('Resulting PDF has empty byte sizes.');
+      }
+
+      setCompressedSize(finalSize);
+      setCompressionLevel(result.successfulLevel); // Update level to reflect actually successful preset!
+      
+      const compressedBlob = new Blob([result.finalPdfBytes], { type: 'application/pdf' });
+      const url = URL.createObjectURL(compressedBlob);
       setResultUrl(url);
 
-      // Track files processed in analytics
+      setProgress(100);
+      setProcessingStatus('PDF Optimized Successfully!');
       trackFileProcessed(1);
 
-      // Auto download
+      // Trigger high-compatibility download
       const link = document.createElement('a');
       link.href = url;
-      link.download = `compressed_${files[0].name}`;
+      const downloadName = file.name.toLowerCase().endsWith('.pdf') ? file.name : `${file.name}.pdf`;
+      link.download = `compressed_${downloadName}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
 
       confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#e11d48', '#ffffff', '#fb7185']
+        particleCount: 140,
+        spread: 75,
+        origin: { y: 0.65 },
+        colors: ['#e11d48', '#f43f5e', '#ffffff']
       });
     } catch (err: any) {
-      console.error("Compression error:", err);
-      setError('Failed to compress PDF. The file might be corrupted or too complex for browser processing.');
+      console.error("Smart compression failure:", err);
+      setError(err.message || 'The PDF document validation or processing failed.');
     } finally {
       setIsProcessing(false);
       setProcessingStatus('');
@@ -219,6 +273,8 @@ export default function CompressPdf() {
     setResultUrl(null);
     setOriginalSize(0);
     setCompressedSize(0);
+    setTotalPages(0);
+    setProgress(0);
     setError(null);
   };
 
@@ -230,20 +286,42 @@ export default function CompressPdf() {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  const savingPercentage = originalSize > 0 
-    ? Math.max(0, Math.round(((originalSize - compressedSize) / originalSize) * 100))
-    : 0;
+  const currentModeInfo = COMPRESSION_STEPS[compressionLevel];
+
+  // Visual text progress steps computation
+  const getStepStatus = (step: 'upload' | 'parse' | 'optimize' | 'finalize') => {
+    if (step === 'upload') {
+      if (progress < 25) return 'active';
+      return 'completed';
+    }
+    if (step === 'parse') {
+      if (progress < 25) return 'pending';
+      if (progress >= 25 && progress < 50) return 'active';
+      return 'completed';
+    }
+    if (step === 'optimize') {
+      if (progress < 50) return 'pending';
+      if (progress >= 50 && progress < 85) return 'active';
+      return 'completed';
+    }
+    if (step === 'finalize') {
+      if (progress < 85) return 'pending';
+      if (progress >= 85 && progress < 100) return 'active';
+      return 'completed';
+    }
+    return 'pending';
+  };
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-900 transition-colors">
+    <div className="min-h-screen bg-slate-50/55 dark:bg-[#090d16] transition-colors font-sans antialiased text-slate-800">
       <Navbar />
-      <SEO 
-        title="Compress PDF Online - Shrink PDF File Size Free" 
-        description="Reduce PDF file size online within your browser securely. Free tool to compress high quality PDFs, shrink images, and optimize documents for web sharing."
-        path="/compress-pdf"
-        faqs={COMPRESS_PDF_FAQS}
-      />
       
+      <SEO 
+        title="Compress PDF Online Free – Reduce PDF Size Without Losing Quality" 
+        description="Compress PDF files online for free. Reduce PDF size without losing quality. Fast, secure, and easy PDF compressor with AI optimization."
+        path="/compress-pdf"
+      />
+
       <main className="max-w-7xl mx-auto px-4 py-16">
         {!resultUrl ? (
           <motion.div 
@@ -251,257 +329,360 @@ export default function CompressPdf() {
             animate={{ opacity: 1 }}
             className="flex flex-col items-center"
           >
-            {/* Header */}
-            <div className="text-center mb-12">
-              <div className="inline-flex items-center gap-2 text-rose-600 mb-6 bg-rose-50 dark:bg-rose-900/20 px-4 py-2 rounded-full font-bold text-sm">
-                <Zap className="w-4 h-4" />
-                Browser-Side Optimization
-              </div>
-              <h1 className="text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Compress PDF Online</h1>
-              <p className="text-slate-500 dark:text-slate-400 text-xl font-medium max-w-2xl mx-auto">
-                Reduce PDF file size without losing quality. Fully private processing in your browser.
+            {/* Elegant Header Title Section */}
+            <div className="text-center mb-12 space-y-4">
+              <span className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase text-rose-600 dark:text-rose-450 bg-rose-50 dark:bg-rose-950/20 px-4.5 py-2 rounded-full shadow-sm">
+                <Sparkles className="w-3.5 h-3.5 text-rose-500 animate-pulse" />
+                100% Client-Side Memory Engine
+              </span>
+              <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
+                Compress PDF Online Free
+              </h1>
+              <p className="text-slate-500 dark:text-slate-400 text-base sm:text-lg max-w-2xl mx-auto font-medium">
+                Optimize image assets and shrink payload sizes safely in your local browser sandbox. Text layers, forms, and coordinate vector programs remain preserved.
               </p>
             </div>
 
             {error && (
-              <div className="w-full max-w-2xl mb-8 p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-200 dark:border-rose-800 rounded-2xl flex items-center gap-3 text-rose-700 dark:text-rose-400">
+              <div className="w-full max-w-3xl mb-8 p-4 bg-rose-50 dark:bg-rose-950/25 border border-rose-200 dark:border-rose-900 rounded-2xl flex items-center gap-3 text-rose-700 dark:text-rose-400">
                 <AlertCircle className="w-5 h-5 flex-shrink-0" />
-                <p className="font-bold">{error}</p>
+                <p className="text-sm font-bold leading-relaxed">{error}</p>
+              </div>
+            )}
+
+            {isAnalyzing && (
+              <div className="w-full max-w-3xl mb-8 p-5 bg-indigo-50/60 dark:bg-indigo-950/20 border border-indigo-100 dark:border-indigo-900 rounded-2xl flex items-center gap-3.5 text-indigo-700 dark:text-indigo-400">
+                <Loader2 className="w-5 h-5 animate-spin flex-shrink-0 text-indigo-500" />
+                <p className="text-sm font-bold">Decrypting file and reading operator stream maps into browser memory...</p>
               </div>
             )}
 
             {files.length === 0 ? (
-              <>
+              <div className="w-full max-w-4xl space-y-8">
+                {/* Drag and Drop Zone */}
                 <div 
                   {...getRootProps()}
-                  className={`w-full max-w-4xl min-h-[350px] flex flex-col items-center justify-center p-12 rounded-[3.5rem] border-4 border-dashed transition-all duration-300 cursor-pointer
-                    ${isDragActive ? 'border-rose-500 bg-rose-50/50 dark:bg-rose-900/10' : 'border-slate-200 dark:border-slate-800 hover:border-rose-400 dark:hover:border-rose-700'}
+                  className={`w-full min-h-[350px] flex flex-col items-center justify-center p-8 sm:p-12 rounded-[2.5rem] border-3 border-dashed transition-all duration-300 bg-white dark:bg-[#0f172a] shadow-sm hover:shadow-[0_12px_40px_rgba(244,63,94,0.04)] cursor-pointer
+                    ${isDragActive ? 'border-rose-500 bg-rose-50/20' : 'border-slate-200 dark:border-slate-800 hover:border-rose-400'}
                   `}
+                  id="dropzone"
                 >
                   <input {...getInputProps()} />
-                  <div className="w-24 h-24 bg-rose-600 rounded-[2rem] flex items-center justify-center shadow-2xl shadow-rose-200 dark:shadow-none mb-8">
-                    <Shrink className="text-white w-12 h-12" />
+                  <div className="w-20 h-20 bg-rose-600 rounded-[2rem] flex items-center justify-center shadow-lg shadow-rose-200 dark:shadow-none mb-8">
+                    <Shrink className="text-white w-10 h-10" />
                   </div>
-                  <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Select PDF to compress</h2>
-                  <p className="text-slate-500 dark:text-slate-400 text-lg font-bold">or drag and drop here</p>
+                  <h2 className="text-2xl sm:text-3xl font-black text-slate-800 dark:text-white mb-2 text-center">Select PDF to Compress</h2>
+                  <p className="text-slate-450 text-sm font-semibold mb-6 text-center">or drag and drop your document here (up to 500MB)</p>
+                  
+                  <span className="px-6 py-3.5 bg-rose-600 text-white font-black text-sm rounded-xl tracking-wide shadow-md shadow-rose-100 hover:bg-rose-700 hover:shadow-lg transition-all active:scale-95 cursor-pointer">
+                    Choose PDF File
+                  </span>
                 </div>
-                <CompressPdfAd />
-              </>
+              </div>
             ) : (
               <div className="w-full max-w-4xl space-y-8">
-                <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 border-2 border-slate-100 dark:border-slate-700 shadow-xl">
-                  <div className="flex items-center justify-between mb-10">
+                <div className="bg-white dark:bg-[#0f172a] rounded-[2.5rem] p-6 sm:p-10 border border-slate-150 dark:border-slate-800 shadow-sm space-y-8">
+                  
+                  {/* File specs card */}
+                  <div className="flex items-center justify-between pb-6 border-b border-slate-100 dark:border-slate-800">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-rose-50 dark:bg-rose-900/20 rounded-xl flex items-center justify-center">
+                      <div className="w-12 h-12 bg-rose-50 dark:bg-rose-950/30 rounded-xl flex items-center justify-center">
                         <FileText className="w-6 h-6 text-rose-600" />
                       </div>
-                      <div>
-                        <h3 className="font-black text-slate-900 dark:text-white truncate max-w-[200px] sm:max-w-md">{files[0].name}</h3>
-                        <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">{formatSize(files[0].size)}</p>
+                      <div className="max-w-[180px] sm:max-w-md truncate">
+                        <h3 className="font-extrabold text-slate-900 dark:text-white text-base truncate" title={files[0].name}>
+                          {files[0].name}
+                        </h3>
+                        <div className="flex flex-wrap items-center gap-x-3 gap-y-1 mt-1 text-xs text-slate-400 font-bold">
+                          <span>Original size: {formatSize(files[0].size)}</span>
+                          {totalPages > 0 && (
+                            <>
+                              <span className="text-slate-300">•</span>
+                              <span>{totalPages} Pages</span>
+                            </>
+                          )}
+                        </div>
                       </div>
                     </div>
-                    <button onClick={reset} className="text-slate-400 hover:text-rose-600 transition-colors">
+                    
+                    <button 
+                      onClick={reset}
+                      disabled={isProcessing}
+                      className="text-slate-400 hover:text-rose-600 hover:bg-rose-50 p-2.5 rounded-xl transition-all disabled:opacity-40"
+                    >
                       <Trash2 className="w-5 h-5" />
                     </button>
                   </div>
 
-                  <div className="space-y-8 p-6 bg-slate-50 dark:bg-slate-900/30 rounded-[2rem] border border-slate-100 dark:border-slate-800">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-2">
-                        <Settings className="w-5 h-5 text-rose-500" />
-                        <span className="font-black text-slate-800 dark:text-white uppercase tracking-wider">Compression Level</span>
-                      </div>
-                      <span className="text-3xl font-black text-rose-600">{compressionPercent}%</span>
+                  {/* Range Slider & Bento Selection sync */}
+                  <div className="space-y-6">
+                    <div className="flex items-center gap-2">
+                      <SlidersHorizontal className="w-4.5 h-4.5 text-rose-500" />
+                      <h4 className="font-black text-slate-800 dark:text-white uppercase tracking-wider text-xs sm:text-sm">
+                        Select Compression Level
+                      </h4>
                     </div>
 
-                    <input 
-                      type="range" 
-                      min="1" 
-                      max="100" 
-                      value={compressionPercent}
-                      onChange={(e) => setCompressionPercent(parseInt(e.target.value))}
-                      className="w-full h-3 bg-white dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-500 border border-slate-200 dark:border-slate-700"
-                    />
-
-                    <div className="flex justify-between">
-                      <div className="text-center flex-1">
-                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Better Quality</div>
-                        <div className="w-full h-1 bg-emerald-500/20 rounded-full overflow-hidden">
-                          {compressionPercent < 35 && <div className="h-full bg-emerald-500 w-full" />}
-                        </div>
-                      </div>
-                      <div className="w-8" />
-                      <div className="text-center flex-1">
-                        <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">Smallest Size</div>
-                        <div className="w-full h-1 bg-rose-500/20 rounded-full overflow-hidden">
-                          {compressionPercent > 75 && <div className="h-full bg-rose-500 w-full" />}
-                        </div>
-                      </div>
+                    {/* Step Cards Bento Grid */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
+                      {(Object.keys(COMPRESSION_STEPS) as unknown as CompressionStep[]).map((levelNum) => {
+                        const info = COMPRESSION_STEPS[levelNum];
+                        const isSelected = compressionLevel === levelNum;
+                        return (
+                          <div
+                            key={levelNum}
+                            onClick={() => !isProcessing && setCompressionLevel(levelNum)}
+                            className={`p-5 rounded-2xl border transition-all duration-200 cursor-pointer text-left relative flex flex-col justify-between
+                              ${isSelected 
+                                ? 'border-rose-500 bg-rose-50/15 ring-2 ring-rose-500/10' 
+                                : 'border-slate-150 hover:border-slate-350 bg-white dark:bg-slate-900'
+                              }
+                              ${isProcessing ? 'opacity-50 cursor-not-allowed' : ''}
+                            `}
+                          >
+                            <div className="space-y-1">
+                              <div className="flex justify-between items-center">
+                                <span className="font-black text-slate-900 dark:text-white text-sm">{info.label}</span>
+                                {isSelected && (
+                                  <div className="w-4 h-4 bg-rose-600 rounded-full flex items-center justify-center">
+                                    <Check className="w-2.5 h-2.5 text-white stroke-[3px]" />
+                                  </div>
+                                )}
+                              </div>
+                              <span className="text-[10px] font-bold text-rose-600 bg-rose-50 dark:bg-rose-950/40 px-2 py-0.5 rounded block w-fit">
+                                {info.badge}
+                              </span>
+                              <p className="text-[11px] text-slate-400 font-medium pt-2 leading-relaxed">{info.desc}</p>
+                            </div>
+                            <div className="pt-4 border-t border-slate-100 dark:border-slate-800/60 mt-3 flex justify-between items-center text-xs font-bold text-slate-400">
+                              <span>Reduces approx</span>
+                              <span className={`${isSelected ? 'text-rose-600 font-extrabold' : 'text-slate-500'}`}>~{info.approxReduction}%</span>
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
 
-                    <div className="flex items-start gap-3 p-4 bg-white dark:bg-slate-800 rounded-2xl border border-rose-100 dark:border-rose-900/30">
-                      <Info className="w-5 h-5 text-rose-500 flex-shrink-0" />
-                      <div>
-                        <p className={`font-black uppercase tracking-wider text-sm ${getCompressionInfo(compressionPercent).color}`}>
-                          {getCompressionInfo(compressionPercent).title}
-                        </p>
-                        <p className="text-xs font-bold text-slate-500 dark:text-slate-400">
-                          {getCompressionInfo(compressionPercent).desc}
-                        </p>
+                    {/* Styled Range Slider Input */}
+                    <div className="pt-4 pb-2 px-1">
+                      <input 
+                        type="range"
+                        min="1"
+                        max="4"
+                        step="1"
+                        value={compressionLevel}
+                        onChange={(e) => setCompressionLevel(parseInt(e.target.value) as CompressionStep)}
+                        disabled={isProcessing}
+                        className="w-full h-2 bg-slate-200 dark:bg-slate-800 rounded-lg appearance-none cursor-pointer accent-rose-600 disabled:opacity-40"
+                      />
+                      <div className="flex justify-between mt-2.5 text-[10px] font-black uppercase tracking-wider text-slate-400">
+                        <button type="button" onClick={() => !isProcessing && setCompressionLevel(1)}>Low</button>
+                        <button type="button" onClick={() => !isProcessing && setCompressionLevel(2)}>Medium</button>
+                        <button type="button" onClick={() => !isProcessing && setCompressionLevel(3)}>High</button>
+                        <button type="button" onClick={() => !isProcessing && setCompressionLevel(4)}>AI Smart</button>
                       </div>
                     </div>
                   </div>
 
-                  <div className="mt-10 flex flex-col items-center">
+                  {/* Advanced settings toggles collapsable block */}
+                  <div className="border border-slate-150 rounded-2xl p-5 bg-slate-50/30">
+                    <button
+                      type="button"
+                      onClick={() => setShowAdvanced(!showAdvanced)}
+                      className="w-full flex items-center justify-between text-left text-xs font-black uppercase text-slate-505"
+                    >
+                      <span className="flex items-center gap-1.5">
+                        <Settings className="w-3.5 h-3.5 text-rose-500" />
+                        Advanced Custom Overrides
+                      </span>
+                      {showAdvanced ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                    </button>
+                    
+                    {showAdvanced && (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-150/60">
+                        <label className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-150 cursor-pointer select-none">
+                          <input 
+                            type="checkbox" 
+                            checked={keepOriginalQuality} 
+                            onChange={(e) => setKeepOriginalQuality(e.target.checked)}
+                            disabled={isProcessing}
+                            className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 rounded-md" 
+                          />
+                          <div>
+                            <span className="text-xs font-bold text-slate-800 block">Lock Retina DPI</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Keeps high-dpi layout variables untouched</span>
+                          </div>
+                        </label>
+
+                        <label className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-150 cursor-pointer select-none">
+                          <input 
+                            type="checkbox" 
+                            checked={optimizeImages} 
+                            onChange={(e) => setOptimizeImages(e.target.checked)}
+                            disabled={isProcessing}
+                            className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 rounded-md" 
+                          />
+                          <div>
+                            <span className="text-xs font-bold text-slate-800 block">Compress Image Streams</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Rescales pictures coordinates first</span>
+                          </div>
+                        </label>
+
+                        <label className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-150 cursor-pointer select-none">
+                          <input 
+                            type="checkbox" 
+                            checked={removeMetadata} 
+                            onChange={(e) => setRemoveMetadata(e.target.checked)}
+                            disabled={isProcessing}
+                            className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 rounded-md" 
+                          />
+                          <div>
+                            <span className="text-xs font-bold text-slate-800 block">Wipe Structural Metadata</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Strips uncompiled dictionaries for space</span>
+                          </div>
+                        </label>
+
+                        <label className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-150 cursor-pointer select-none">
+                          <input 
+                            type="checkbox" 
+                            checked={fastCompression} 
+                            onChange={(e) => setFastCompression(e.target.checked)}
+                            disabled={isProcessing}
+                            className="w-4 h-4 rounded text-rose-600 focus:ring-rose-500 rounded-md" 
+                          />
+                          <div>
+                            <span className="text-xs font-bold text-slate-800 block">Multi-Threading Engine</span>
+                            <span className="text-[10px] text-slate-400 block mt-0.5">Launches asynchronous memory allocation</span>
+                          </div>
+                        </label>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Processing Status Steps Stepper Block */}
+                  {isProcessing && (
+                    <div className="p-6 bg-slate-50 dark:bg-[#0c1221] rounded-3xl border border-slate-200/60 shadow-inner space-y-4">
+                      {/* Active Status Header */}
+                      <div className="flex items-center justify-between text-xs font-black uppercase tracking-widest text-slate-500">
+                        <span className="flex items-center gap-2">
+                          <Loader2 className="w-4 h-4 animate-spin text-rose-500" />
+                          {processingStatus}
+                        </span>
+                        <span className="text-rose-600 bg-rose-50 px-2.5 py-0.5 rounded-md font-bold">
+                          {progress}%
+                        </span>
+                      </div>
+                      
+                      {/* Numeric Progress Bar */}
+                      <div className="w-full h-3 bg-slate-150 dark:bg-slate-800 rounded-full overflow-hidden p-0.5 border border-slate-200/20">
+                        <motion.div 
+                          className="h-full bg-gradient-to-r from-rose-500 to-rose-600 rounded-full" 
+                          style={{ width: `${progress}%` }}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${progress}%` }}
+                          transition={{ duration: 0.15 }}
+                        />
+                      </div>
+
+                      {/* Four Checklist Steps Stepper */}
+                      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
+                        {/* Step 1 */}
+                        <div className={`p-3 rounded-xl border flex flex-col justify-between text-left
+                          ${getStepStatus('upload') === 'completed' ? 'bg-emerald-50/30 border-emerald-100 text-emerald-700' : ''}
+                          ${getStepStatus('upload') === 'active' ? 'bg-rose-50/30 border-rose-200 text-rose-700 animate-pulse' : ''}
+                          ${getStepStatus('upload') === 'pending' ? 'bg-white border-slate-100 text-slate-400' : ''}
+                        `}>
+                          <span className="text-[10px] font-black uppercase block mb-1">Step 1</span>
+                          <span className="text-xs font-bold">Uploading File</span>
+                        </div>
+
+                        {/* Step 2 */}
+                        <div className={`p-3 rounded-xl border flex flex-col justify-between text-left
+                          ${getStepStatus('parse') === 'completed' ? 'bg-emerald-50/30 border-emerald-100 text-emerald-700' : ''}
+                          ${getStepStatus('parse') === 'active' ? 'bg-rose-50/30 border-rose-200 text-rose-700 animate-pulse' : ''}
+                          ${getStepStatus('parse') === 'pending' ? 'bg-white border-slate-100 text-slate-400' : ''}
+                        `}>
+                          <span className="text-[10px] font-black uppercase block mb-1">Step 2</span>
+                          <span className="text-xs font-bold">Analyzing Structure</span>
+                        </div>
+
+                        {/* Step 3 */}
+                        <div className={`p-3 rounded-xl border flex flex-col justify-between text-left
+                          ${getStepStatus('optimize') === 'completed' ? 'bg-emerald-50/30 border-emerald-100 text-emerald-700' : ''}
+                          ${getStepStatus('optimize') === 'active' ? 'bg-rose-50/30 border-rose-200 text-rose-700 animate-pulse' : ''}
+                          ${getStepStatus('optimize') === 'pending' ? 'bg-white border-slate-100 text-slate-400' : ''}
+                        `}>
+                          <span className="text-[10px] font-black uppercase block mb-1">Step 3</span>
+                          <span className="text-xs font-bold">Optimizing Streams</span>
+                        </div>
+
+                        {/* Step 4 */}
+                        <div className={`p-3 rounded-xl border flex flex-col justify-between text-left
+                          ${getStepStatus('finalize') === 'completed' ? 'bg-emerald-50/30 border-emerald-100 text-emerald-700' : ''}
+                          ${getStepStatus('finalize') === 'active' ? 'bg-rose-50/30 border-rose-200 text-rose-700 animate-pulse' : ''}
+                          ${getStepStatus('finalize') === 'pending' ? 'bg-white border-slate-100 text-slate-400' : ''}
+                        `}>
+                          <span className="text-[10px] font-black uppercase block mb-1">Step 4</span>
+                          <span className="text-xs font-bold">Finalizing Packaging</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Submit Activation Trigger */}
+                  <div>
                     <button
                       onClick={handleCompress}
-                      disabled={isProcessing}
-                      className="w-full bg-rose-600 text-white py-6 rounded-2xl font-black text-2xl shadow-2xl shadow-rose-200 dark:shadow-none hover:bg-rose-700 transition-all hover:scale-[1.01] active:scale-95 disabled:grayscale disabled:opacity-50 flex flex-col items-center gap-2 group"
+                      disabled={isProcessing || isAnalyzing || !totalPages}
+                      className="w-full bg-rose-600 text-white py-5 sm:py-6 rounded-2xl font-black text-xl hover:bg-rose-700 transition-all hover:scale-[1.01] active:scale-95 disabled:grayscale disabled:opacity-45 flex items-center justify-center gap-3 cursor-pointer"
+                      id="compress-button"
                     >
                       {isProcessing ? (
                         <>
-                          <Loader2 className="w-8 h-8 animate-spin" />
-                          <span className="text-sm tracking-widest uppercase">{processingStatus}</span>
+                          <Loader2 className="w-6 h-6 animate-spin" />
+                          <span className="uppercase tracking-widest text-base">Running Optimizer...</span>
                         </>
                       ) : (
-                        <div className="flex items-center gap-4">
-                          Compress PDF
-                          <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-                            <Shrink className="w-6 h-6" />
+                        <>
+                          <span>Compress PDF</span>
+                          <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+                            <Shrink className="w-4.5 h-4.5 text-white" />
                           </div>
-                        </div>
+                        </>
                       )}
                     </button>
                   </div>
+
                 </div>
               </div>
             )}
           </motion.div>
         ) : (
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="bg-white dark:bg-slate-800 rounded-[3.5rem] p-16 text-center shadow-2xl border-2 border-rose-50 dark:border-slate-700 max-w-3xl mx-auto"
-          >
-            <div className="w-32 h-32 bg-emerald-500 rounded-[2.5rem] flex items-center justify-center mx-auto mb-10 shadow-2xl shadow-emerald-200">
-              <CheckCircle className="text-white w-16 h-16" />
-            </div>
-            <h2 className="text-5xl font-black text-slate-900 dark:text-white mb-6">Success!</h2>
-            <p className="text-slate-500 dark:text-slate-400 mb-12 font-medium text-xl leading-relaxed">
-              Your PDF has been compressed by <span className="text-rose-600 font-black">{savingPercentage}%</span>.
-            </p>
-            
-            <div className="grid grid-cols-2 gap-6 mb-12">
-              <div className="p-8 bg-slate-50 dark:bg-slate-900/50 rounded-[2rem] border border-slate-100 dark:border-slate-800">
-                <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-2">Original Size</div>
-                <div className="text-2xl font-black text-slate-800 dark:text-white">{formatSize(originalSize)}</div>
-              </div>
-              <div className="p-8 bg-emerald-50 dark:bg-emerald-900/10 rounded-[2rem] border border-emerald-100 dark:border-emerald-900/20">
-                <div className="text-xs font-black text-emerald-500 uppercase tracking-widest mb-2">Compressed Size</div>
-                <div className="text-2xl font-black text-emerald-600 dark:text-emerald-400">{formatSize(compressedSize)}</div>
-              </div>
-            </div>
-
-            <div className="flex flex-col sm:flex-row justify-center gap-6">
-              <a 
-                href={resultUrl} 
-                download={`compressed_${files[0]?.name || 'document.pdf'}`}
-                className="bg-rose-600 text-white px-12 py-6 rounded-[2rem] font-black text-2xl hover:bg-rose-700 transition-all flex items-center justify-center gap-4 shadow-xl shadow-rose-200 dark:shadow-none hover:scale-105"
-              >
-                <Download className="w-8 h-8" />
-                Download PDF
-              </a>
-              <button 
-                onClick={reset}
-                className="bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-200 px-12 py-6 rounded-[2rem] font-black text-2xl hover:bg-slate-200 dark:hover:bg-slate-600 transition-all hover:scale-105"
-              >
-                Compress More
-              </button>
-            </div>
-          </motion.div>
+          /* Render extracted visual results stats dashboard metrics layout */
+          <CompressPdfResult 
+            fileName={files[0].name}
+            resultUrl={resultUrl}
+            originalSize={originalSize}
+            compressedSize={compressedSize}
+            reset={reset}
+          />
         )}
 
-        {/* Feature Grid */}
-        <section className="mt-32 grid grid-cols-1 md:grid-cols-3 gap-8">
-          <div className="p-10 bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
-            <div className="w-16 h-16 bg-emerald-50 dark:bg-emerald-900/20 rounded-2xl flex items-center justify-center mb-6">
-              <Shield className="w-8 h-8 text-emerald-600" />
-            </div>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4 uppercase tracking-wider">Privacy First</h3>
-            <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-              Files never leave your device. All compression happens locally in your browser memory for absolute data security.
-            </p>
-          </div>
-          <div className="p-10 bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
-            <div className="w-16 h-16 bg-rose-50 dark:bg-rose-900/20 rounded-2xl flex items-center justify-center mb-6">
-              <Zap className="w-8 h-8 text-rose-600" />
-            </div>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4 uppercase tracking-wider">High Speed</h3>
-            <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-              Optimized WASM and JavaScript algorithms ensure blazing fast compression without the need for server uploads.
-            </p>
-          </div>
-          <div className="p-10 bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm transition-all hover:shadow-xl hover:-translate-y-2">
-            <div className="w-16 h-16 bg-slate-100 dark:bg-slate-700 rounded-2xl flex items-center justify-center mb-6">
-              <Link to="/merge-pdf" className="text-slate-600 dark:text-slate-300">
-                <Settings className="w-8 h-8" />
-              </Link>
-            </div>
-            <h3 className="text-xl font-black text-slate-900 dark:text-white mb-4 uppercase tracking-wider">Full Control</h3>
-            <p className="text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
-              Choose your ideal balance between file size and quality with our precise compression slider.
-            </p>
-          </div>
-        </section>
+        {/* Clean Ad placements safely at bottom away from CTA triggers */}
+        <CompressPdfAd />
 
-        {/* Dynamic Mobile Optimized FAQ Segment */}
-        <section className="mt-32 max-w-4xl mx-auto font-sans">
-          <div className="text-center mb-16">
-            <h2 className="text-4xl font-extrabold text-slate-900 dark:text-white tracking-tight mb-4">Frequently Asked Questions</h2>
-            <p className="text-slate-500 dark:text-slate-400 font-medium text-lg">Quick answers regarding document optimization safety and metrics.</p>
-          </div>
+        {/* Modular Landing info articles */}
+        <CompressPdfLanding />
 
-          <div className="space-y-8 mb-20">
-            {COMPRESS_PDF_FAQS.map((faq, idx) => (
-              <div key={idx} className="p-8 bg-white dark:bg-slate-800 rounded-3xl border border-slate-100 dark:border-slate-700/60 hover:border-rose-100 dark:hover:border-rose-900/40 transition-all">
-                <h3 className="text-xl font-bold text-slate-900 dark:text-white mb-3 flex items-start gap-3">
-                  <span className="text-rose-600 dark:text-rose-400 font-black">Q.</span>
-                  {faq.question}
-                </h3>
-                <p className="text-slate-600 dark:text-slate-400 font-medium pl-6 leading-relaxed">
-                  {faq.answer}
-                </p>
-              </div>
-            ))}
-          </div>
-
-          {/* Internal Interlinking Banner */}
-          <div className="p-10 bg-rose-50/25 dark:bg-rose-950/10 rounded-[2.5rem] border border-rose-100/50 dark:border-rose-900/30 text-center">
-            <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 tracking-tight">Expand Your Workflow Directory</h3>
-            <p className="text-slate-500 dark:text-slate-400 font-medium mb-8 max-w-lg mx-auto">Access other high-precision tools designed to fast-track your office productivity completely free.</p>
-            <div className="flex flex-wrap justify-center gap-4">
-              <Link to="/merge-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
-                Merge Multiple PDFs
-              </Link>
-              <Link to="/pdf-to-jpg" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
-                Extract PDF to JPG
-              </Link>
-              <Link to="/jpg-to-pdf" className="px-6 py-3.5 bg-white dark:bg-slate-800 text-slate-800 dark:text-white border border-slate-200 dark:border-slate-700/60 rounded-xl font-bold text-sm tracking-wide shadow-sm hover:border-rose-400 dark:hover:border-rose-800 transition-all hover:scale-105">
-                Convert JPG to PDF
-              </Link>
-              <Link to="/background-remover" className="px-6 py-4 bg-rose-600 text-white rounded-xl font-bold text-sm tracking-wide shadow-lg shadow-rose-200 dark:shadow-none transition-all hover:scale-105">
-                Remove Background (AI)
-              </Link>
-            </div>
-          </div>
-        </section>
+        {/* Modular interactive expandable FAQs accordion */}
+        <CompressPdfFaq />
 
         <ToolSeoSection path="/compress-pdf" />
       </main>
 
       <Footer />
 
-      {/* Password Modal */}
+      {/* Security Password Unlock prompts overylay modal */}
       <AnimatePresence>
         {passwordPrompt && (
           <motion.div
@@ -511,23 +692,23 @@ export default function CompressPdf() {
             className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/60 backdrop-blur-md"
           >
             <motion.div
-              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.95, y: 20 }}
-              transition={{ type: 'spring', duration: 0.4 }}
-              className="relative w-full max-w-md bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 md:p-10 shadow-2xl border border-slate-100 dark:border-slate-700/60 text-center"
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ type: 'spring', duration: 0.35 }}
+              className="relative w-full max-w-md bg-white rounded-3xl p-8 shadow-2xl border border-slate-100 text-center"
             >
-              <div className="w-20 h-20 bg-rose-50 dark:bg-rose-950/30 rounded-[1.8rem] flex items-center justify-center mx-auto mb-6 shadow-lg shadow-rose-200/20 dark:shadow-none animate-bounce">
-                <Lock className="w-8 h-8 text-rose-600 dark:text-rose-400" />
+              <div className="w-16 h-16 bg-rose-50 rounded-2xl flex items-center justify-center mx-auto mb-6 shadow-sm">
+                <Lock className="w-7 h-7 text-rose-600" />
               </div>
-              <h3 className="text-2xl font-black text-slate-900 dark:text-white mb-2 uppercase tracking-wide">Enter PDF Password</h3>
-              <p className="text-slate-500 dark:text-slate-400 text-sm font-medium mb-6 truncate px-2" title={passwordPrompt.fileName}>
-                The file <span className="font-bold text-rose-600 dark:text-rose-400">"{passwordPrompt.fileName}"</span> is encrypted.
+              <h3 className="text-xl font-bold text-slate-900 mb-2">Unlocking Encrypted PDF</h3>
+              <p className="text-slate-500 text-xs font-semibold mb-6 px-2">
+                This document is protected. Enter the password below so our CPU-sandbox can optimize the file's images.
               </p>
 
               {passwordPrompt.error && (
-                <div className="mb-6 p-4 bg-rose-50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800 rounded-2xl flex items-center gap-2.5 text-rose-700 dark:text-rose-400 text-left">
-                  <ShieldAlert className="w-4 h-4 flex-shrink-0" />
+                <div className="mb-6 p-4 bg-rose-50 border border-rose-200 rounded-2xl flex items-center gap-2 px-3 text-rose-700 text-left">
+                  <ShieldAlert className="w-4 h-4 flex-shrink-0 text-rose-500" />
                   <p className="text-xs font-bold leading-tight">{passwordPrompt.error}</p>
                 </div>
               )}
@@ -543,32 +724,32 @@ export default function CompressPdf() {
                     type={showPassword ? 'text' : 'password'}
                     id="pdfPassword"
                     name="pdfPassword"
-                    placeholder="Enter password..."
+                    placeholder="Document Password..."
                     autoFocus
-                    className="w-full px-5 py-4 bg-slate-50 dark:bg-slate-900/40 border-2 border-slate-200 dark:border-slate-700 rounded-2xl text-slate-800 dark:text-white font-bold text-base focus:border-rose-500 focus:outline-none transition-all pr-12"
+                    className="w-full px-4 py-3.5 bg-slate-50 border border-slate-200 rounded-xl text-slate-800 font-bold text-sm focus:border-rose-500 focus:outline-none transition-all pr-12"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors"
                   >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                   </button>
                 </div>
 
-                <div className="flex gap-4">
+                <div className="flex gap-3">
                   <button
                     type="button"
                     onClick={() => passwordPrompt.resolve(null)}
-                    className="flex-1 px-6 py-4 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-2xl font-black text-sm uppercase tracking-widest transition-all active:scale-95"
+                    className="flex-1 px-5 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl font-bold text-xs uppercase tracking-wider transition-all"
                   >
                     Cancel
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 px-6 py-4 bg-rose-600 hover:bg-rose-700 text-white rounded-2xl font-black text-sm uppercase tracking-widest transition-all shadow-xl shadow-rose-200 dark:shadow-none active:scale-95"
+                    className="flex-1 px-5 py-3.5 bg-rose-600 hover:bg-rose-700 text-white rounded-xl font-bold text-xs uppercase tracking-wider transition-all shadow-md shadow-rose-100"
                   >
-                    Unlock
+                    Unlock PDF
                   </button>
                 </div>
               </form>

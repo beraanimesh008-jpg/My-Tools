@@ -64,8 +64,6 @@ export default function Footer() {
             <ul className="space-y-3.5 text-[15px] text-slate-550 dark:text-slate-400 font-medium">
               <li><Link to="/merge-pdf" className="hover:text-rose-500 transition-colors">Merge PDF</Link></li>
               <li><Link to="/background-remover" className="hover:text-rose-500 transition-colors">Background Remover</Link></li>
-              <li><Link to="/tts" className="hover:text-rose-500 transition-colors">Text to Speech</Link></li>
-              <li><Link to="/qr-gen" className="hover:text-rose-500 transition-colors">QR Code Generator</Link></li>
             </ul>
           </div>
 

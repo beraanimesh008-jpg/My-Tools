@@ -38,7 +38,7 @@ import SEO from '../components/SEO';
 const HOME_FAQS = [
   {
     question: "What is My Loves PDF?",
-    answer: "My Loves PDF is a highly flexible multi-tool workspace providing completely free web applications to merge PDFs, compress file size with maximum preservation, convert formats, generate secure parameters, parse voiceovers with TTS, and remove picture backgrounds."
+    answer: "My Loves PDF is a highly flexible multi-tool workspace providing completely free web applications to merge PDFs, compress file size with maximum preservation, convert formats, generate secure parameters, and remove picture backgrounds."
   },
   {
     question: "How secure is My Loves PDF for processing private data?",
@@ -66,15 +66,7 @@ const IMAGE_TOOLS = [
   { name: 'Image Converter', description: 'Re-encode and convert images to PNG, WebP, or JPG formats.', icon: ImageIcon, href: '/image-converter', color: 'bg-orange-500', isNew: true },
 ];
 
-const AI_TOOLS = [
-  { name: 'AI Logo Maker', description: 'Craft unique and professional logos for your brand.', icon: Layout, href: '/ai-logo', color: 'bg-purple-600' },
-  { name: 'Text to Speech', description: 'Convert written text into natural-sounding voiceovers.', icon: Mail, href: '/tts', color: 'bg-purple-600' },
-];
-
 const UTILITY_TOOLS = [
-  { name: 'Visitor Tracking', description: 'Real-time visitor analytic statistics, interactive graphs, and auditing dashboard.', icon: Layout, href: '/visitor-tracker', color: 'bg-indigo-600', isNew: true },
-  { name: 'QR Generator', description: 'Generate custom QR codes for links, text, or vCards.', icon: QrCode, href: '/qr-gen', color: 'bg-emerald-500' },
-  { name: 'Password Gen', description: 'Generate strong, secure, and random passwords instantly.', icon: Lock, href: '/password-gen', color: 'bg-emerald-500' },
   { name: 'Resume Builder', description: 'Build a professional resume with ease using templates.', icon: FileText, href: '/resume-builder', color: 'bg-emerald-500' },
 ];
 
@@ -82,13 +74,12 @@ const UTILITY_TOOLS = [
 const ALL_TOOLS_FLAT = [
   ...PDF_TOOLS.map(t => ({ ...t, catKey: 'pdf', catLabel: 'PDF Management' })),
   ...IMAGE_TOOLS.map(t => ({ ...t, catKey: 'image', catLabel: 'Image Studio' })),
-  ...AI_TOOLS.map(t => ({ ...t, catKey: 'ai', catLabel: 'Magical AI' })),
   ...UTILITY_TOOLS.map(t => ({ ...t, catKey: 'utility', catLabel: 'Daily Utilities' }))
 ];
 
 export default function Home() {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<'all' | 'pdf' | 'image' | 'ai' | 'utility'>('all');
+  const [selectedCategory, setSelectedCategory] = useState<'all' | 'pdf' | 'image' | 'utility'>('all');
   const [filesProcessed, setFilesProcessed] = useState<number>(0);
 
   useEffect(() => {
@@ -144,7 +135,6 @@ export default function Home() {
     { key: 'all', label: 'All Suite', count: ALL_TOOLS_FLAT.length, color: 'bg-rose-500' },
     { key: 'pdf', label: 'PDF Studio', count: PDF_TOOLS.length, color: 'bg-rose-500' },
     { key: 'image', label: 'Image Studio', count: IMAGE_TOOLS.length, color: 'bg-orange-500' },
-    { key: 'ai', label: 'Magical AI', count: AI_TOOLS.length, color: 'bg-purple-600' },
     { key: 'utility', label: 'Utilities', count: UTILITY_TOOLS.length, color: 'bg-emerald-500' }
   ] as const;
 

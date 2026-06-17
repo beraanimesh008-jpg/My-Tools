@@ -3,10 +3,7 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Home from './pages/Home';
 import MergePdf from './pages/Tools/MergePdf';
 import CompressImage from './pages/Tools/CompressImage';
-import QrGenerator from './pages/Tools/QrGenerator';
-import PasswordGenerator from './pages/Tools/PasswordGenerator';
 import JpgToPdf from './pages/Tools/JpgToPdf';
-import TextToSpeech from './pages/Tools/TextToSpeech';
 import ResumeBuilder from './pages/Tools/ResumeBuilder';
 import CompressPdf from './pages/Tools/CompressPdf';
 import PdfToJpg from './pages/Tools/PdfToJpg';
@@ -16,8 +13,6 @@ import BlogIndex from './pages/Blog/BlogIndex';
 import BlogPost from './pages/Blog/BlogPost';
 import Footer from './components/Footer';
 import Navbar from './components/Navbar';
-import VisitorTrackerTrigger from './components/VisitorTrackerTrigger';
-import VisitorTracker from './pages/Tools/VisitorTracker';
 import ScrollToTop from './components/ScrollToTop';
 
 // Functional Component to handle Layout wrapper if needed
@@ -52,18 +47,12 @@ export default function App() {
       {/* Automatically restore scroll position to top on navigation */}
       <ScrollToTop />
       
-      {/* Background tracking of routers */}
-      <VisitorTrackerTrigger />
-      
       <Routes>
         <Route path="/" element={<AppLayout><Navbar /><Home /></AppLayout>} />
         {/* PDF Tools */}
         <Route path="/merge-pdf" element={<MergePdf />} />
         <Route path="/compress-image" element={<CompressImage />} />
-        <Route path="/qr-gen" element={<QrGenerator />} />
-        <Route path="/password-gen" element={<PasswordGenerator />} />
         <Route path="/jpg-to-pdf" element={<JpgToPdf />} />
-        <Route path="/tts" element={<TextToSpeech />} />
         <Route path="/resume-builder" element={<ResumeBuilder />} />
         <Route path="/compress-pdf" element={<CompressPdf />} />
         <Route path="/pdf-to-jpg" element={<PdfToJpg />} />
@@ -78,9 +67,6 @@ export default function App() {
         {/* Global SEO Blog System */}
         <Route path="/blog" element={<BlogIndex />} />
         <Route path="/blog/:slug" element={<BlogPost />} />
-        
-        {/* Analytics Visitor Tracker */}
-        <Route path="/visitor-tracker" element={<VisitorTracker />} />
         
         {/* Placeholder for other tools to avoid 404s in demo */}
         <Route path="*" element={<AppLayout><Navbar /><Home /></AppLayout>} />
