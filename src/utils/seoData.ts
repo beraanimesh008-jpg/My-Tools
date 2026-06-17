@@ -83,8 +83,8 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/compress-pdf": {
-    title: "Compress PDF Online Free - Reduce PDF File Size and Maintain Quality",
-    description: "Lower the storage space of PDF documents while preserving crisp typography and original pixel grids. Optimize and shrink PDFs online.",
+    title: "Compress PDF Online Free - Reduce PDF Size Without Losing Quality",
+    description: "Compress PDF files online for free. Reduce PDF size without losing quality. Fast, secure and easy PDF compressor with high-quality optimization.",
     h1: "High-Fidelity PDF Compressor with Multi-Level Shrink Modes",
     intro: "Shrink your document sizes easily with our intelligent online PDF compressor. Specify the target balance between text optimization, vector rendering, and DPI limits to download fully optimized PDFs.",
     features: [

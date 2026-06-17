@@ -317,8 +317,8 @@ export default function CompressPdf() {
       <Navbar />
       
       <SEO 
-        title="Compress PDF Online Free – Reduce PDF Size Without Losing Quality" 
-        description="Compress PDF files online for free. Reduce PDF size without losing quality. Fast, secure, and easy PDF compressor with AI optimization."
+        title="Compress PDF Online Free - Reduce PDF Size Without Losing Quality" 
+        description="Compress PDF files online for free. Reduce PDF size without losing quality. Fast, secure and easy PDF compressor with high-quality optimization."
         path="/compress-pdf"
       />
 
