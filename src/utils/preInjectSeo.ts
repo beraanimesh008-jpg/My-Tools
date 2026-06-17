@@ -75,8 +75,8 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
     const fullUrl = `https://mylovespdf.com${urlPath}`;
     const defaultImage = "https://mylovespdf.com/og-image.png";
 
-    // Inject crawler check script in head to instantly hide pre-rendered content from humans before body paint (except for compress-pdf which is fully visible and standard)
-    const crawlerCheckScript = urlPath === "/compress-pdf" ? "" : `
+    // Inject crawler check script in head to instantly hide pre-rendered content from humans before body paint (except for compress-pdf and merge-pdf which are fully visible and standard)
+    const crawlerCheckScript = (urlPath === "/compress-pdf" || urlPath === "/merge-pdf") ? "" : `
   <script id="seo-crawler-check">
     (function() {
       try {
@@ -169,6 +169,56 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
   }
   </script>` : "";
 
+    const mergePdfSchema = urlPath === "/merge-pdf" ? `
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Merge PDF Online Free",
+    "url": "https://mylovespdf.com/merge-pdf",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "description": "Merge PDF Online Free. Merge multiple PDF files into a single document online for free. Fast, secure and easy PDF merger with no installation required.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How do I combine multiple PDF files into one for free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Simply upload your PDF files by clicking the upload button or dragging them into our active dropzone. You can visually rearrange pages or documents in your preferred sequence, then click the 'Merge PDF' button. Your merged PDF will compile instantly and download automatically."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is there a limit on how many PDF files I can merge?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "No, My Loves PDF allows you to combine and merge any number of PDF files completely free, with no file count limits or hidden subscription gates."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is my personal data secure with My Loves PDF?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, absolute safety and data confidentiality are guaranteed. All PDF file merging is executed in your secure local web browser context, and files are purged immediately after processing. We never store, inspect, or retain your contents."
+        }
+      }
+    ]
+  }
+  </script>` : "";
+
     const headMetaInjections = `
   <title data-prerendered="true">${cleanTitle}</title>
   <meta data-prerendered="true" name="google-adsense-account" content="ca-pub-4026443598393506" />
@@ -183,7 +233,7 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
   <meta data-prerendered="true" name="twitter:card" content="summary_large_image" />
   <meta data-prerendered="true" name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
   <meta data-prerendered="true" name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
-  <meta data-prerendered="true" name="twitter:image" content="${defaultImage}" />${crawlerCheckScript}${compressPdfSchema}`;
+  <meta data-prerendered="true" name="twitter:image" content="${defaultImage}" />${crawlerCheckScript}${compressPdfSchema}${mergePdfSchema}`;
 
     html = html.replace(/<\/head>/i, `${headMetaInjections}\n</head>`);
 
@@ -224,7 +274,7 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
     // Ensure we clean out any prior preloaded blocks first if any pre-rendered template is received
     html = html.replace(/<!--PRERENDER_START-->[\s\S]*?<!--PRERENDER_END-->/g, "");
 
-    if (urlPath === "/compress-pdf") {
+    if (urlPath === "/compress-pdf" || urlPath === "/merge-pdf") {
       // Injected inside <div id="root"> completely visible, standard, normal for all visitors & crawlers alike!
       html = html.replace(/<div id="root">\s*<\/div>/i, `<div id="root">\n${visibleBody}\n</div>`);
     } else {

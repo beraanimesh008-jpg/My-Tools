@@ -399,9 +399,9 @@ export default function MergePdf() {
                   <FileSearch className="w-4 h-4" />
                   PDF Productivity Pack
                 </div>
-                <h1 className="text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Merge PDF Files</h1>
-                <p className="text-slate-500 dark:text-slate-400 text-xl font-medium max-w-2xl mx-auto">
-                  Combine PDFs in the order you want with the easiest PDF merger available.
+                <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white mb-4 tracking-tight">Merge PDF Online Free - Combine PDF Files Easily</h1>
+                <p className="text-slate-500 dark:text-slate-400 text-xl font-medium max-w-3xl mx-auto">
+                  Merge PDF Online Free. Combine multiple PDF files in the exact order you want with the easiest, safest web editor available.
                 </p>
               </div>
 

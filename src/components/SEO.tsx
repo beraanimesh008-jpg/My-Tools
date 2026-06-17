@@ -198,6 +198,58 @@ export default function SEO({ title: propTitle, description: propDescription, pa
 }`}
         </script>
       )}
+      {normalizedPath === '/merge-pdf' && (
+        <>
+          <script type="application/ld+json">
+            {`{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Merge PDF Online Free",
+  "url": "https://mylovespdf.com/merge-pdf",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "description": "Merge PDF Online Free. Merge multiple PDF files into a single document online for free. Fast, secure and easy PDF merger with no installation required.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}`}
+          </script>
+          <script type="application/ld+json">
+            {`{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "How do I combine multiple PDF files into one for free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Simply upload your PDF files by clicking the upload button or dragging them into our active dropzone. You can visually rearrange pages or documents in your preferred sequence, then click the 'Merge PDF' button. Your merged PDF will compile instantly and download automatically."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is there a limit on how many PDF files I can merge?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No, My Loves PDF allows you to combine and merge any number of PDF files completely free, with no file count limits or hidden subscription gates."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is my personal data secure with My Loves PDF?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes, absolute safety and data confidentiality are guaranteed. All PDF file merging is executed in your secure local web browser context, and files are purged immediately after processing. We never store, inspect, or retain your contents."
+      }
+    }
+  ]
+}`}
+          </script>
+        </>
+      )}
     </Helmet>
   );
 }

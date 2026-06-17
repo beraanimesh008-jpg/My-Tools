@@ -151,9 +151,9 @@ export const SEO_CONFIG: Record<string, SEOData> = {
   },
   "/merge-pdf": {
     title: "Merge PDF Online Free - Combine PDF Files Easily",
-    description: "Merge multiple PDF files into a single document online for free. Fast, secure and easy PDF merger with no installation required.",
-    h1: "Merge PDF Files Online with Visual Sorting Control",
-    intro: "Unite disjointed documents in seconds. Our free online PDF merge utility maps raw files, lets you re-order document sequences visually, and creates single, polished downloads.",
+    description: "Merge PDF Online Free. Merge multiple PDF files into a single document online for free. Fast, secure and easy PDF merger with no installation required.",
+    h1: "Merge PDF Online Free - Combine PDF Files Easily",
+    intro: "Merge PDF Online Free. Unite disjointed documents in seconds. Our free online PDF merge utility maps raw files, lets you re-order document sequences visually, and creates single, polished downloads.",
     features: [
       { title: "Drag & Drop Arranger", description: "Use our interactive drag handles to sort, insert, or reorder files before compiling." },
       { title: "Bulk Upload Engine", description: "Select up to 100 files simultaneously without crashing page views or browser tabs." },
@@ -170,9 +170,18 @@ export const SEO_CONFIG: Record<string, SEOData> = {
       { title: "Streamlined Portfolios", description: "Merge work resumes, letter references, and digital certificates into a single package for recruiting teams." }
     ],
     faqs: [
-      { question: "Can I combine secure or password-protected PDFs?", answer: "If a file is locked, you must provide its password to decrypt it locally before our compiler can extract and merge its pages." },
-      { question: "Is my private data secure during PDF merging?", answer: "Yes, our merger runs entirely in your local browser sandbox, keeping your documents private." },
-      { question: "Is there a limit on how many PDFs I can merge?", answer: "You can merge up to 100 files at once for free." }
+      {
+        question: "How do I combine multiple PDF files into one for free?",
+        answer: "Simply upload your PDF files by clicking the upload button or dragging them into our active dropzone. You can visually rearrange pages or documents in your preferred sequence, then click the 'Merge PDF' button. Your merged PDF will compile instantly and download automatically."
+      },
+      {
+        question: "Is there a limit on how many PDF files I can merge?",
+        answer: "No, My Loves PDF allows you to combine and merge any number of PDF files completely free, with no file count limits or hidden subscription gates."
+      },
+      {
+        question: "Is my personal data secure with My Loves PDF?",
+        answer: "Yes, absolute safety and data confidentiality are guaranteed. All PDF file merging is executed in your secure local web browser context, and files are purged immediately after processing. We never store, inspect, or retain your contents."
+      }
     ],
     relatedTools: [
       { name: "Compress PDF", href: "/compress-pdf" },
