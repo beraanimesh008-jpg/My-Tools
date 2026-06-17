@@ -28,7 +28,6 @@ import confetti from 'canvas-confetti';
 import { PDFDocument, PageSizes } from 'pdf-lib';
 import { useDropzone } from 'react-dropzone';
 import SEO from '@/src/components/SEO';
-import JpgToPdfAd from '@/src/components/JpgToPdfAd';
 
 const JPG_TO_PDF_FAQS = [
   {
@@ -367,7 +366,6 @@ export default function JpgToPdf() {
                     <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Select JPG images</h2>
                     <p className="text-slate-500 dark:text-slate-400 text-lg font-bold">or drag and drop images here</p>
                   </div>
-                  <JpgToPdfAd />
                 </>
               ) : (
                 <div className="w-full space-y-12">

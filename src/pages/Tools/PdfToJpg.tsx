@@ -31,7 +31,6 @@ import * as pdfjs from 'pdfjs-dist';
 import JSZip from 'jszip';
 import { useDropzone } from 'react-dropzone';
 import SEO from '@/src/components/SEO';
-import PdfToJpgAd from '@/src/components/PdfToJpgAd';
 
 const PDF_TO_JPG_FAQS = [
   {
@@ -272,7 +271,6 @@ export default function PdfToJpg() {
                     <h2 className="text-3xl font-black text-slate-900 dark:text-white mb-4">Select PDF file</h2>
                     <p className="text-slate-500 dark:text-slate-400 text-lg font-bold">or drag and drop here</p>
                   </div>
-                  <PdfToJpgAd />
                 </>
               ) : (
                 <div className="w-full max-w-md">

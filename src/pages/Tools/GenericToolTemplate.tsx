@@ -3,7 +3,6 @@ import Navbar from '@/src/components/Navbar';
 import SEO from '@/src/components/SEO';
 import ToolSeoSection from '@/src/components/ToolSeoSection';
 import Footer from '@/src/components/Footer';
-import JpgToPdfAd from '@/src/components/JpgToPdfAd'; // Sibling ad component
 import { 
   FileText, Scissors, RefreshCw, Upload, Download, Loader2, CheckCircle2, ArrowLeft, 
   Settings, Image as ImageIcon, FileOutput, ShieldAlert, AlertCircle, Trash2, Calendar
@@ -262,8 +261,6 @@ export default function GenericToolTemplate({ toolPath }: GenericToolTemplatePro
             </p>
           </div>
 
-          {/* Sibling AdSense / Promotional Slot */}
-          <JpgToPdfAd />
 
           {/* Core Interactive Box */}
           <div className="bg-white dark:bg-slate-800 rounded-[2.5rem] p-8 md:p-12 shadow-xl border border-slate-100 dark:border-slate-700/60 transition-colors mb-12 relative overflow-hidden">

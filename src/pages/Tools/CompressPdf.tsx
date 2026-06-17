@@ -24,7 +24,6 @@ import confetti from 'canvas-confetti';
 import * as pdfjs from 'pdfjs-dist';
 import { useDropzone } from 'react-dropzone';
 import SEO from '@/src/components/SEO';
-import CompressPdfAd from '@/src/components/CompressPdfAd';
 import ToolSeoSection from '@/src/components/ToolSeoSection';
 import CompressPdfFaq from '@/src/components/CompressPdfFaq';
 import CompressPdfLanding from '@/src/components/CompressPdfLanding';
@@ -668,8 +667,7 @@ export default function CompressPdf() {
           />
         )}
 
-        {/* Clean Ad placements safely at bottom away from CTA triggers */}
-        <CompressPdfAd />
+
 
         {/* Modular Landing info articles */}
         <CompressPdfLanding />

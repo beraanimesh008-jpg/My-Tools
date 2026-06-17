@@ -31,8 +31,6 @@ import {
   Gauge
 } from 'lucide-react';
 import ToolCard from '../components/ToolCard';
-import BannerAd from '../components/BannerAd';
-import SidebarAd from '../components/SidebarAd';
 import SEO from '../components/SEO';
 
 const HOME_FAQS = [
@@ -366,11 +364,8 @@ export default function Home() {
         </div>
 
         {/* Dynamic Display Layout container */}
-        <div className="flex flex-col lg:flex-row gap-8 items-start">
-          
-          {/* Central Workspace Tools Grid */}
-          <div className="flex-1 w-full min-h-[400px]">
-            <AnimatePresence mode="popLayout">
+        <div className="w-full min-h-[400px]">
+          <AnimatePresence mode="popLayout">
               {filteredTools.length > 0 ? (
                 <motion.div 
                   layout
@@ -421,24 +416,11 @@ export default function Home() {
                 </motion.div>
               )}
             </AnimatePresence>
-          </div>
-
-          {/* Sticky Sidebar widget layout */}
-          <div className="w-full lg:w-80 shrink-0 space-y-6 lg:sticky lg:top-24">
-            
-            {/* Sidebar Ad Space */}
-            <SidebarAd variant="sidebar" />
-
-
-
-          </div>
-
         </div>
 
       </div>
 
-      {/* Full Width HighPerformance Ad */}
-      <SidebarAd variant="tablet-footer" />
+
 
       {/* Elegant Faq Section container */}
       <section id="about-benefit-section" className="py-24 mt-24 bg-[#0b0f19] rounded-[2.5rem] md:rounded-[3.5rem] mx-4 overflow-hidden relative border border-slate-800/30 scroll-mt-24 shadow-2xl">

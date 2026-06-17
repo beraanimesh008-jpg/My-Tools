@@ -30,9 +30,9 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
           {/* Logo & About */}
           <div className="col-span-1 md:col-span-1">
-            <Link to="/" className="flex items-center gap-3.5 mb-6 group">
-              <div className="w-9 h-9 bg-gradient-to-tr from-rose-500 to-pink-600 rounded-xl flex items-center justify-center group-hover:rotate-6 transition-transform shadow-md shadow-rose-200/40 dark:shadow-none">
-                <Zap className="text-white w-5 h-5 fill-white/20 animate-pulse-subtle" />
+            <Link to="/" className="flex items-center gap-2.5 mb-6 group">
+              <div className="w-8 h-8 rounded-lg overflow-hidden shadow-sm group-hover:rotate-6 transition-transform flex items-center justify-center bg-white border border-slate-100 p-0.5">
+                <img src="/logo.png" alt="MyLovesPDF Logo" className="w-auto h-full object-contain" referrerPolicy="no-referrer" />
               </div>
               <span className="text-xl font-display font-black tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-600 to-rose-400">MyLovesPDF</span>
             </Link>

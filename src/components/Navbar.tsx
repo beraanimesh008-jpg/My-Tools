@@ -19,9 +19,9 @@ export default function Navbar() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16 items-center">
           {/* Logo */}
-          <Link to="/" className="flex items-center gap-3.5 group">
-            <div className="w-11 h-11 bg-gradient-to-tr from-rose-500 to-pink-600 rounded-2xl flex items-center justify-center shadow-lg shadow-rose-200/50 dark:shadow-none group-hover:scale-105 group-hover:rotate-3 transition-all duration-300">
-              <Zap className="text-white w-6 h-6 fill-white/20 animate-float" />
+          <Link to="/" className="flex items-center gap-2.5 group">
+            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-md group-hover:scale-105 group-hover:rotate-2 transition-all duration-300 flex items-center justify-center bg-white border border-slate-100 p-0.5">
+              <img src="/logo.png" alt="MyLovesPDF Logo" className="w-auto h-full object-contain" referrerPolicy="no-referrer" />
             </div>
             <div className="flex flex-col">
               <span className="text-2xl font-display font-extrabold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-rose-600 via-pink-500 to-rose-500">
