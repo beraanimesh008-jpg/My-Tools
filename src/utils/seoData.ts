@@ -84,7 +84,7 @@ export const SEO_CONFIG: Record<string, SEOData> = {
   },
   "/compress-pdf": {
     title: "Compress PDF Online Free - Reduce PDF Size Without Losing Quality",
-    description: "Compress PDF files online for free. Reduce PDF size without losing quality. Fast, secure and easy PDF compressor with high-quality optimization.",
+    description: "Compress PDF Online Free. Reduce PDF size without losing quality. Fast, secure and easy PDF compressor with high-quality optimization.",
     h1: "Compress PDF Online Free - Reduce PDF Size Without Losing Quality",
     intro: "Compress PDF Online Free. Shrink your document sizes easily with our intelligent online PDF compressor. Specify the target balance between text optimization, vector rendering, and DPI limits to download fully optimized PDFs.",
     features: [
@@ -103,9 +103,26 @@ export const SEO_CONFIG: Record<string, SEOData> = {
       { title: "Faster Page Loading", description: "Reduced file sizes mean web visitors download site embeds and attachments instantly on their phones." }
     ],
     faqs: [
-      { question: "How do I compress a PDF online without losing quality?", answer: "Upload your file, choose the 'Balanced' compression setting, and our engine will preserve vector graphics and font mappings while down-scaling large image streams safely." },
-      { question: "Is My Loves PDF compressor completely safe to use for invoices?", answer: "Yes, the process leverages local browser sandboxes, meaning your private invoices and data never leave your PC." },
-      { question: "What is the maximum file size supported?", answer: "Our online compressor supports raw document files of up to 50MB per process." }
+      {
+        question: "How can I compress PDF without losing quality?",
+        answer: "Our smart compression engine uses vector preserving technology to scale down embedded images and minify unused XML structures. Unlike basic compression websites that convert PDF pages into raster image snapshots, our engine preserves original vector fonts and lines so text remains crystal clear and printable."
+      },
+      {
+        question: "Is this PDF compressor free?",
+        answer: "Yes, 100% free! You can compress as many files as you like without daily limits, subscription popups, or registered accounts."
+      },
+      {
+        question: "Are uploaded files secure?",
+        answer: "Absolutely. All compression and decryption happen entirely within your local browser's memory sandbox. Your document payloads never touch a remote server, ensuring perfect confidential peace of mind."
+      },
+      {
+        question: "What is the maximum PDF size?",
+        answer: "Our system is optimized to process large PDF files (up to 500MB) smoothly in real-time. Speed depends on your local computer's processor since work is completed safe and secure client-side."
+      },
+      {
+        question: "Does this tool work on mobile devices?",
+        answer: "Yes, we designed the interface to be mobile-first and fully responsive. You can select, configure and download optimized files on any iPhone, iPad or Android device with absolute ease."
+      }
     ],
     relatedTools: [
       { name: "Merge PDF", href: "/merge-pdf" },

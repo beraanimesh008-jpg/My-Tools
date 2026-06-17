@@ -151,6 +151,9 @@ export default function SEO({ title: propTitle, description: propDescription, pa
       {/* 1. Page Title */}
       <title>{cleanTitle}</title>
 
+      {/* Google AdSense Verification Tag */}
+      <meta name="google-adsense-account" content="ca-pub-4026443598393506" />
+
       {/* 2. Core Meta Description */}
       <meta name="description" content={description} />
       <meta name="robots" content="index, follow" />

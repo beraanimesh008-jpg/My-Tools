@@ -112,17 +112,66 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
     "url": "https://mylovespdf.com/compress-pdf",
     "applicationCategory": "UtilitiesApplication",
     "operatingSystem": "Any",
-    "description": "Compress PDF files online for free. Reduce PDF size without losing quality.",
+    "description": "Compress PDF Online Free. Reduce PDF size without losing quality.",
     "offers": {
       "@type": "Offer",
       "price": "0",
       "priceCurrency": "USD"
     }
   }
+  </script>
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {
+        "@type": "Question",
+        "name": "How can I compress PDF without losing quality?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Our smart compression engine uses vector preserving technology to scale down embedded images and minify unused XML structures. Unlike basic compression websites that convert PDF pages into raster image snapshots, our engine preserves original vector fonts and lines so text remains crystal clear and printable."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Is this PDF compressor free?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, 100% free! You can compress as many files as you like without daily limits, subscription popups, or registered accounts."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Are uploaded files secure?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Absolutely. All compression and decryption happen entirely within your local browser's memory sandbox. Your document payloads never touch a remote server, ensuring perfect confidential peace of mind."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "What is the maximum PDF size?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Our system is optimized to process large PDF files (up to 500MB) smoothly in real-time. Speed depends on your local computer's processor since work is completed safe and secure client-side."
+        }
+      },
+      {
+        "@type": "Question",
+        "name": "Does this tool work on mobile devices?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, we designed the interface to be mobile-first and fully responsive. You can select, configure and download optimized files on any iPhone, iPad or Android device with absolute ease."
+        }
+      }
+    ]
+  }
   </script>` : "";
 
     const headMetaInjections = `
   <title data-prerendered="true">${cleanTitle}</title>
+  <meta data-prerendered="true" name="google-adsense-account" content="ca-pub-4026443598393506" />
   <meta data-prerendered="true" name="description" content="${desc.replace(/"/g, '&quot;')}" />
   <link data-prerendered="true" rel="canonical" href="${fullUrl}" />
   <meta data-prerendered="true" property="og:title" content="${title.replace(/"/g, '&quot;')}" />
