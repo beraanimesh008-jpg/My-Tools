@@ -177,6 +177,24 @@ export default function SEO({ title: propTitle, description: propDescription, pa
       <script type="application/ld+json">
         {JSON.stringify(schemas)}
       </script>
+      {normalizedPath === '/compress-pdf' && (
+        <script type="application/ld+json">
+          {`{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "name": "Compress PDF Online Free",
+  "url": "https://mylovespdf.com/compress-pdf",
+  "applicationCategory": "UtilitiesApplication",
+  "operatingSystem": "Any",
+  "description": "Compress PDF files online for free. Reduce PDF size without losing quality.",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}`}
+        </script>
+      )}
     </Helmet>
   );
 }

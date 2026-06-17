@@ -75,8 +75,8 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
     const fullUrl = `https://mylovespdf.com${urlPath}`;
     const defaultImage = "https://mylovespdf.com/og-image.png";
 
-    // Inject crawler check script in head to instantly hide pre-rendered content from humans before body paint
-    const crawlerCheckScript = `
+    // Inject crawler check script in head to instantly hide pre-rendered content from humans before body paint (except for compress-pdf which is fully visible and standard)
+    const crawlerCheckScript = urlPath === "/compress-pdf" ? "" : `
   <script id="seo-crawler-check">
     (function() {
       try {
@@ -103,6 +103,24 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
     })();
   </script>`;
 
+    const compressPdfSchema = urlPath === "/compress-pdf" ? `
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    "name": "Compress PDF Online Free",
+    "url": "https://mylovespdf.com/compress-pdf",
+    "applicationCategory": "UtilitiesApplication",
+    "operatingSystem": "Any",
+    "description": "Compress PDF files online for free. Reduce PDF size without losing quality.",
+    "offers": {
+      "@type": "Offer",
+      "price": "0",
+      "priceCurrency": "USD"
+    }
+  }
+  </script>` : "";
+
     const headMetaInjections = `
   <title data-prerendered="true">${cleanTitle}</title>
   <meta data-prerendered="true" name="description" content="${desc.replace(/"/g, '&quot;')}" />
@@ -116,49 +134,58 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
   <meta data-prerendered="true" name="twitter:card" content="summary_large_image" />
   <meta data-prerendered="true" name="twitter:title" content="${title.replace(/"/g, '&quot;')}" />
   <meta data-prerendered="true" name="twitter:description" content="${desc.replace(/"/g, '&quot;')}" />
-  <meta data-prerendered="true" name="twitter:image" content="${defaultImage}" />${crawlerCheckScript}`;
+  <meta data-prerendered="true" name="twitter:image" content="${defaultImage}" />${crawlerCheckScript}${compressPdfSchema}`;
 
     html = html.replace(/<\/head>/i, `${headMetaInjections}\n</head>`);
+
+    // Fully visible standard SEO content section
+    const visibleBody = `
+<div style="padding: 40px 20px; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
+  <h1 style="font-size: 2.5rem; font-weight: 800; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.025em;">${h1}</h1>
+  <p style="font-size: 1.125rem; color: #475569; margin-bottom: 30px;">${intro}</p>
+  
+  ${features.length > 0 ? `
+    <h2 style="font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-top: 40px; margin-bottom: 15px;">Key Features</h2>
+    <ul style="margin-bottom: 30px; padding-left: 20px;">
+      ${features.map(f => `<li><strong>${f.title}</strong>: ${f.description}</li>`).join("")}
+    </ul>
+  ` : ""}
+
+  ${longSeoContent}
+
+  ${faqs.length > 0 ? `
+    <h2 style="font-size: 1.75rem; font-weight: 700; color: #0f172a; margin-top: 50px; margin-bottom: 20px;">Frequently Asked Questions</h2>
+    <div>
+      ${faqs.map(faq => `
+        <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
+          <h3 style="font-size: 1.125rem; font-weight: 600; color: #0f172a; margin-bottom: 8px;">${faq.question}</h3>
+          <p style="color: #475569; font-size: 0.950rem;">${faq.answer}</p>
+        </div>
+      `).join("")}
+    </div>
+  ` : ""}
+</div>`;
 
     // Root Prerender Injection (outside of root div) for search crawler spiders
     const renderedBody = `
 <div id="prerendered-seo-content" style="display: none !important; opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; position: absolute !important; left: -9999px !important; top: -9999px !important; width: 0px !important; height: 0px !important; overflow: hidden !important; z-index: -9999 !important;">
-  <div style="padding: 40px 20px; max-width: 800px; margin: 0 auto; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1e293b; line-height: 1.6;">
-    <h1 style="font-size: 2.5rem; font-weight: 800; color: #0f172a; margin-bottom: 20px; letter-spacing: -0.025em;">${h1}</h1>
-    <p style="font-size: 1.125rem; color: #475569; margin-bottom: 30px;">${intro}</p>
-    
-    ${features.length > 0 ? `
-      <h2 style="font-size: 1.5rem; font-weight: 700; color: #0f172a; margin-top: 40px; margin-bottom: 15px;">Key Features</h2>
-      <ul style="margin-bottom: 30px; padding-left: 20px;">
-        ${features.map(f => `<li><strong>${f.title}</strong>: ${f.description}</li>`).join("")}
-      </ul>
-    ` : ""}
-
-    ${longSeoContent}
-
-    ${faqs.length > 0 ? `
-      <h2 style="font-size: 1.75rem; font-weight: 700; color: #0f172a; margin-top: 50px; margin-bottom: 20px;">Frequently Asked Questions</h2>
-      <div>
-        ${faqs.map(faq => `
-          <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid #e2e8f0;">
-            <h3 style="font-size: 1.125rem; font-weight: 600; color: #0f172a; margin-bottom: 8px;">${faq.question}</h3>
-            <p style="color: #475569; font-size: 0.950rem;">${faq.answer}</p>
-          </div>
-        `).join("")}
-      </div>
-    ` : ""}
-  </div>
+  ${visibleBody}
 </div>`;
 
     // Ensure we clean out any prior preloaded blocks first if any pre-rendered template is received
     html = html.replace(/<!--PRERENDER_START-->[\s\S]*?<!--PRERENDER_END-->/g, "");
 
-    if (isBotRequest) {
-      // Keep root pristine and append SEO content securely wrapped in clear comments
-      html = html.replace(/<div id="root">\s*<\/div>/i, '<div id="root"></div>\n<!--PRERENDER_START-->' + renderedBody + '<!--PRERENDER_END-->');
+    if (urlPath === "/compress-pdf") {
+      // Injected inside <div id="root"> completely visible, standard, normal for all visitors & crawlers alike!
+      html = html.replace(/<div id="root">\s*<\/div>/i, `<div id="root">\n${visibleBody}\n</div>`);
     } else {
-      // Guarantee <div id="root"></div> is perfectly clean and has absolutely no additional HTML injection for humans
-      html = html.replace(/<div id="root">[\s\S]*?<\/div>/i, '<div id="root"></div>');
+      if (isBotRequest) {
+        // Keep root pristine and append SEO content securely wrapped in clear comments
+        html = html.replace(/<div id="root">\s*<\/div>/i, '<div id="root"></div>\n<!--PRERENDER_START-->' + renderedBody + '<!--PRERENDER_END-->');
+      } else {
+        // Guarantee <div id="root"></div> is perfectly clean and has absolutely no additional HTML injection for humans
+        html = html.replace(/<div id="root">[\s\S]*?<\/div>/i, '<div id="root"></div>');
+      }
     }
     return html;
   } catch (err) {

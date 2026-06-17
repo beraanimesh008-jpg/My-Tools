@@ -335,10 +335,10 @@ export default function CompressPdf() {
                 100% Client-Side Memory Engine
               </span>
               <h1 className="text-4xl sm:text-5xl font-black text-slate-900 dark:text-white tracking-tight">
-                Compress PDF Online Free
+                Compress PDF Online Free - Reduce PDF Size Without Losing Quality
               </h1>
-              <p className="text-slate-500 dark:text-slate-400 text-base sm:text-lg max-w-2xl mx-auto font-medium">
-                Optimize image assets and shrink payload sizes safely in your local browser sandbox. Text layers, forms, and coordinate vector programs remain preserved.
+              <p className="text-slate-500 dark:text-slate-400 text-base sm:text-lg max-w-3xl mx-auto font-medium">
+                Compress PDF Online Free. Optimize image assets and shrink payload sizes safely in your local browser sandbox. Text layers, forms, and coordinate vector programs remain preserved.
               </p>
             </div>
 

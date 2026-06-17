@@ -85,8 +85,8 @@ export const SEO_CONFIG: Record<string, SEOData> = {
   "/compress-pdf": {
     title: "Compress PDF Online Free - Reduce PDF Size Without Losing Quality",
     description: "Compress PDF files online for free. Reduce PDF size without losing quality. Fast, secure and easy PDF compressor with high-quality optimization.",
-    h1: "High-Fidelity PDF Compressor with Multi-Level Shrink Modes",
-    intro: "Shrink your document sizes easily with our intelligent online PDF compressor. Specify the target balance between text optimization, vector rendering, and DPI limits to download fully optimized PDFs.",
+    h1: "Compress PDF Online Free - Reduce PDF Size Without Losing Quality",
+    intro: "Compress PDF Online Free. Shrink your document sizes easily with our intelligent online PDF compressor. Specify the target balance between text optimization, vector rendering, and DPI limits to download fully optimized PDFs.",
     features: [
       { title: "Multi-Staged Optimization", description: "Select from medium standard reduction, high retention ratios, or ultimate structural shrinking limits." },
       { title: "Metadata Stripping", description: "We wipe buried layout records, unnecessary XML layers, and author properties to maximize storage savings." },
