@@ -854,7 +854,7 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
     }
 
     // We only inject visible SEO body if it's a known search crawler/bot, or if pathOrReq is a path string (static build prerendering)
-    const shouldInjectBody = typeof pathOrReq === "string" || (userAgent ? isBot(userAgent) : false);
+    const shouldInjectBody = false;
 
     // Ensure we clean out any prior preloaded blocks first if any pre-rendered template is received
     html = html.replace(/<!--PRERENDER_START-->[\s\S]*?<!--PRERENDER_END-->/g, "");
