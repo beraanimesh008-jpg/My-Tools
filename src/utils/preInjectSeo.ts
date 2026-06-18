@@ -2,7 +2,48 @@ import { SEO_CONFIG } from "./seoData";
 import { BLOG_POSTS } from "./blogData";
 
 export const isBot = (userAgent: string | undefined | null): boolean => {
-  return false; // Deprecated and removed bot-detection to prevent cloaking penalties
+  if (!userAgent) return false;
+  const botKeywords = [
+    "googlebot",
+    "bingbot",
+    "yandexbot",
+    "baiduspider",
+    "facebookexternalhit",
+    "twitterbot",
+    "rogerbot",
+    "linkedinbot",
+    "embedly",
+    "quora link preview",
+    "showyoubot",
+    "outbrain",
+    "pinterest",
+    "developers.google.com/+/web/snippet",
+    "slackbot",
+    "vkshare",
+    "w3c_validator",
+    "redditbot",
+    "applebot",
+    "whatsapp",
+    "flipboard",
+    "tumblr",
+    "gsa-crawler",
+    "google-keyword-association",
+    "adsbot-google",
+    "googlebot-image",
+    "googlebot-news",
+    "googlebot-video",
+    "mediapartners-google",
+    "apis-google",
+    "chrome-lighthouse",
+    "pagespeed",
+    "lighthouse",
+    "bot",
+    "crawler",
+    "spider",
+    "slurp"
+  ];
+  const ua = userAgent.toLowerCase();
+  return botKeywords.some(keyword => ua.includes(keyword));
 };
 
 export const preInjectSeo = (html: string, pathOrReq: any): string => {
@@ -802,11 +843,29 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
   ` : ""}
 </div>`;
 
+    // Extract user-agent to determine if the receiver is a bot or crawler
+    let userAgent: string | null = null;
+    if (typeof pathOrReq === "object" && pathOrReq !== null) {
+      if (pathOrReq.headers) {
+        userAgent = pathOrReq.headers["user-agent"] || pathOrReq.headers["User-Agent"] || null;
+      } else if (typeof pathOrReq.get === "function") {
+        userAgent = pathOrReq.get("user-agent") || null;
+      }
+    }
+
+    // We only inject visible SEO body if it's a known search crawler/bot, or if pathOrReq is a path string (static build prerendering)
+    const shouldInjectBody = typeof pathOrReq === "string" || (userAgent ? isBot(userAgent) : false);
+
     // Ensure we clean out any prior preloaded blocks first if any pre-rendered template is received
     html = html.replace(/<!--PRERENDER_START-->[\s\S]*?<!--PRERENDER_END-->/g, "");
 
-    // Injected inside <div id="root"> completely visible, standard, normal for all visitors & crawlers alike!
-    html = html.replace(/<div id="root">[\s\S]*?<\/div>/i, `<div id="root">\n${visibleBody}\n</div>`);
+    if (shouldInjectBody) {
+      // Injected inside <div id="root"> completely visible for search engines & crawlers
+      html = html.replace(/<div id="root">[\s\S]*?<\/div>/i, `<div id="root">\n${visibleBody}\n</div>`);
+    } else {
+      // Return clean <div id="root"></div> for normal visitors so React renders immediately without pre-render flash
+      html = html.replace(/<div id="root">[\s\S]*?<\/div>/i, `<div id="root"></div>`);
+    }
     
     return html;
   } catch (err) {
