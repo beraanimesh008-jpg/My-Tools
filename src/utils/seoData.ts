@@ -29,9 +29,9 @@ export interface SEOData {
 
 export const SEO_CONFIG: Record<string, SEOData> = {
   "/": {
-    title: "MyLovesPDF - Free PDF Tools, Image Tools & AI Utilities Online",
-    description: "Free online PDF tools to merge, compress, split, convert and edit PDF files. Use image tools, AI utilities, QR generator, password generator and more without registration.",
-    h1: "Free PDF Tools, Image Tools & AI Utilities",
+    title: "MyLovesPDF - Free Online PDF & Image Tools",
+    description: "Use free online PDF and image tools to merge, split, compress, convert, edit PDFs, remove backgrounds, compress images and more. Fast, secure and easy to use.",
+    h1: "Free Premium PDF Tools & Creative AI Studio",
     intro: "Empower your digital productivity with MyLovesPDF. Our suite combines lightning-fast browser-side PDF compilers with deep learning AI visual utilities. Achieve your business, academic, and personal document optimization goals instantly without software downloads or trial limits.",
     features: [
       { title: "Browser-Level Processing", description: "Our tools utilize advanced WebAssembly inside your local browser to process documents safely and protect your privacy." },
@@ -83,9 +83,9 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/compress-pdf": {
-    title: "Compress PDF Online Free - Reduce PDF File Size Fast | MyLovesPDF",
-    description: "Compress PDF files online while maintaining quality. Reduce PDF file size for email, uploads and sharing without installing software.",
-    h1: "Compress PDF Online Free",
+    title: "Compress PDF Online Free - Reduce PDF Size Without Losing Quality",
+    description: "Compress PDF Online Free. Reduce PDF size without losing quality. Fast, secure and easy PDF compressor with high-quality optimization.",
+    h1: "Compress PDF Online Free - Reduce PDF Size Without Losing Quality",
     intro: "Compress PDF Online Free. Shrink your document sizes easily with our intelligent online PDF compressor. Specify the target balance between text optimization, vector rendering, and DPI limits to download fully optimized PDFs.",
     features: [
       { title: "Multi-Staged Optimization", description: "Select from medium standard reduction, high retention ratios, or ultimate structural shrinking limits." },
@@ -150,9 +150,9 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/merge-pdf": {
-    title: "Merge PDF Online Free - Combine PDF Files Instantly | MyLovesPDF",
-    description: "Merge PDF files online for free. Combine multiple PDF documents into a single file quickly and securely. No registration required.",
-    h1: "Merge PDF Files Online Free",
+    title: "Merge PDF Online Free - Combine PDF Files Easily",
+    description: "Merge PDF Online Free. Merge multiple PDF files into a single document online for free. Fast, secure and easy PDF merger with no installation required.",
+    h1: "Merge PDF Online Free - Combine PDF Files Easily",
     intro: "Merge PDF Online Free. Unite disjointed documents in seconds. Our free online PDF merge utility maps raw files, lets you re-order document sequences visually, and creates single, polished downloads.",
     features: [
       { title: "Drag & Drop Arranger", description: "Use our interactive drag handles to sort, insert, or reorder files before compiling." },
@@ -206,9 +206,9 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/split-pdf": {
-    title: "Split PDF Online Free - Extract PDF Pages Easily | MyLovesPDF",
-    description: "Split PDF files into separate pages or extract selected pages online. Fast, secure and completely free PDF splitter tool.",
-    h1: "Split PDF Files Online",
+    title: "Split PDF Online Free - Extract Specific PDF Pages",
+    description: "Split PDF Online Free. Extract specific pages from heavy PDF documents or split individual files into multiple smaller PDF records online for free.",
+    h1: "Split PDF Online Free - Extract Specific PDF Pages",
     intro: "Split PDF Online Free. Split your large PDFs easily with our interactive, visual page split tool. Choose custom page ranges, extract single flyers, or split multi-page ebooks into separate files.",
     features: [
       { title: "Visual Range Selection", description: "Select exact start and end bounds, or choose specific page lists to extract." },
@@ -251,9 +251,9 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/pdf-to-jpg": {
-    title: "PDF to JPG Converter Online Free | MyLovesPDF",
-    description: "Convert PDF pages into high-quality JPG images online. Fast PDF to image conversion with no registration required.",
-    h1: "Convert PDF to JPG Online",
+    title: "Convert PDF to JPG Online Free - PDF to JPG Converter | MyLovesPDF",
+    description: "Convert PDF pages to JPG images online for free. Fast, secure and high-quality PDF to JPG converter with no installation required.",
+    h1: "Convert PDF to JPG Online Free",
     intro: "Convert PDF to JPG Online Free. Convert your PDF document pages into high-speed, crisp digital images. Our high-fidelity browser parser extracts layout elements, vectors, and font glyphs into flawless JPG files instantaneously.",
     features: [
       { title: "Custom JPG Quality Settings", description: "Select from 80%, 90%, or 100% resolution settings to control your exported file size." },
@@ -314,9 +314,9 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/jpg-to-pdf": {
-    title: "JPG to PDF Converter Online Free | MyLovesPDF",
-    description: "Convert JPG images to PDF online for free. Create high-quality PDF documents from multiple images in seconds.",
-    h1: "Convert JPG to PDF Online",
+    title: "Convert JPG to PDF Online Free - JPG to PDF Converter | MyLovesPDF",
+    description: "Convert JPG, JPEG and PNG images to PDF online for free. Fast, secure and high-quality JPG to PDF converter with no installation required.",
+    h1: "Convert JPG to PDF Online Free",
     intro: "Convert JPG to PDF Online Free. Convert images, photos, and scanned sequences to PDF in seconds. Easily adjust orientation, dimensions, and margins.",
     features: [
       { title: "Visual Reordering", description: "Easily drag and drop image cards to set the exact page sequence before converting." },
@@ -360,9 +360,9 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/pdf-to-word": {
-    title: "PDF to Word Converter Online Free | MyLovesPDF",
-    description: "Convert PDF files into editable Word documents online. Fast and accurate PDF to DOCX conversion tool.",
-    h1: "Convert PDF to Word Online",
+    title: "Convert PDF to Word Online Free - High-Precision Docx Converter",
+    description: "Convert PDF files into editable Microsoft Word documents for free. Preserves layout styling, fonts, and tables.",
+    h1: "Convert PDF to Microsoft Word Online",
     intro: "Turn uneditable PDF files into customizable Word documents. Our tool preserves original formatting, font layouts, headers, and tables so you can edit text easily.",
     features: [
       { title: "Accurate Layout Preserves", description: "Our tool keeps original document alignments, tables, and structures intact." },
@@ -406,10 +406,10 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/word-to-pdf": {
-    title: "Word to PDF Converter Online Free | MyLovesPDF",
-    description: "Convert Word documents to PDF online for free. Create professional PDF files from DOC and DOCX documents instantly.",
+    title: "Convert Word to PDF Online Free - DOCX to PDF | MyLovesPDF",
+    description: "Convert Word to PDF online for free. Instantly turn DOC or DOCX documents to high-quality PDF in your browser. Fast, secure, and no sign-up required!",
     keywords: "Word to PDF, Convert Word to PDF, DOCX to PDF, Free Word to PDF Converter, Online Word to PDF Tool, Word Document to PDF, free word to pdf converter online, convert docx to pdf without losing formatting, secure word document to pdf converter, online docx to pdf converter free, how to turn microsoft word into pdf, bulk word to pdf converter in-browser, doc to pdf converter no email sign up, convert word to pdf offline free, high fidelity word document converter, free tool to save word as pdf",
-    h1: "Convert Word to PDF Online",
+    h1: "Convert Word to PDF Online Free (DOCX to PDF)",
     intro: "Transform your Microsoft Word files into professional, high-fidelity PDF documents in a single click. Powered by advanced in-browser compiling, our tool converts both legacy DOC and modern DOCX formats into standard-compliant vector PDFs instantly—without registration, email forms, or uploading files to remote servers.",
     features: [
       { title: "In-Browser Local Rendering", description: "Our compiler elements process your conversion entirely inside your web browser sandbox (client-side), ensuring absolute data privacy and security." },
@@ -583,9 +583,9 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/background-remover": {
-    title: "Remove Background from Images Online Free | MyLovesPDF",
-    description: "Remove image backgrounds automatically using AI. Create transparent PNG images online with one click.",
-    h1: "AI Background Remover",
+    title: "AI Background Remover - Remove Image Backgrounds Free",
+    description: "Remove image backgrounds instantly for free with AI. Get transparent cutouts from PNGs or JPGs, change backgrounds, and export.",
+    h1: "AI-Powered Background Remover Studio",
     intro: "Remove backgrounds from your images instantly for free with our smart AI background remover. Import portraits or product photos to get clean, transparent cutouts in seconds.",
     features: [
       { title: "Smart Edge Segmentation", description: "Our advanced AI identifies complex boundaries like hair, edges, and fine details beautifully." },
@@ -632,10 +632,10 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/compress-image": {
-    title: "Compress Image Online Free - Reduce JPG & PNG Size | MyLovesPDF",
-    description: "Compress JPG, PNG and WebP images online without losing quality. Reduce image size for websites, email and social media.",
+    title: "AI Image Compressor Online Free - Compress Image | MyLovesPDF",
+    description: "Compress JPG, PNG, and WEBP images online with our free AI Image Compressor. Reduce image size in seconds while preserving perfect visual quality. No sign-up!",
     keywords: "AI Image Compressor, Compress Image Online, Image Compressor Free, Reduce Image Size, Compress JPG, Compress PNG, Compress WEBP, Online Image Optimizer, Photo Compressor, Image Size Reducer, Best Image Compressor, free ai image compressor online, how to compress images without losing quality, online image optimizer for website speed, compress jpeg format to 100kb, best png compressor tool free, webp image compressor online free, reduce image size in-browser offline, bulk photo compressor for bloggers, secure image compressor no registration, compress high resolution photography online, increase core web vitals speed with compressed images, how to convert and shrink jpg files, optimize transparent png background free, next gen image format compressor, reduce image size layout shift mobile, free photo resizer and size reducer, lossy vs lossless image compression guide, compress raw images for portfolio, instant webp format optimization tool, compress image size for mobile screens, student homework file upload size reducer, e-commerce product image optimizer, optimize website speed on google search, free tool to save storage space, compress transparent png without alpha loss",
-    h1: "Compress Images Online Free",
+    h1: "AI Image Compressor Online Free (Compress JPG, PNG & WEBP)",
     intro: "Welcome to MyLovesPDF's elite AI Ultra Image Compressor—the fast, free, and secure online utility built for designers, developers, e-commerce store owners, bloggers, and students. Powered by advanced local WebAssembly and local canvas rendering APIs, our premium tool lets you compress images like a senior graphics engineer. Reduce image size by up to 90% without compromising visual fidelity. Select your target quality ratio, maintain original formats (including JPG, PNG, and next-gen WEBP), and download your perfectly optimized files completely free of charge, with zero registration forms, subscription paywalls, or daily file quotas.",
     features: [
       { title: "Intelligent Neural Optimization", description: "Our next-gen optimization engine identifies complex pixel patterns to shrink images intelligently without introducing blurred gradients, color drifts, or blocky compression artifacts." },
@@ -825,10 +825,10 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/image-converter": {
-    title: "Image Converter Online Free - JPG PNG WebP Converter | MyLovesPDF",
-    description: "Convert images between JPG, PNG and WebP formats online. Fast, secure and free image converter tool.",
+    title: "Image Converter Online Free - Lossless Format | MyLovesPDF",
+    description: "Convert images online for free with MyLovesPDF. Our premium Lossless Image Converter turns PNG, JPG, and WEBP files secure and instant. Try bulk transfers!",
     keywords: "Image Converter, Convert Image Online, Lossless Image Converter, JPG to PNG Converter, PNG to JPG Converter, WEBP Converter, Online Image Converter, Image Format Converter, Free Image Converter, Convert Photos Online, Best Image Converter, free lossless image format converter, how to change image format without losing quality, online photo converter to png jpg webp, secure in-browser graphic format converter, batch image converter online no registry, convert high-res photos online for web use, best free universal image converter tool, preserve quality when converting jpg to png, raw image file extension optimizer, next gen webp formatting toolkit, correct screen resolution converter, website asset loading speed optimizer, optimize images for google organic traffic, responsive mobile image format changer, convert screenshots to jpeg on smartphone, e-commerce catalog image format optimizer, print quality photo files format converter, compress and convert transparent images free, lossy vs lossless digital color depth guide",
-    h1: "Image Converter Online",
+    h1: "Lossless Image Converter Online Free (JPG, PNG, WEBP)",
     intro: "Transform your raw photos and digital designs with our premium free image converter. Powered by modern client-side processing, our elite image converter online helps you convert png to jpg, convert jpg to png, and utilize our next-gen webp converter technology to optimize your website. Protect your complete data privacy, preserve crisp contrast boundaries, and change any extensions instantly—completely free with no sign-ups or server wait queues.",
     features: [
       { title: "Pure In-Browser Rendering", description: "Our compiler transcoders process image elements entirely within your browser's local sandbox, keeping all data private and safe." },
@@ -1141,9 +1141,9 @@ export const SEO_CONFIG: Record<string, SEOData> = {
     `
   },
   "/resume-builder": {
-    title: "Free Resume Builder Online - Create Professional CV | MyLovesPDF",
-    description: "Build professional resumes online for free. Create, customize and download ATS-friendly CVs in minutes.",
-    h1: "Professional Resume Builder",
+    title: "Free PDF Resume Builder - Create Professional Resumes Online",
+    description: "Build and design professional PDF resumes with customizable templates. Download polished resumes instantly. Fast, easy, and free.",
+    h1: "Free Professional PDF Resume Builder",
     intro: "Create beautiful, job-ready resumes in minutes. Input your details, choose a template, and download a polished, recruiter-approved PDF resume instantly.",
     features: [
       { title: "Clean Template Designs", description: "Choose elegant layouts styled with professional spacing, borders, and typography pairings." },
