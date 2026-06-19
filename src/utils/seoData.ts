@@ -29,9 +29,9 @@ export interface SEOData {
 
 export const SEO_CONFIG: Record<string, SEOData> = {
   "/": {
-    title: "MyLovesPDF - Free Online PDF & Image Tools",
-    description: "Use free online PDF and image tools to merge, split, compress, convert, edit PDFs, remove backgrounds, compress images and more. Fast, secure and easy to use.",
-    h1: "Free Premium PDF Tools & Creative AI Studio",
+    title: "MyLovesPDF - Free PDF Tools, Image Tools & AI Utilities Online",
+    description: "Free online PDF tools to merge, compress, split, convert and edit PDF files. Use image tools, AI utilities, QR generator, password generator and more without registration.",
+    h1: "Free PDF Tools, Image Tools & AI Utilities",
     intro: "Empower your digital productivity with MyLovesPDF. Our suite combines lightning-fast browser-side PDF compilers with deep learning AI visual utilities. Achieve your business, academic, and personal document optimization goals instantly without software downloads or trial limits.",
     features: [
       { title: "Browser-Level Processing", description: "Our tools utilize advanced WebAssembly inside your local browser to process documents safely and protect your privacy." },
