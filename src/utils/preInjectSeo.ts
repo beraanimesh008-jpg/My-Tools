@@ -859,7 +859,9 @@ export const preInjectSeo = (html: string, pathOrReq: any): string => {
     // Ensure we clean out any prior preloaded blocks first if any pre-rendered template is received
     html = html.replace(/<!--PRERENDER_START-->[\s\S]*?<!--PRERENDER_END-->/g, "");
 
-    
+    if (shouldInjectBody) {
+      // Injected inside <div id="root"> completely visible for search engines & crawlers
+      html = html.replace(/<div id="root">[\s\S]*?<\/div>/i, `<div id="root">\n${visibleBody}\n</div>`);
     } else {
       // Return clean <div id="root"></div> for normal visitors so React renders immediately without pre-render flash
       html = html.replace(/<div id="root">[\s\S]*?<\/div>/i, `<div id="root"></div>`);
