@@ -9,6 +9,7 @@ import fs from "fs";
 import { exec } from "child_process";
 import { promisify } from "util";
 import os from "os";
+import { Worker } from "worker_threads";
 import { initializeApp } from "firebase/app";
 import { SEO_CONFIG } from "./src/utils/seoData";
 import { BLOG_POSTS } from "./src/utils/blogData";
@@ -222,18 +223,41 @@ async function startServer() {
   async function addFilesProcessedTrack(count: number) {
     try {
       const globalRef = doc(db, "globalStats", "summary");
-      await updateDoc(globalRef, {
-        filesProcessed: increment(count),
-        lastUpdated: new Date().toISOString()
-      });
+      const globalSnap = await getDoc(globalRef);
+      if (!globalSnap.exists()) {
+        await setDoc(globalRef, {
+          totalPageViews: 0,
+          totalVisitors: 0,
+          uniqueVisitors: 0,
+          filesProcessed: count,
+          lastUpdated: new Date().toISOString()
+        });
+      } else {
+        await updateDoc(globalRef, {
+          filesProcessed: increment(count),
+          lastUpdated: new Date().toISOString()
+        });
+      }
+
       const dateKey = getTodayDateKey();
       const dailyRef = doc(db, "dailyStats", dateKey);
-      await updateDoc(dailyRef, {
-        filesProcessed: increment(count)
-      }).catch(async (err) => {
-        // If dailyDoc doesn't exist yet, we can create it
-        console.warn("Daily stats update skipped in helper, document likely not self-initialized yet", err);
-      });
+      const dailySnap = await getDoc(dailyRef);
+      if (!dailySnap.exists()) {
+        await setDoc(dailyRef, {
+          date: dateKey,
+          totalPageViews: 0,
+          totalVisitors: 0,
+          uniqueVisitors: 0,
+          devices: { Desktop: 0, Mobile: 0, Tablet: 0 },
+          browsers: { Chrome: 0, Safari: 0, Firefox: 0, Edge: 0, Opera: 0, "Internet Explorer": 0, Unknown: 0 },
+          pageViewsByPath: {},
+          filesProcessed: count
+        });
+      } else {
+        await updateDoc(dailyRef, {
+          filesProcessed: increment(count)
+        });
+      }
     } catch (e: any) {
       const isQuota = e?.message?.includes("Quota") || e?.code === "resource-exhausted" || e?.message?.toLowerCase().includes("quota");
       if (isQuota) {
@@ -686,6 +710,8 @@ async function startServer() {
     }
   });
 
+
+
   // Background Removal API Key & Account Check Route (for validation & fail-fast testing)
   app.get("/api/tools/image/remove-bg-account", async (req: any, res) => {
     try {
@@ -928,6 +954,8 @@ async function startServer() {
   setInterval(() => {
     const now = Date.now();
     const thirtyMinutes = 30 * 60 * 1000;
+    
+    // Clean compressed PDFs
     for (const [id, info] of compressedFilesMap.entries()) {
       if (now - info.createdAt > thirtyMinutes) {
         try {
