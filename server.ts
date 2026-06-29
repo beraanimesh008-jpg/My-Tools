@@ -912,24 +912,65 @@ async function startServer() {
     }
   });
 
+  // Setup temp directory for compressed files
+  const COMPRESSED_DIR = path.join(os.tmpdir(), "mylovespdf_compressed");
+  if (!fs.existsSync(COMPRESSED_DIR)) {
+    fs.mkdirSync(COMPRESSED_DIR, { recursive: true });
+  }
+
+  const compressedFilesMap = new Map<string, {
+    filePath: string;
+    originalName: string;
+    createdAt: number;
+  }>();
+
+  // Clean up files older than 30 minutes every 2 minutes
+  setInterval(() => {
+    const now = Date.now();
+    const thirtyMinutes = 30 * 60 * 1000;
+    for (const [id, info] of compressedFilesMap.entries()) {
+      if (now - info.createdAt > thirtyMinutes) {
+        try {
+          if (fs.existsSync(info.filePath)) {
+            fs.unlinkSync(info.filePath);
+          }
+        } catch (err) {
+          console.error("Cleanup error for old compressed file:", err);
+        }
+        compressedFilesMap.delete(id);
+      }
+    }
+  }, 120000);
+
   // PDF Compression API
   app.post("/api/tools/pdf/compress", upload.single("file"), async (req: any, res) => {
     try {
       const file = req.file;
       if (!file) return res.status(400).json({ error: "No PDF file uploaded" });
 
-      const level = req.body.level || "medium"; // 'low' | 'medium' | 'high' | 'custom'
-      const customQuality = parseInt(req.body.customQuality) || 50; // 10 to 100 slider
+      // Max size: 100MB
+      if (file.size > 100 * 1024 * 1024) {
+        return res.status(400).json({ error: "File size exceeds 100MB limit." });
+      }
 
-      // 1. Password detection - check if PDF is encrypted
+      const level = req.body.level || "recommended"; // 'low' | 'recommended' | 'maximum'
+
+      // 1. Password detection - check if PDF is encrypted or invalid
       let isEncrypted = false;
+      let pageCount = 0;
       try {
-        // pdf-lib throws an error on load if the library attempts to decrypt without password or if there is structural encryption
-        await PDFDocument.load(file.buffer);
+        const loadedDoc = await PDFDocument.load(file.buffer);
+        pageCount = loadedDoc.getPageCount();
       } catch (err: any) {
         const errMsg = String(err?.message || "").toLowerCase();
         if (errMsg.includes("encrypted") || errMsg.includes("password") || errMsg.includes("protected") || errMsg.includes("decrypt")) {
           isEncrypted = true;
+        } else {
+          // Check if file is corrupted
+          return res.status(400).json({
+            error: "Corrupted PDF",
+            message: "The uploaded PDF appears to be corrupted, malformed, or invalid."
+          });
         }
       }
 
@@ -940,6 +981,8 @@ async function startServer() {
         });
       }
 
+      let compressedBuffer: Buffer | null = null;
+
       // 2. Attempt Ghostscript compression
       try {
         const inputPath = path.join(os.tmpdir(), `gs_in_${Date.now()}_${Math.random().toString(36).substring(7)}.pdf`);
@@ -948,101 +991,138 @@ async function startServer() {
         await fs.promises.writeFile(inputPath, file.buffer);
         
         let gsSettings = "/ebook";
-        let customResStr = "";
-        
         if (level === "low") {
-          gsSettings = "/printer"; // High quality (300dpi) -> Low compression
-        } else if (level === "medium") {
-          gsSettings = "/ebook"; // Medium quality (150dpi) -> Recommended/Medium compression
-        } else if (level === "high") {
-          gsSettings = "/screen"; // Low quality (72dpi) -> High compression
-        } else if (level === "custom") {
-          // Map 10 to 100 slider to Ghostscript dpi resolution (e.g. 10 -> 45 dpi, 100 -> 300 dpi)
-          const resVal = Math.round(45 + ((customQuality - 10) / 90) * 255);
-          gsSettings = "/ebook";
-          customResStr = `-dDownsampleColorImages=true -dColorImageResolution=${resVal} -dColorImageDownsampleType=/Bicubic -dColorImageDownsampleThreshold=1.0 -dDownsampleGrayImages=true -dGrayImageResolution=${resVal} -dGrayImageDownsampleType=/Bicubic -dGrayImageDownsampleThreshold=1.0 -dDownsampleMonoImages=true -dMonoImageResolution=${resVal} -dMonoImageDownsampleType=/Bicubic -dMonoImageDownsampleThreshold=1.0`;
+          gsSettings = "/printer"; // 300 dpi (high quality, low compression)
+        } else if (level === "recommended") {
+          gsSettings = "/ebook"; // 150 dpi (medium quality, recommended compression)
+        } else if (level === "maximum") {
+          gsSettings = "/screen"; // 72 dpi (low quality, maximum compression)
         }
 
-        const gsCommand = `gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=${gsSettings} ${customResStr} -dNOPAUSE -dQUIET -dBATCH -sOutputFile="${outputPath}" "${inputPath}"`;
+        const gsCommand = `gs -sDEVICE=pdfwrite -dCompatibilityLevel=1.4 -dPDFSETTINGS=${gsSettings} -dNOPAUSE -dQUIET -dBATCH -sOutputFile="${outputPath}" "${inputPath}"`;
         
         console.log(`Executing GS Command: ${gsCommand}`);
         const execPromise = promisify(exec);
         await execPromise(gsCommand, { timeout: 35000 });
         
         if (fs.existsSync(outputPath)) {
-          const compressedBuffer = await fs.promises.readFile(outputPath);
+          compressedBuffer = await fs.promises.readFile(outputPath);
           
           // Cleanup temp files
           try { fs.unlinkSync(inputPath); } catch {}
           try { fs.unlinkSync(outputPath); } catch {}
-          
-          if (compressedBuffer.length > 0) {
-            console.log(`Ghostscript compressed successfully: from ${file.buffer.length} to ${compressedBuffer.length} bytes`);
-            await addFilesProcessedTrack(1);
-            res.setHeader("Content-Type", "application/pdf");
-            res.setHeader("Content-Disposition", `attachment; filename=compressed.pdf`);
-            return res.send(compressedBuffer);
-          }
         }
       } catch (gsErr: any) {
-        console.warn("Ghostscript failed or is not installed. Falling back to high-fidelity PDF-LIB client/server hybrid logic.", gsErr);
+        console.warn("Ghostscript failed or is not installed. Falling back to high-fidelity PDF-LIB scaling logic.", gsErr);
       }
 
       // 3. Fallback: High-fidelity PDF-LIB compression
-      console.log("Running server-side PDF-LIB compression fallback...");
-      const pdfDoc = await loadRobustPdf(file.buffer, file.originalname);
-      const compressedDoc = await PDFDocument.create();
-      const copiedPages = await compressedDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
-      
-      copiedPages.forEach((page) => {
-        compressedDoc.addPage(page);
-      });
+      if (!compressedBuffer) {
+        console.log("Running server-side PDF-LIB compression fallback...");
+        const pdfDoc = await loadRobustPdf(file.buffer, file.originalname);
+        const compressedDoc = await PDFDocument.create();
+        const copiedPages = await compressedDoc.copyPages(pdfDoc, pdfDoc.getPageIndices());
+        
+        copiedPages.forEach((page) => {
+          compressedDoc.addPage(page);
+        });
 
-      // Strip unnecessary metadata to reduce size
-      compressedDoc.setTitle("");
-      compressedDoc.setAuthor("");
-      compressedDoc.setSubject("");
-      compressedDoc.setKeywords([]);
-      compressedDoc.setProducer("MyLovesPDF Compressor");
-      compressedDoc.setCreator("MyLovesPDF Compressor");
+        // Strip unnecessary metadata to reduce size
+        compressedDoc.setTitle("");
+        compressedDoc.setAuthor("");
+        compressedDoc.setSubject("");
+        compressedDoc.setKeywords([]);
+        compressedDoc.setProducer("MyLovesPDF Compressor");
+        compressedDoc.setCreator("MyLovesPDF Compressor");
 
-      // Dynamic stream compression scaling
-      let scaleVal = 1.0;
-      if (level === "high") {
-        scaleVal = 0.85;
-      } else if (level === "medium") {
-        scaleVal = 0.95;
-      } else if (level === "custom") {
-        if (customQuality < 35) {
+        // Dynamic stream compression scaling
+        let scaleVal = 1.0;
+        if (level === "maximum") {
           scaleVal = 0.82;
-        } else if (customQuality < 70) {
+        } else if (level === "recommended") {
           scaleVal = 0.92;
         }
-      }
 
-      if (scaleVal < 1.0) {
-        const pages = compressedDoc.getPages();
-        pages.forEach((page) => {
-          const { width, height } = page.getSize();
-          page.setSize(width * scaleVal, height * scaleVal);
-          page.scale(scaleVal, scaleVal);
+        if (scaleVal < 1.0) {
+          const pages = compressedDoc.getPages();
+          pages.forEach((page) => {
+            const { width, height } = page.getSize();
+            page.setSize(width * scaleVal, height * scaleVal);
+            page.scale(scaleVal, scaleVal);
+          });
+        }
+
+        const finalPdfBytes = await compressedDoc.save({
+          useObjectStreams: true, // Crucial for structural size reduction
+          addDefaultPage: false,
+          updateFieldAppearances: false,
         });
-      }
 
-      const finalPdfBytes = await compressedDoc.save({
-        useObjectStreams: true, // Crucial for structural size reduction
-        addDefaultPage: false,
-        updateFieldAppearances: false,
-      });
+        compressedBuffer = Buffer.from(finalPdfBytes);
+      }
 
       await addFilesProcessedTrack(1);
 
-      res.setHeader("Content-Type", "application/pdf");
-      res.setHeader("Content-Disposition", "attachment; filename=compressed.pdf");
-      res.send(Buffer.from(finalPdfBytes));
+      // Save file to COMPRESSED_DIR for temporary download
+      const fileId = Math.random().toString(36).substring(2, 15) + "_" + Date.now();
+      const savedPath = path.join(COMPRESSED_DIR, `${fileId}.pdf`);
+      await fs.promises.writeFile(savedPath, compressedBuffer);
+
+      // Register file
+      compressedFilesMap.set(fileId, {
+        filePath: savedPath,
+        originalName: file.originalname.toLowerCase().endsWith(".pdf") ? file.originalname : `${file.originalname}.pdf`,
+        createdAt: Date.now()
+      });
+
+      return res.status(200).json({
+        success: true,
+        downloadId: fileId,
+        originalSize: file.size,
+        compressedSize: compressedBuffer.length,
+        pageCount,
+        fileName: file.originalname
+      });
+
     } catch (error: any) {
       console.error("Error in PDF compression API:", error);
       res.status(500).json({ error: error?.message || "Failed to compress PDF code" });
+    }
+  });
+
+  // Download compressed PDF and delete right after download
+  app.get("/api/tools/pdf/download/:id", async (req, res) => {
+    try {
+      const fileId = req.params.id;
+      const fileInfo = compressedFilesMap.get(fileId);
+
+      if (!fileInfo || !fs.existsSync(fileInfo.filePath)) {
+        return res.status(404).send("Error: File not found or expired. Files are automatically deleted after 30 minutes.");
+      }
+
+      // Serve the file
+      res.setHeader("Content-Type", "application/pdf");
+      res.setHeader("Content-Disposition", `attachment; filename="${encodeURIComponent(fileInfo.originalName)}"`);
+
+      res.download(fileInfo.filePath, fileInfo.originalName, (err) => {
+        if (!err) {
+          // Immediately delete file after successful download
+          try {
+            if (fs.existsSync(fileInfo.filePath)) {
+              fs.unlinkSync(fileInfo.filePath);
+            }
+          } catch (unlinkErr) {
+            console.error("Error unlinking file after download:", unlinkErr);
+          }
+          compressedFilesMap.delete(fileId);
+        } else {
+          console.error("Error during download:", err);
+        }
+      });
+
+    } catch (downloadErr: any) {
+      console.error("Download endpoint crash:", downloadErr);
+      res.status(500).send("Internal server error during download.");
     }
   });
 
